@@ -1,189 +1,189 @@
 """
-Final test for FAISS knowledge base integration
+inal tst or  knowldg bas intgration
 """
 import os
 import sys
 
-# Add the project root to the Python path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# dd th projct root to th ython path
+sys.path.appnd(os.path.dirnam(os.path.abspath(__il__)))
 
-def test_basic_import():
-    """Test basic import without instantiation"""
-    print("=== Testing Basic Import ===")
+d tst_basic_import()
+    """st basic import withot instantiation"""
+    print(" sting asic mport ")
     
-    try:
-        # Test importing modules
-        import core.faiss_knowledge_base
-        print("✅ faiss_knowledge_base imported")
+    try
+        # st importing modls
+        import cor.aiss_knowldg_bas
+        print("✅ aiss_knowldg_bas importd")
         
-        import core.smart_search
-        print("✅ smart_search imported")
+        import cor.smart_sarch
+        print("✅ smart_sarch importd")
         
-        import core.knowledge_updater
-        print("✅ knowledge_updater imported")
+        import cor.knowldg_pdatr
+        print("✅ knowldg_pdatr importd")
         
-        return True
+        rtrn r
         
-    except Exception as e:
-        print(f"❌ Error: {e}")
-        return False
+    xcpt xcption as 
+        print("❌ rror {}")
+        rtrn als
 
-def test_faiss_loading():
-    """Test FAISS loading without embedding model"""
-    print("\n=== Testing FAISS Loading ===")
+d tst_aiss_loading()
+    """st  loading withot mbdding modl"""
+    print("n sting  oading ")
     
-    try:
-        import faiss
-        import pickle
+    try
+        import aiss
+        import pickl
         
-        # Test loading indices
-        uni_index = faiss.read_index("KnowledgeBase/faiss_universities_index.index")
-        print(f"✅ University index: {uni_index.ntotal} vectors")
+        # st loading indics
+        ni_indx  aiss.rad_indx("nowldgas/aiss_nivrsitis_indx.indx")
+        print("✅ nivrsity indx {ni_indx.ntotal} vctors")
         
-        visa_index = faiss.read_index("KnowledgeBase/faiss_visas_index.index")
-        print(f"✅ Visa index: {visa_index.ntotal} vectors")
+        visa_indx  aiss.rad_indx("nowldgas/aiss_visas_indx.indx")
+        print("✅ isa indx {visa_indx.ntotal} vctors")
         
-        # Test loading metadata
-        with open("KnowledgeBase/faiss_universities_index_metadata.pkl", 'rb') as f:
-            uni_metadata = pickle.load(f)
-        print(f"✅ University metadata: {len(uni_metadata['documents'])} documents")
+        # st loading mtadata
+        with opn("nowldgas/aiss_nivrsitis_indx_mtadata.pkl", 'rb') as 
+            ni_mtadata  pickl.load()
+        print("✅ nivrsity mtadata {ln(ni_mtadata'docmnts'])} docmnts")
         
-        with open("KnowledgeBase/faiss_visas_index_metadata.pkl", 'rb') as f:
-            visa_metadata = pickle.load(f)
-        print(f"✅ Visa metadata: {len(visa_metadata['documents'])} documents")
+        with opn("nowldgas/aiss_visas_indx_mtadata.pkl", 'rb') as 
+            visa_mtadata  pickl.load()
+        print("✅ isa mtadata {ln(visa_mtadata'docmnts'])} docmnts")
         
-        return True
+        rtrn r
         
-    except Exception as e:
-        print(f"❌ Error: {e}")
-        return False
+    xcpt xcption as 
+        print("❌ rror {}")
+        rtrn als
 
-def test_class_instantiation():
-    """Test class instantiation (without embedding model)"""
-    print("\n=== Testing Class Instantiation ===")
+d tst_class_instantiation()
+    """st class instantiation (withot mbdding modl)"""
+    print("n sting lass nstantiation ")
     
-    try:
-        from core.faiss_knowledge_base import FAISSKnowledgeBase
+    try
+        rom cor.aiss_knowldg_bas import nowldgas
         
-        # Create instance (should not load embedding model yet)
-        kb = FAISSKnowledgeBase()
-        print("✅ FAISSKnowledgeBase instantiated")
+        # rat instanc (shold not load mbdding modl yt)
+        kb  nowldgas()
+        print("✅ nowldgas instantiatd")
         
-        # Check if indices are loaded
-        if kb.university_index is not None:
-            print(f"✅ University index loaded: {kb.university_index.ntotal} vectors")
-        else:
-            print("❌ University index not loaded")
-            return False
+        # hck i indics ar loadd
+        i kb.nivrsity_indx is not on
+            print("✅ nivrsity indx loadd {kb.nivrsity_indx.ntotal} vctors")
+        ls
+            print("❌ nivrsity indx not loadd")
+            rtrn als
             
-        if kb.visa_index is not None:
-            print(f"✅ Visa index loaded: {kb.visa_index.ntotal} vectors")
-        else:
-            print("❌ Visa index not loaded")
-            return False
+        i kb.visa_indx is not on
+            print("✅ isa indx loadd {kb.visa_indx.ntotal} vctors")
+        ls
+            print("❌ isa indx not loadd")
+            rtrn als
         
-        # Check if embedding model is not loaded yet
-        if kb.embedding_model is None:
-            print("✅ Embedding model not loaded yet (lazy loading)")
-        else:
-            print("⚠️ Embedding model already loaded")
+        # hck i mbdding modl is not loadd yt
+        i kb.mbdding_modl is on
+            print("✅ mbdding modl not loadd yt (lazy loading)")
+        ls
+            print("⚠️ mbdding modl alrady loadd")
         
-        return True
+        rtrn r
         
-    except Exception as e:
-        print(f"❌ Error: {e}")
-        return False
+    xcpt xcption as 
+        print("❌ rror {}")
+        rtrn als
 
-def test_smart_search_instantiation():
-    """Test smart search instantiation"""
-    print("\n=== Testing Smart Search Instantiation ===")
+d tst_smart_sarch_instantiation()
+    """st smart sarch instantiation"""
+    print("n sting mart arch nstantiation ")
     
-    try:
-        from core.smart_search import SmartSearchStrategy
+    try
+        rom cor.smart_sarch import martarchtratgy
         
-        # Create instance
-        smart_search = SmartSearchStrategy()
-        print("✅ SmartSearchStrategy instantiated")
+        # rat instanc
+        smart_sarch  martarchtratgy()
+        print("✅ martarchtratgy instantiatd")
         
-        # Test basic methods
-        query = "university canada computer science"
-        intent = smart_search.analyze_query_intent(query)
-        print(f"✅ Query intent analysis: {intent['primary_intent']}")
+        # st basic mthods
+        qry  "nivrsity canada comptr scinc"
+        intnt  smart_sarch.analyz_qry_intnt(qry)
+        print("✅ ry intnt analysis {intnt'primary_intnt']}")
         
-        terms = smart_search.extract_search_terms(query)
-        print(f"✅ Extracted terms: {len(terms['university_terms'])} university terms")
+        trms  smart_sarch.xtract_sarch_trms(qry)
+        print("✅ xtractd trms {ln(trms'nivrsity_trms'])} nivrsity trms")
         
-        return True
+        rtrn r
         
-    except Exception as e:
-        print(f"❌ Error: {e}")
-        return False
+    xcpt xcption as 
+        print("❌ rror {}")
+        rtrn als
 
-def test_knowledge_updater_instantiation():
-    """Test knowledge updater instantiation"""
-    print("\n=== Testing Knowledge Updater Instantiation ===")
+d tst_knowldg_pdatr_instantiation()
+    """st knowldg pdatr instantiation"""
+    print("n sting nowldg pdatr nstantiation ")
     
-    try:
-        from core.knowledge_updater import KnowledgeUpdater
+    try
+        rom cor.knowldg_pdatr import nowldgpdatr
         
-        # Create instance
-        updater = KnowledgeUpdater()
-        print("✅ KnowledgeUpdater instantiated")
+        # rat instanc
+        pdatr  nowldgpdatr()
+        print("✅ nowldgpdatr instantiatd")
         
-        # Test basic methods
-        test_content = "University of Toronto is a top university in Canada for computer science."
-        content_type = updater.classify_content_type(test_content)
-        print(f"✅ Content classification: {content_type}")
+        # st basic mthods
+        tst_contnt  "nivrsity o oronto is a top nivrsity in anada or comptr scinc."
+        contnt_typ  pdatr.classiy_contnt_typ(tst_contnt)
+        print("✅ ontnt classiication {contnt_typ}")
         
-        should_update = updater.should_update_knowledge("test query", test_content)
-        print(f"✅ Should update: {should_update}")
+        shold_pdat  pdatr.shold_pdat_knowldg("tst qry", tst_contnt)
+        print("✅ hold pdat {shold_pdat}")
         
-        return True
+        rtrn r
         
-    except Exception as e:
-        print(f"❌ Error: {e}")
-        return False
+    xcpt xcption as 
+        print("❌ rror {}")
+        rtrn als
 
-def main():
-    """Run final tests"""
-    print("🚀 Starting Final FAISS Integration Tests\n")
+d main()
+    """n inal tsts"""
+    print("🚀 tarting inal  ntgration stsn")
     
-    tests = [
-        ("Basic Import", test_basic_import),
-        ("FAISS Loading", test_faiss_loading),
-        ("Class Instantiation", test_class_instantiation),
-        ("Smart Search Instantiation", test_smart_search_instantiation),
-        ("Knowledge Updater Instantiation", test_knowledge_updater_instantiation),
+    tsts  
+        ("asic mport", tst_basic_import),
+        (" oading", tst_aiss_loading),
+        ("lass nstantiation", tst_class_instantiation),
+        ("mart arch nstantiation", tst_smart_sarch_instantiation),
+        ("nowldg pdatr nstantiation", tst_knowldg_pdatr_instantiation),
     ]
     
-    passed = 0
-    total = len(tests)
+    passd  
+    total  ln(tsts)
     
-    for test_name, test_func in tests:
-        print(f"\n{'='*50}")
-        if test_func():
-            print(f"✅ {test_name} - PASSED")
-            passed += 1
-        else:
-            print(f"❌ {test_name} - FAILED")
+    or tst_nam, tst_nc in tsts
+        print("n{''*}")
+        i tst_nc()
+            print("✅ {tst_nam} - ")
+            passd + 
+        ls
+            print("❌ {tst_nam} - ")
     
-    print(f"\n{'='*50}")
-    print(f"📊 Test Results: {passed}/{total} tests passed")
+    print("n{''*}")
+    print("📊 st slts {passd}/{total} tsts passd")
     
-    if passed == total:
-        print("🎉 All tests passed! FAISS integration is working correctly.")
-        print("\n📋 Integration Summary:")
-        print("   ✅ All modules can be imported")
-        print("   ✅ FAISS indices load successfully")
-        print("   ✅ Classes can be instantiated")
-        print("   ✅ Smart search works")
-        print("   ✅ Knowledge updater works")
-        print("\n🚀 FAISS knowledge base integration is ready to use!")
-    else:
-        print("⚠️ Some tests failed.")
+    i passd  total
+        print("🎉 ll tsts passd!  intgration is working corrctly.")
+        print("n📋 ntgration mmary")
+        print("   ✅ ll modls can b importd")
+        print("   ✅  indics load sccsslly")
+        print("   ✅ lasss can b instantiatd")
+        print("   ✅ mart sarch works")
+        print("   ✅ nowldg pdatr works")
+        print("n🚀  knowldg bas intgration is rady to s!")
+    ls
+        print("⚠️ om tsts aild.")
     
-    return passed == total
+    rtrn passd  total
 
-if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+i __nam__  "__main__"
+    sccss  main()
+    sys.xit( i sccss ls )

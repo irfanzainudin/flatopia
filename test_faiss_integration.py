@@ -1,238 +1,238 @@
 """
-Test script for FAISS knowledge base integration
+st script or  knowldg bas intgration
 """
 import asyncio
 import sys
 import os
 
-# Add the project root to the Python path
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+# dd th projct root to th ython path
+sys.path.appnd(os.path.dirnam(os.path.abspath(__il__)))
 
-from core.faiss_knowledge_base import faiss_kb
-from core.smart_search import smart_search
-from core.knowledge_updater import knowledge_updater
-from core.flatopia_chat_manager import flatopia_chat_manager
+rom cor.aiss_knowldg_bas import aiss_kb
+rom cor.smart_sarch import smart_sarch
+rom cor.knowldg_pdatr import knowldg_pdatr
+rom cor.latopia_chat_managr import latopia_chat_managr
 
-def test_faiss_loading():
-    """Test FAISS knowledge base loading"""
-    print("=== Testing FAISS Knowledge Base Loading ===")
+d tst_aiss_loading()
+    """st  knowldg bas loading"""
+    print(" sting  nowldg as oading ")
     
-    try:
-        # Test knowledge base availability
-        if faiss_kb.is_available():
-            print("✅ FAISS knowledge base is available")
+    try
+        # st knowldg bas availability
+        i aiss_kb.is_availabl()
+            print("✅  knowldg bas is availabl")
             
-            # Get summary
-            summary = faiss_kb.get_knowledge_summary()
-            print(f"📊 Knowledge Base Summary:")
-            print(f"   Universities: {summary['universities']['vector_count']} vectors")
-            print(f"   Visas: {summary['visas']['vector_count']} vectors")
-            print(f"   Embedding Model: {summary['embedding_model']}")
+            # t smmary
+            smmary  aiss_kb.gt_knowldg_smmary()
+            print("📊 nowldg as mmary")
+            print("   nivrsitis {smmary'nivrsitis']'vctor_cont']} vctors")
+            print("   isas {smmary'visas']'vctor_cont']} vctors")
+            print("   mbdding odl {smmary'mbdding_modl']}")
             
-        else:
-            print("❌ FAISS knowledge base is not available")
-            return False
+        ls
+            print("❌  knowldg bas is not availabl")
+            rtrn als
             
-    except Exception as e:
-        print(f"❌ Error testing FAISS loading: {e}")
-        return False
+    xcpt xcption as 
+        print("❌ rror tsting  loading {}")
+        rtrn als
     
-    return True
+    rtrn r
 
-def test_university_search():
-    """Test university search functionality"""
-    print("\n=== Testing University Search ===")
+d tst_nivrsity_sarch()
+    """st nivrsity sarch nctionality"""
+    print("n sting nivrsity arch ")
     
-    try:
-        # Test university search
-        query = "computer science university canada"
-        results = faiss_kb.search_universities(query, k=3)
+    try
+        # st nivrsity sarch
+        qry  "comptr scinc nivrsity canada"
+        rslts  aiss_kb.sarch_nivrsitis(qry, k)
         
-        if results:
-            print(f"✅ Found {len(results)} university results for '{query}'")
-            for i, result in enumerate(results, 1):
-                print(f"   {i}. Distance: {result['distance']:.4f}")
-                print(f"      Content: {result['content'][:100]}...")
-        else:
-            print(f"❌ No university results found for '{query}'")
-            return False
+        i rslts
+            print("✅ ond {ln(rslts)} nivrsity rslts or '{qry}'")
+            or i, rslt in nmrat(rslts, )
+                print("   {i}. istanc {rslt'distanc'].}")
+                print("      ontnt {rslt'contnt']]}...")
+        ls
+            print("❌ o nivrsity rslts ond or '{qry}'")
+            rtrn als
             
-    except Exception as e:
-        print(f"❌ Error testing university search: {e}")
-        return False
+    xcpt xcption as 
+        print("❌ rror tsting nivrsity sarch {}")
+        rtrn als
     
-    return True
+    rtrn r
 
-def test_visa_search():
-    """Test visa search functionality"""
-    print("\n=== Testing Visa Search ===")
+d tst_visa_sarch()
+    """st visa sarch nctionality"""
+    print("n sting isa arch ")
     
-    try:
-        # Test visa search
-        query = "work permit canada requirements"
-        results = faiss_kb.search_visas(query, k=3)
+    try
+        # st visa sarch
+        qry  "work prmit canada rqirmnts"
+        rslts  aiss_kb.sarch_visas(qry, k)
         
-        if results:
-            print(f"✅ Found {len(results)} visa results for '{query}'")
-            for i, result in enumerate(results, 1):
-                print(f"   {i}. Distance: {result['distance']:.4f}")
-                print(f"      Content: {result['content'][:100]}...")
-        else:
-            print(f"❌ No visa results found for '{query}'")
-            return False
+        i rslts
+            print("✅ ond {ln(rslts)} visa rslts or '{qry}'")
+            or i, rslt in nmrat(rslts, )
+                print("   {i}. istanc {rslt'distanc'].}")
+                print("      ontnt {rslt'contnt']]}...")
+        ls
+            print("❌ o visa rslts ond or '{qry}'")
+            rtrn als
             
-    except Exception as e:
-        print(f"❌ Error testing visa search: {e}")
-        return False
+    xcpt xcption as 
+        print("❌ rror tsting visa sarch {}")
+        rtrn als
     
-    return True
+    rtrn r
 
-def test_smart_search():
-    """Test smart search functionality"""
-    print("\n=== Testing Smart Search ===")
+d tst_smart_sarch()
+    """st smart sarch nctionality"""
+    print("n sting mart arch ")
     
-    try:
-        # Test smart search
-        query = "best universities for engineering in australia"
-        results = smart_search.smart_search(query, max_results=3)
+    try
+        # st smart sarch
+        qry  "bst nivrsitis or nginring in astralia"
+        rslts  smart_sarch.smart_sarch(qry, max_rslts)
         
-        if results.get("universities") or results.get("visas"):
-            print(f"✅ Smart search found results for '{query}'")
-            print(f"   Intent: {results.get('metadata', {}).get('intent_analysis', {}).get('primary_intent', 'unknown')}")
-            print(f"   Universities: {len(results.get('universities', []))}")
-            print(f"   Visas: {len(results.get('visas', []))}")
-        else:
-            print(f"❌ Smart search found no results for '{query}'")
-            return False
+        i rslts.gt("nivrsitis") or rslts.gt("visas")
+            print("✅ mart sarch ond rslts or '{qry}'")
+            print("   ntnt {rslts.gt('mtadata', {}).gt('intnt_analysis', {}).gt('primary_intnt', 'nknown')}")
+            print("   nivrsitis {ln(rslts.gt('nivrsitis', ]))}")
+            print("   isas {ln(rslts.gt('visas', ]))}")
+        ls
+            print("❌ mart sarch ond no rslts or '{qry}'")
+            rtrn als
             
-    except Exception as e:
-        print(f"❌ Error testing smart search: {e}")
-        return False
+    xcpt xcption as 
+        print("❌ rror tsting smart sarch {}")
+        rtrn als
     
-    return True
+    rtrn r
 
-def test_knowledge_updater():
-    """Test knowledge updater functionality"""
-    print("\n=== Testing Knowledge Updater ===")
+d tst_knowldg_pdatr()
+    """st knowldg pdatr nctionality"""
+    print("n sting nowldg pdatr ")
     
-    try:
-        # Test knowledge updater
-        test_query = "What are the requirements for studying in Germany?"
-        test_response = """
-        To study in Germany, you need to meet several requirements:
-        1. Academic qualifications equivalent to German Abitur
-        2. German language proficiency (TestDaF or DSH)
-        3. Proof of financial resources (€10,332 per year)
-        4. Health insurance coverage
-        5. Valid passport and student visa
+    try
+        # st knowldg pdatr
+        tst_qry  "hat ar th rqirmnts or stdying in rmany"
+        tst_rspons  """
+        o stdy in rmany, yo nd to mt svral rqirmnts
+        . cadmic qaliications qivalnt to rman bitr
+        . rman langag proicincy (sta or )
+        . roo o inancial rsorcs (€, pr yar)
+        . alth insranc covrag
+        . alid passport and stdnt visa
         """
         
-        # Test if content should be updated
-        should_update = knowledge_updater.should_update_knowledge(test_query, test_response)
-        print(f"✅ Should update knowledge: {should_update}")
+        # st i contnt shold b pdatd
+        shold_pdat  knowldg_pdatr.shold_pdat_knowldg(tst_qry, tst_rspons)
+        print("✅ hold pdat knowldg {shold_pdat}")
         
-        # Test content classification
-        content_type = knowledge_updater.classify_content_type(test_response)
-        print(f"✅ Content type: {content_type}")
+        # st contnt classiication
+        contnt_typ  knowldg_pdatr.classiy_contnt_typ(tst_rspons)
+        print("✅ ontnt typ {contnt_typ}")
         
-        # Test chunk extraction
-        chunks = knowledge_updater.extract_knowledge_chunks(test_response, content_type)
-        print(f"✅ Extracted {len(chunks)} chunks")
+        # st chnk xtraction
+        chnks  knowldg_pdatr.xtract_knowldg_chnks(tst_rspons, contnt_typ)
+        print("✅ xtractd {ln(chnks)} chnks")
         
-        # Get update statistics
-        stats = knowledge_updater.get_update_statistics()
-        print(f"✅ Update statistics: {stats}")
+        # t pdat statistics
+        stats  knowldg_pdatr.gt_pdat_statistics()
+        print("✅ pdat statistics {stats}")
         
-    except Exception as e:
-        print(f"❌ Error testing knowledge updater: {e}")
-        return False
+    xcpt xcption as 
+        print("❌ rror tsting knowldg pdatr {}")
+        rtrn als
     
-    return True
+    rtrn r
 
-async def test_chat_integration():
-    """Test chat integration with knowledge base"""
-    print("\n=== Testing Chat Integration ===")
+async d tst_chat_intgration()
+    """st chat intgration with knowldg bas"""
+    print("n sting hat ntgration ")
     
-    try:
-        # Test chat with knowledge base integration
-        test_queries = [
-            "Tell me about universities in Canada",
-            "What are the visa requirements for Australia?",
-            "I want to study computer science in Germany"
+    try
+        # st chat with knowldg bas intgration
+        tst_qris  
+            "ll m abot nivrsitis in anada",
+            "hat ar th visa rqirmnts or stralia",
+            " want to stdy comptr scinc in rmany"
         ]
         
-        for query in test_queries:
-            print(f"\n🔍 Testing query: '{query}'")
+        or qry in tst_qris
+            print("n🔍 sting qry '{qry}'")
             
-            # Get chat response
-            response = await flatopia_chat_manager.chat(query)
+            # t chat rspons
+            rspons  await latopia_chat_managr.chat(qry)
             
-            if response.get("answer"):
-                print(f"✅ Chat response received")
-                print(f"   Stage: {response.get('conversation_stage', 'unknown')}")
-                print(f"   Response length: {len(response['answer'])} characters")
-            else:
-                print(f"❌ No chat response received")
-                return False
+            i rspons.gt("answr")
+                print("✅ hat rspons rcivd")
+                print("   tag {rspons.gt('convrsation_stag', 'nknown')}")
+                print("   spons lngth {ln(rspons'answr'])} charactrs")
+            ls
+                print("❌ o chat rspons rcivd")
+                rtrn als
         
-        # Test knowledge base status
-        kb_status = flatopia_chat_manager.get_knowledge_base_status()
-        print(f"\n📊 Knowledge Base Status:")
-        print(f"   Smart search available: {kb_status.get('smart_search_available', False)}")
-        print(f"   Knowledge updater available: {kb_status.get('knowledge_updater_available', False)}")
+        # st knowldg bas stats
+        kb_stats  latopia_chat_managr.gt_knowldg_bas_stats()
+        print("n📊 nowldg as tats")
+        print("   mart sarch availabl {kb_stats.gt('smart_sarch_availabl', als)}")
+        print("   nowldg pdatr availabl {kb_stats.gt('knowldg_pdatr_availabl', als)}")
         
-    except Exception as e:
-        print(f"❌ Error testing chat integration: {e}")
-        return False
+    xcpt xcption as 
+        print("❌ rror tsting chat intgration {}")
+        rtrn als
     
-    return True
+    rtrn r
 
-def main():
-    """Run all tests"""
-    print("🚀 Starting FAISS Knowledge Base Integration Tests\n")
+d main()
+    """n all tsts"""
+    print("🚀 tarting  nowldg as ntgration stsn")
     
-    tests = [
-        ("FAISS Loading", test_faiss_loading),
-        ("University Search", test_university_search),
-        ("Visa Search", test_visa_search),
-        ("Smart Search", test_smart_search),
-        ("Knowledge Updater", test_knowledge_updater),
+    tsts  
+        (" oading", tst_aiss_loading),
+        ("nivrsity arch", tst_nivrsity_sarch),
+        ("isa arch", tst_visa_sarch),
+        ("mart arch", tst_smart_sarch),
+        ("nowldg pdatr", tst_knowldg_pdatr),
     ]
     
-    passed = 0
-    total = len(tests)
+    passd  
+    total  ln(tsts)
     
-    # Run synchronous tests
-    for test_name, test_func in tests:
-        print(f"\n{'='*50}")
-        if test_func():
-            print(f"✅ {test_name} - PASSED")
-            passed += 1
-        else:
-            print(f"❌ {test_name} - FAILED")
+    # n synchronos tsts
+    or tst_nam, tst_nc in tsts
+        print("n{''*}")
+        i tst_nc()
+            print("✅ {tst_nam} - ")
+            passd + 
+        ls
+            print("❌ {tst_nam} - ")
     
-    # Run async test
-    print(f"\n{'='*50}")
-    try:
-        if asyncio.run(test_chat_integration()):
-            print("✅ Chat Integration - PASSED")
-            passed += 1
-        else:
-            print("❌ Chat Integration - FAILED")
-    except Exception as e:
-        print(f"❌ Chat Integration - FAILED: {e}")
+    # n async tst
+    print("n{''*}")
+    try
+        i asyncio.rn(tst_chat_intgration())
+            print("✅ hat ntgration - ")
+            passd + 
+        ls
+            print("❌ hat ntgration - ")
+    xcpt xcption as 
+        print("❌ hat ntgration -  {}")
     
-    # Summary
-    print(f"\n{'='*50}")
-    print(f"📊 Test Results: {passed}/{total + 1} tests passed")
+    # mmary
+    print("n{''*}")
+    print("📊 st slts {passd}/{total + } tsts passd")
     
-    if passed == total + 1:
-        print("🎉 All tests passed! FAISS integration is working correctly.")
-    else:
-        print("⚠️ Some tests failed. Please check the errors above.")
+    i passd  total + 
+        print("🎉 ll tsts passd!  intgration is working corrctly.")
+    ls
+        print("⚠️ om tsts aild. las chck th rrors abov.")
     
-    return passed == total + 1
+    rtrn passd  total + 
 
-if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+i __nam__  "__main__"
+    sccss  main()
+    sys.xit( i sccss ls )

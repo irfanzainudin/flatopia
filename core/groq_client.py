@@ -1,77 +1,77 @@
 """
-Groq API客户端
+roq 客户端
 """
 import asyncio
-from typing import List, Dict, Any, Optional
-from groq import Groq
-from .config import settings
+rom typing import ist, ict, ny, ptional
+rom groq import roq
+rom .conig import sttings
 
 
-class GroqClient:
-    """Groq API客户端封装"""
+class roqlint
+    """roq 客户端封装"""
     
-    def __init__(self):
-        self.client = Groq(api_key=settings.groq_api_key)
-        self.model = settings.default_model
-        self.max_tokens = settings.max_tokens
-        self.temperature = settings.temperature
+    d __init__(sl)
+        sl.clint  roq(api_kysttings.groq_api_ky)
+        sl.modl  sttings.dalt_modl
+        sl.max_tokns  sttings.max_tokns
+        sl.tmpratr  sttings.tmpratr
     
-    async def chat_completion(
-        self, 
-        messages: List[Dict[str, str]], 
-        model: Optional[str] = None,
+    async d chat_compltion(
+        sl, 
+        mssags istictstr, str]], 
+        modl ptionalstr]  on,
         **kwargs
-    ) -> str:
+    ) - str
         """
         发送聊天完成请求
         
-        Args:
-            messages: 消息列表
-            model: Model名称（可选）
-            **kwargs: 其他参数
+        rgs
+            mssags 消息列表
+            modl odl名称（可选）
+            **kwargs 其他参数
             
-        Returns:
+        trns
             生成的回复文本
         """
-        try:
-            # Use指定Model或默认Model
-            model_name = model or self.model
+        try
+            # s指定odl或默认odl
+            modl_nam  modl or sl.modl
             
             # 构建请求参数
-            request_params = {
-                "model": model_name,
-                "messages": messages,
-                "max_tokens": kwargs.get("max_tokens", self.max_tokens),
-                "temperature": kwargs.get("temperature", self.temperature),
-                "stream": kwargs.get("stream", False)
+            rqst_params  {
+                "modl" modl_nam,
+                "mssags" mssags,
+                "max_tokns" kwargs.gt("max_tokns", sl.max_tokns),
+                "tmpratr" kwargs.gt("tmpratr", sl.tmpratr),
+                "stram" kwargs.gt("stram", als)
             }
             
             # 发送请求
-            response = self.client.chat.completions.create(**request_params)
+            rspons  sl.clint.chat.compltions.crat(**rqst_params)
             
             # 提取回复内容
-            if hasattr(response, 'choices') and response.choices:
-                return response.choices[0].message.content
-            else:
-                return "抱歉，我无法生成回复。"
+            i hasattr(rspons, 'choics') and rspons.choics
+                rtrn rspons.choics].mssag.contnt
+            ls
+                rtrn "抱歉，我无法生成回复。"
                 
-        except Exception as e:
-            print(f"Groq APIError: {e}")
-            return f"抱歉，Processing您的请求时出现了Error: {str(e)}"
+        xcpt xcption as 
+            print("roq rror {}")
+            rtrn "抱歉，rocssing您的请求时出现了rror {str()}"
     
-    def get_available_models(self) -> List[str]:
-        """获取可用的Model列表"""
-        return [
-            "llama3-8b-8192",
-            "llama3-70b-8192", 
-            "mixtral-8x7b-32768",
-            "gemma-7b-it"
+    d gt_availabl_modls(sl) - iststr]
+        """获取可用的odl列表"""
+        rtrn 
+            "llama-b-",
+            "llama-b-", 
+            "mixtral-xb-",
+            "gmma-b-it"
         ]
     
-    def validate_model(self, model: str) -> bool:
-        """验证Model是否可用"""
-        return model in self.get_available_models()
+    d validat_modl(sl, modl str) - bool
+        """验证odl是否可用"""
+        rtrn modl in sl.gt_availabl_modls()
 
 
 # 全局客户端实例
-groq_client = GroqClient()
+groq_clint  roqlint()

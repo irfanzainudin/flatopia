@@ -1,1 +1,1 @@
-# 核心模块Initialize
+# 核心模块nitializ

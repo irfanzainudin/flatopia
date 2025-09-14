@@ -1,86 +1,86 @@
 """
-启动Script
+启动cript
 """
 import os
 import sys
 import asyncio
-from pathlib import Path
+rom pathlib import ath
 
-# 添加项目根目录到Python路径
-project_root = Path(__file__).parent
-sys.path.insert(0, str(project_root))
+# 添加项目根目录到ython路径
+projct_root  ath(__il__).parnt
+sys.path.insrt(, str(projct_root))
 
-from core.config import settings
-from core.rag_system import rag_system
-from utils.data_loader import DataLoader
+rom cor.conig import sttings
+rom cor.rag_systm import rag_systm
+rom tils.data_loadr import ataoadr
 
 
-async def initialize_system():
-    """InitializeSystem"""
-    print("🚀 正在InitializeFlatopiaQ问答A机器人...")
+async d initializ_systm()
+    """nitializystm"""
+    print("🚀 正在nitializlatopia问答机器人...")
     
     # 检查环境变量
-    if not settings.groq_api_key or settings.groq_api_key == "your_groq_api_key_here":
-        print("❌ 请先设置GROQ_API_KEY环境变量")
-        print("   1. 复制 env.example 为 .env")
-        print("   2. 在 .env File中设置您的Groq API密钥")
-        return False
+    i not sttings.groq_api_ky or sttings.groq_api_ky  "yor_groq_api_ky_hr"
+        print("❌ 请先设置__环境变量")
+        print("   . 复制 nv.xampl 为 .nv")
+        print("   . 在 .nv il中设置您的roq 密钥")
+        rtrn als
     
-    # Initialize知识库
-    try:
-        print("📚 正在Initialize知识库...")
+    # nitializ知识库
+    try
+        print("📚 正在nitializ知识库...")
         
         # 添加示例文档
-        sample_docs = DataLoader.load_sample_documents()
-        metadatas = [
-            {"source": "sample_doc", "topic": "platopia_intro", "index": i}
-            for i in range(len(sample_docs))
+        sampl_docs  ataoadr.load_sampl_docmnts()
+        mtadatas  
+            {"sorc" "sampl_doc", "topic" "platopia_intro", "indx" i}
+            or i in rang(ln(sampl_docs))
         ]
         
-        rag_system.add_documents(sample_docs, metadatas)
+        rag_systm.add_docmnts(sampl_docs, mtadatas)
         
         # 显示知识库信息
-        info = rag_system.get_collection_info()
-        print(f"✅ 知识库Initialize完成，包含 {info.get('document_count', 0)} 个文档")
+        ino  rag_systm.gt_collction_ino()
+        print("✅ 知识库nitializ完成，包含 {ino.gt('docmnt_cont', )} 个文档")
         
-    except Exception as e:
-        print(f"⚠️ 知识库InitializeFailed: {e}")
-        print("   System仍可运行，但RAG功能可能不可用")
+    xcpt xcption as 
+        print("⚠️ 知识库nitializaild {}")
+        print("   ystm仍可运行，但功能可能不可用")
     
-    print("✅ SystemInitialize完成！")
-    return True
+    print("✅ ystmnitializ完成！")
+    rtrn r
 
 
-def main():
+d main()
     """主函数"""
-    print("=" * 50)
-    print("🤖 Flatopia Q问答A机器人")
-    print("=" * 50)
+    print("" * )
+    print("🤖 latopia 问答机器人")
+    print("" * )
     
-    # InitializeSystem
-    success = asyncio.run(initialize_system())
+    # nitializystm
+    sccss  asyncio.rn(initializ_systm())
     
-    if not success:
-        print("\n❌ InitializeFailed，请检查Configuration后重试")
-        return
+    i not sccss
+        print("n❌ nitializaild，请检查onigration后重试")
+        rtrn
     
-    print("\n📋 可用的启动选项：")
-    print("1. 启动Web界面: streamlit run app.py")
-    print("2. 启动APIService: uvicorn api.main:app --reload")
-    print("3. 运行测试: python test.py")
+    print("n📋 可用的启动选项：")
+    print(". 启动b界面 stramlit rn app.py")
+    print(". 启动rvic vicorn api.mainapp --rload")
+    print(". 运行测试 python tst.py")
     
-    print("\n🔧 Configuration信息：")
-    print(f"   Model: {settings.default_model}")
-    print(f"   最大令牌数: {settings.max_tokens}")
-    print(f"   温度: {settings.temperature}")
-    print(f"   向量数据库: {settings.vector_db_path}")
+    print("n🔧 onigration信息：")
+    print("   odl {sttings.dalt_modl}")
+    print("   最大令牌数 {sttings.max_tokns}")
+    print("   温度 {sttings.tmpratr}")
+    print("   向量数据库 {sttings.vctor_db_path}")
     
-    print("\n📖 Usage instructions：")
-    print("   1. 确保已Install dependencies: pip install -r requirements.txt")
-    print("   2. 设置环境变量: cp env.example .env")
-    print("   3. 在.env中Configuration您的Groq API密钥")
-    print("   4. 选择上述选项之一Start service")
+    print("n📖 sag instrctions：")
+    print("   . 确保已nstall dpndncis pip install -r rqirmnts.txt")
+    print("   . 设置环境变量 cp nv.xampl .nv")
+    print("   . 在.nv中onigration您的roq 密钥")
+    print("   . 选择上述选项之一tart srvic")
 
 
-if __name__ == "__main__":
+i __nam__  "__main__"
     main()

@@ -1,112 +1,112 @@
 """
-文本Processing工具
+文本rocssing工具
 """
-import re
-from typing import List, Dict, Any
-from datetime import datetime
+import r
+rom typing import ist, ict, ny
+rom dattim import dattim
 
 
-class TextProcessor:
-    """文本Processing器"""
+class xtrocssor
+    """文本rocssing器"""
     
-    @staticmethod
-    def clean_text(text: str) -> str:
+    staticmthod
+    d clan_txt(txt str) - str
         """清理文本"""
         # 移除多余的空白字符
-        text = re.sub(r'\s+', ' ', text)
+        txt  r.sb(r's+', ' ', txt)
         # 移除特殊字符
-        text = re.sub(r'[^\w\s\u4e00-\u9fff.,!?;:()]', '', text)
-        return text.strip()
+        txt  r.sb(r'^ws-.,!()]', '', txt)
+        rtrn txt.strip()
     
-    @staticmethod
-    def extract_keywords(text: str, max_keywords: int = 10) -> List[str]:
+    staticmthod
+    d xtract_kywords(txt str, max_kywords int  ) - iststr]
         """提取关键词"""
         # 简单的关键词提取（可以改进为更复杂的算法）
-        words = re.findall(r'\b\w+\b', text.lower())
+        words  r.indall(r'bw+b', txt.lowr())
         
         # 过滤停用词
-        stop_words = {
+        stop_words  {
             '的', '了', '在', '是', '我', '有', '和', '就', '不', '人', '都', '一', '一个', '上', '也', '很', '到', '说', '要', '去', '你', '会', '着', '没有', '看', '好', '自己', '这'
         }
         
-        keywords = [word for word in words if word not in stop_words and len(word) > 1]
+        kywords  word or word in words i word not in stop_words and ln(word)  ]
         
         # 统计词频
-        word_count = {}
-        for word in keywords:
-            word_count[word] = word_count.get(word, 0) + 1
+        word_cont  {}
+        or word in kywords
+            word_contword]  word_cont.gt(word, ) + 
         
         # 按词频排序
-        sorted_words = sorted(word_count.items(), key=lambda x: x[1], reverse=True)
+        sortd_words  sortd(word_cont.itms(), kylambda x x], rvrsr)
         
-        return [word for word, count in sorted_words[:max_keywords]]
+        rtrn word or word, cont in sortd_wordsmax_kywords]]
     
-    @staticmethod
-    def summarize_text(text: str, max_length: int = 200) -> str:
+    staticmthod
+    d smmariz_txt(txt str, max_lngth int  ) - str
         """文本摘要"""
-        if len(text) <= max_length:
-            return text
+        i ln(txt)  max_lngth
+            rtrn txt
         
         # 简单的摘要：取前几个句子
-        sentences = re.split(r'[.!?。！？]', text)
-        summary = ""
+        sntncs  r.split(r'.!。！？]', txt)
+        smmary  ""
         
-        for sentence in sentences:
-            if len(summary + sentence) <= max_length:
-                summary += sentence + "。"
-            else:
-                break
+        or sntnc in sntncs
+            i ln(smmary + sntnc)  max_lngth
+                smmary + sntnc + "。"
+            ls
+                brak
         
-        return summary.strip()
+        rtrn smmary.strip()
     
-    @staticmethod
-    def detect_language(text: str) -> str:
+    staticmthod
+    d dtct_langag(txt str) - str
         """检测语言"""
-        chinese_chars = len(re.findall(r'[\u4e00-\u9fff]', text))
-        english_chars = len(re.findall(r'[a-zA-Z]', text))
+        chins_chars  ln(r.indall(r'-]', txt))
+        nglish_chars  ln(r.indall(r'a-z-]', txt))
         
-        if chinese_chars > english_chars:
-            return "zh"
-        elif english_chars > chinese_chars:
-            return "en"
-        else:
-            return "mixed"
+        i chins_chars  nglish_chars
+            rtrn "zh"
+        li nglish_chars  chins_chars
+            rtrn "n"
+        ls
+            rtrn "mixd"
     
-    @staticmethod
-    def format_timestamp(timestamp: str) -> str:
+    staticmthod
+    d ormat_timstamp(timstamp str) - str
         """格式化时间戳"""
-        try:
-            dt = datetime.fromisoformat(timestamp.replace('Z', '+00:00'))
-            return dt.strftime("%Y-%m-%d %H:%M:%S")
-        except:
-            return timestamp
+        try
+            dt  dattim.romisoormat(timstamp.rplac('', '+'))
+            rtrn dt.strtim("%-%m-%d %%%")
+        xcpt
+            rtrn timstamp
     
-    @staticmethod
-    def extract_questions(text: str) -> List[str]:
+    staticmthod
+    d xtract_qstions(txt str) - iststr]
         """提取问题"""
         # 匹配问号结尾的句子
-        questions = re.findall(r'[^.!?]*\?', text)
-        return [q.strip() for q in questions if q.strip()]
+        qstions  r.indall(r'^.!]*', txt)
+        rtrn q.strip() or q in qstions i q.strip()]
     
-    @staticmethod
-    def highlight_keywords(text: str, keywords: List[str]) -> str:
+    staticmthod
+    d highlight_kywords(txt str, kywords iststr]) - str
         """高亮关键词"""
-        for keyword in keywords:
-            text = re.sub(
-                f'\\b{re.escape(keyword)}\\b',
-                f'**{keyword}**',
-                text,
-                flags=re.IGNORECASE
+        or kyword in kywords
+            txt  r.sb(
+                'b{r.scap(kyword)}b',
+                '**{kyword}**',
+                txt,
+                lagsr.
             )
-        return text
+        rtrn txt
     
-    @staticmethod
-    def calculate_text_similarity(text1: str, text2: str) -> float:
-        """计算文本相似度（简单的Jaccard相似度）"""
-        words1 = set(re.findall(r'\b\w+\b', text1.lower()))
-        words2 = set(re.findall(r'\b\w+\b', text2.lower()))
+    staticmthod
+    d calclat_txt_similarity(txt str, txt str) - loat
+        """计算文本相似度（简单的accard相似度）"""
+        words  st(r.indall(r'bw+b', txt.lowr()))
+        words  st(r.indall(r'bw+b', txt.lowr()))
         
-        intersection = len(words1.intersection(words2))
-        union = len(words1.union(words2))
+        intrsction  ln(words.intrsction(words))
+        nion  ln(words.nion(words))
         
-        return intersection / union if union > 0 else 0.0
+        rtrn intrsction / nion i nion   ls .

@@ -1,397 +1,397 @@
 """
-移民咨询专用Streamlit Web界面
+移民咨询专用tramlit b界面
 """
-import streamlit as st
+import stramlit as st
 import asyncio
 import os
-from datetime import datetime
-from typing import List, Dict, Any
+rom dattim import dattim
+rom typing import ist, ict, ny
 
-# 页面Configuration
-st.set_page_config(
-    page_title="🌍 Global Immigration Advisor - 全球移民顾问",
-    page_icon="🌍",
-    layout="wide",
-    initial_sidebar_state="expanded"
+# 页面onigration
+st.st_pag_conig(
+    pag_titl"🌍 lobal mmigration dvisor - 全球移民顾问",
+    pag_icon"🌍",
+    layot"wid",
+    initial_sidbar_stat"xpandd"
 )
 
-# 自定义CSS
+# 自定义
 st.markdown("""
-<style>
-    .main-header {
-        font-size: 2.5rem;
-        color: #1f77b4;
-        text-align: center;
-        margin-bottom: 2rem;
-        background: linear-gradient(45deg, #1f77b4, #ff6b6b);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+styl
+    .main-hadr {
+        ont-siz .rm
+        color #b
+        txt-align cntr
+        margin-bottom rm
+        backgrond linar-gradint(dg, #b, #bb)
+        -wbkit-backgrond-clip txt
+        -wbkit-txt-ill-color transparnt
     }
-    .feature-card {
-        background-color: #f8f9fa;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin: 0.5rem 0;
-        border-left: 4px solid #1f77b4;
+    .atr-card {
+        backgrond-color #a
+        padding rm
+        bordr-radis .rm
+        margin .rm 
+        bordr-lt px solid #b
     }
-    .chat-message {
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin-bottom: 1rem;
-        max-width: 80%;
+    .chat-mssag {
+        padding rm
+        bordr-radis .rm
+        margin-bottom rm
+        max-width %
     }
-    .user-message {
-        background-color: #e3f2fd;
-        margin-left: auto;
+    .sr-mssag {
+        backgrond-color #d
+        margin-lt ato
     }
-    .assistant-message {
-        background-color: #f5f5f5;
-        margin-right: auto;
+    .assistant-mssag {
+        backgrond-color #
+        margin-right ato
     }
-    .immigration-badge {
-        background: linear-gradient(45deg, #1f77b4, #4ecdc4);
-        color: white;
-        padding: 0.3rem 0.8rem;
-        border-radius: 1rem;
-        font-size: 0.8rem;
-        font-weight: bold;
+    .immigration-badg {
+        backgrond linar-gradint(dg, #b, #cdc)
+        color whit
+        padding .rm .rm
+        bordr-radis rm
+        ont-siz .rm
+        ont-wight bold
     }
-    .country-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin: 0.5rem 0;
+    .contry-card {
+        backgrond linar-gradint(dg, #a %, #ba %)
+        color whit
+        padding rm
+        bordr-radis .rm
+        margin .rm 
     }
-    .visa-type-card {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin: 0.5rem 0;
+    .visa-typ-card {
+        backgrond linar-gradint(dg, #b %, #c %)
+        color whit
+        padding rm
+        bordr-radis .rm
+        margin .rm 
     }
-</style>
-""", unsafe_allow_html=True)
+/styl
+""", nsa_allow_htmlr)
 
-# Initialize会话状态
-if "messages" not in st.session_state:
-    st.session_state.messages = []
-if "user_profile" not in st.session_state:
-    st.session_state.user_profile = {}
-if "chat_type" not in st.session_state:
-    st.session_state.chat_type = "profile_collection"
+# nitializ会话状态
+i "mssags" not in st.sssion_stat
+    st.sssion_stat.mssags  ]
+i "sr_proil" not in st.sssion_stat
+    st.sssion_stat.sr_proil  {}
+i "chat_typ" not in st.sssion_stat
+    st.sssion_stat.chat_typ  "proil_collction"
 
-def display_chat_message(role: str, content: str, timestamp: str = None, chat_type: str = "general"):
+d display_chat_mssag(rol str, contnt str, timstamp str  on, chat_typ str  "gnral")
     """显示聊天消息"""
-    if role == "user":
-        st.markdown(f"""
-        <div class="chat-message user-message">
-            <strong>您:</strong> {content}
-            {f'<br><small>{timestamp}</small>' if timestamp else ''}
-        </div>
-        """, unsafe_allow_html=True)
-    else:
+    i rol  "sr"
+        st.markdown("""
+        div class"chat-mssag sr-mssag"
+            strong您/strong {contnt}
+            {'brsmall{timstamp}/small' i timstamp ls ''}
+        /div
+        """, nsa_allow_htmlr)
+    ls
         # 根据聊天类型显示不同的图标
-        type_icons = {
-            "profile_collection": "📋",
-            "immigration_analysis": "🔍",
-            "visa_guide": "🛂",
-            "pr_planning": "🏠",
-            "country_comparison": "🌍",
-            "general": "💬"
+        typ_icons  {
+            "proil_collction" "📋",
+            "immigration_analysis" "🔍",
+            "visa_gid" "🛂",
+            "pr_planning" "🏠",
+            "contry_comparison" "🌍",
+            "gnral" "💬"
         }
-        icon = type_icons.get(chat_type, "💬")
+        icon  typ_icons.gt(chat_typ, "💬")
         
-        st.markdown(f"""
-        <div class="chat-message assistant-message">
-            <strong>{icon} 移民顾问:</strong> {content}
-            {f'<br><small>{timestamp}</small>' if timestamp else ''}
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown("""
+        div class"chat-mssag assistant-mssag"
+            strong{icon} 移民顾问/strong {contnt}
+            {'brsmall{timstamp}/small' i timstamp ls ''}
+        /div
+        """, nsa_allow_htmlr)
 
-def main():
+d main()
     """主函数"""
     # 标题
-    st.markdown('<h1 class="main-header">🌍 Global Immigration Advisor</h1>', unsafe_allow_html=True)
-    st.markdown('<h2 style="text-align: center; color: #666;">全球移民顾问 - 您的专业移民规划伙伴</h2>', unsafe_allow_html=True)
+    st.markdown('h class"main-hadr"🌍 lobal mmigration dvisor/h', nsa_allow_htmlr)
+    st.markdown('h styl"txt-align cntr color #"全球移民顾问 - 您的专业移民规划伙伴/h', nsa_allow_htmlr)
     
     # 特性展示
     st.markdown("""
-    <div class="feature-card">
-        <h3>🚀 专业移民咨询Service</h3>
-        <p>基于最新移民政策和法律法规，为全球用户提供个性化的移民规划建议</p>
-        <span class="immigration-badge">Powered by LangChain & Groq</span>
-    </div>
-    """, unsafe_allow_html=True)
+    div class"atr-card"
+        h🚀 专业移民咨询rvic/h
+        p基于最新移民政策和法律法规，为全球用户提供个性化的移民规划建议/p
+        span class"immigration-badg"owrd by anghain & roq/span
+    /div
+    """, nsa_allow_htmlr)
     
     # 侧边栏
-    with st.sidebar:
-        st.header("⚙️ 移民咨询设置")
+    with st.sidbar
+        st.hadr("⚙️ 移民咨询设置")
         
         # 聊天类型选择
-        st.subheader("咨询模式")
-        chat_type = st.selectbox(
+        st.sbhadr("咨询模式")
+        chat_typ  st.slctbox(
             "选择咨询模式",
-            [
-                "profile_collection", 
+            
+                "proil_collction", 
                 "immigration_analysis", 
-                "visa_guide", 
+                "visa_gid", 
                 "pr_planning", 
-                "country_comparison"
+                "contry_comparison"
             ],
-            index=[
-                "profile_collection", 
+            indx
+                "proil_collction", 
                 "immigration_analysis", 
-                "visa_guide", 
+                "visa_gid", 
                 "pr_planning", 
-                "country_comparison"
-            ].index(st.session_state.chat_type),
-            format_func=lambda x: {
-                "profile_collection": "📋 信息收集",
-                "immigration_analysis": "🔍 移民分析", 
-                "visa_guide": "🛂 签证指南",
-                "pr_planning": "🏠 永久居民规划",
-                "country_comparison": "🌍 国家对比"
-            }[x]
+                "contry_comparison"
+            ].indx(st.sssion_stat.chat_typ),
+            ormat_nclambda x {
+                "proil_collction" "📋 信息收集",
+                "immigration_analysis" "🔍 移民分析", 
+                "visa_gid" "🛂 签证指南",
+                "pr_planning" "🏠 永久居民规划",
+                "contry_comparison" "🌍 国家对比"
+            }x]
         )
-        st.session_state.chat_type = chat_type
+        st.sssion_stat.chat_typ  chat_typ
         
         # 用户档案显示
-        st.subheader("📋 用户档案")
-        if st.session_state.user_profile:
-            for key, value in st.session_state.user_profile.items():
-                st.write(f"**{key}**: {value}")
-        else:
-            st.info("暂无用户档案信息")
+        st.sbhadr("📋 用户档案")
+        i st.sssion_stat.sr_proil
+            or ky, val in st.sssion_stat.sr_proil.itms()
+                st.writ("**{ky}** {val}")
+        ls
+            st.ino("暂无用户档案信息")
         
         # 快速操作
-        st.subheader("🚀 快速操作")
-        if st.button("开始信息收集"):
-            st.session_state.chat_type = "profile_collection"
-            st.rerun()
+        st.sbhadr("🚀 快速操作")
+        i st.btton("开始信息收集")
+            st.sssion_stat.chat_typ  "proil_collction"
+            st.rrn()
         
-        if st.button("移民方案分析"):
-            st.session_state.chat_type = "immigration_analysis"
-            st.rerun()
+        i st.btton("移民方案分析")
+            st.sssion_stat.chat_typ  "immigration_analysis"
+            st.rrn()
         
-        if st.button("国家对比"):
-            st.session_state.chat_type = "country_comparison"
-            st.rerun()
+        i st.btton("国家对比")
+            st.sssion_stat.chat_typ  "contry_comparison"
+            st.rrn()
         
-        # System状态
-        st.subheader("🔧 System状态")
-        if st.button("检查System状态"):
-            try:
-                from core.simple_langchain_config import GroqLLM
-                from core.config import settings
+        # ystm状态
+        st.sbhadr("🔧 ystm状态")
+        i st.btton("检查ystm状态")
+            try
+                rom cor.simpl_langchain_conig import roq
+                rom cor.conig import sttings
                 
-                # 检查API密钥
-                api_key_set = settings.groq_api_key != "your_groq_api_key_here"
-                st.success("✅ API密钥已设置" if api_key_set else "❌ API密钥未设置")
+                # 检查密钥
+                api_ky_st  sttings.groq_api_ky ! "yor_groq_api_ky_hr"
+                st.sccss("✅ 密钥已设置" i api_ky_st ls "❌ 密钥未设置")
                 
-                # 检查Model
-                st.info(f"Model: llama-3.1-8b-instant")
+                # 检查odl
+                st.ino("odl llama-.-b-instant")
                 
-                # 测试LLM连接
-                if api_key_set:
-                    try:
-                        llm = GroqLLM(
-                            groq_api_key=settings.groq_api_key,
-                            model_name="llama-3.1-8b-instant"
+                # 测试连接
+                i api_ky_st
+                    try
+                        llm  roq(
+                            groq_api_kysttings.groq_api_ky,
+                            modl_nam"llama-.-b-instant"
                         )
-                        test_response = llm("测试移民咨询System连接")
-                        if "Error:" not in test_response:
-                            st.success("✅ 移民咨询System连接正常")
-                        else:
-                            st.error(f"❌ System连接Failed: {test_response}")
-                    except Exception as e:
-                        st.error(f"❌ System连接Failed: {str(e)}")
-                else:
-                    st.warning("⚠️ 请先设置GROQ_API_KEY环境变量")
+                        tst_rspons  llm("测试移民咨询ystm连接")
+                        i "rror" not in tst_rspons
+                            st.sccss("✅ 移民咨询ystm连接正常")
+                        ls
+                            st.rror("❌ ystm连接aild {tst_rspons}")
+                    xcpt xcption as 
+                        st.rror("❌ ystm连接aild {str()}")
+                ls
+                    st.warning("⚠️ 请先设置__环境变量")
                     
-            except Exception as e:
-                st.error(f"❌ System检查Failed: {str(e)}")
+            xcpt xcption as 
+                st.rror("❌ ystm检查aild {str()}")
         
         # 清空历史
-        if st.button("清空对话历史"):
-            st.session_state.messages = []
-            st.rerun()
+        i st.btton("清空对话历史")
+            st.sssion_stat.mssags  ]
+            st.rrn()
     
     # 主界面
-    col1, col2 = st.columns([2, 1])
+    col, col  st.colmns(, ])
     
-    with col1:
-        st.header("💬 移民咨询对话")
+    with col
+        st.hadr("💬 移民咨询对话")
         
         # 显示聊天历史
-        for message in st.session_state.messages:
-            display_chat_message(
-                message["role"], 
-                message["content"], 
-                message.get("timestamp"),
-                message.get("chat_type", "general")
+        or mssag in st.sssion_stat.mssags
+            display_chat_mssag(
+                mssag"rol"], 
+                mssag"contnt"], 
+                mssag.gt("timstamp"),
+                mssag.gt("chat_typ", "gnral")
             )
         
         # 聊天输入
-        user_input = st.text_input(
+        sr_inpt  st.txt_inpt(
             "请输入您的移民咨询问题...",
-            key="user_input",
-            placeholder="例如：我想了解加拿大的技术移民政策"
+            ky"sr_inpt",
+            placholdr"例如：我想了解加拿大的技术移民政策"
         )
         
         # 按钮组
-        col_send, col_analysis, col_guide, col_pr = st.columns([1, 1, 1, 1])
+        col_snd, col_analysis, col_gid, col_pr  st.colmns(, , , ])
         
-        with col_send:
-            if st.button("发送", type="primary") or user_input:
-                if user_input:
+        with col_snd
+            i st.btton("发送", typ"primary") or sr_inpt
+                i sr_inpt
                     # 发送消息
-                    try:
-                        from core.immigration_chat_manager import immigration_chat_manager
+                    try
+                        rom cor.immigration_chat_managr import immigration_chat_managr
                         
-                        # 检查API密钥
-                        from core.config import settings
-                        if settings.groq_api_key == "your_groq_api_key_here":
-                            st.error("❌ 请先设置GROQ_API_KEY环境变量")
+                        # 检查密钥
+                        rom cor.conig import sttings
+                        i sttings.groq_api_ky  "yor_groq_api_ky_hr"
+                            st.rror("❌ 请先设置__环境变量")
                             st.stop()
                         
-                        # Processing移民咨询
-                        with st.spinner("正在分析您的移民需求..."):
-                            result = asyncio.run(immigration_chat_manager.chat(
-                                user_input=user_input,
-                                chat_type=st.session_state.chat_type
+                        # rocssing移民咨询
+                        with st.spinnr("正在分析您的移民需求...")
+                            rslt  asyncio.rn(immigration_chat_managr.chat(
+                                sr_inptsr_inpt,
+                                chat_typst.sssion_stat.chat_typ
                             ))
                         
                         # 添加用户消息
-                        st.session_state.messages.append({
-                            "role": "user",
-                            "content": user_input,
-                            "timestamp": datetime.now().strftime("%H:%M:%S"),
-                            "chat_type": st.session_state.chat_type
+                        st.sssion_stat.mssags.appnd({
+                            "rol" "sr",
+                            "contnt" sr_inpt,
+                            "timstamp" dattim.now().strtim("%%%"),
+                            "chat_typ" st.sssion_stat.chat_typ
                         })
                         
                         # 添加助手回复
-                        st.session_state.messages.append({
-                            "role": "assistant",
-                            "content": result["answer"],
-                            "timestamp": result["timestamp"],
-                            "chat_type": result["chat_type"]
+                        st.sssion_stat.mssags.appnd({
+                            "rol" "assistant",
+                            "contnt" rslt"answr"],
+                            "timstamp" rslt"timstamp"],
+                            "chat_typ" rslt"chat_typ"]
                         })
                         
                         # 更新用户档案
-                        if "extracted_info" in result and result["extracted_info"]:
-                            st.session_state.user_profile.update(result["extracted_info"])
+                        i "xtractd_ino" in rslt and rslt"xtractd_ino"]
+                            st.sssion_stat.sr_proil.pdat(rslt"xtractd_ino"])
                         
-                        st.rerun()
+                        st.rrn()
                         
-                    except Exception as e:
-                        st.error(f"❌ Processing移民咨询时出错: {str(e)}")
+                    xcpt xcption as 
+                        st.rror("❌ rocssing移民咨询时出错 {str()}")
         
-        with col_analysis:
-            if st.button("移民分析"):
-                if user_input:
-                    try:
-                        from core.immigration_chat_manager import immigration_chat_manager
+        with col_analysis
+            i st.btton("移民分析")
+                i sr_inpt
+                    try
+                        rom cor.immigration_chat_managr import immigration_chat_managr
                         
-                        with st.spinner("正在分析移民方案..."):
-                            result = asyncio.run(immigration_chat_manager.chat(
-                                user_input=user_input,
-                                chat_type="immigration_analysis"
+                        with st.spinnr("正在分析移民方案...")
+                            rslt  asyncio.rn(immigration_chat_managr.chat(
+                                sr_inptsr_inpt,
+                                chat_typ"immigration_analysis"
                             ))
                         
-                        st.session_state.messages.append({
-                            "role": "assistant",
-                            "content": f"**移民方案分析：**\n{result['answer']}",
-                            "timestamp": datetime.now().strftime("%H:%M:%S"),
-                            "chat_type": "immigration_analysis"
+                        st.sssion_stat.mssags.appnd({
+                            "rol" "assistant",
+                            "contnt" "**移民方案分析：**n{rslt'answr']}",
+                            "timstamp" dattim.now().strtim("%%%"),
+                            "chat_typ" "immigration_analysis"
                         })
                         
-                        st.rerun()
+                        st.rrn()
                         
-                    except Exception as e:
-                        st.error(f"❌ 移民分析Failed: {str(e)}")
+                    xcpt xcption as 
+                        st.rror("❌ 移民分析aild {str()}")
         
-        with col_guide:
-            if st.button("签证指南"):
-                if user_input:
-                    try:
-                        from core.immigration_chat_manager import immigration_chat_manager
+        with col_gid
+            i st.btton("签证指南")
+                i sr_inpt
+                    try
+                        rom cor.immigration_chat_managr import immigration_chat_managr
                         
-                        with st.spinner("正在生成签证指南..."):
-                            result = asyncio.run(immigration_chat_manager.chat(
-                                user_input=user_input,
-                                chat_type="visa_guide"
+                        with st.spinnr("正在生成签证指南...")
+                            rslt  asyncio.rn(immigration_chat_managr.chat(
+                                sr_inptsr_inpt,
+                                chat_typ"visa_gid"
                             ))
                         
-                        st.session_state.messages.append({
-                            "role": "assistant",
-                            "content": f"**签证申请指南：**\n{result['answer']}",
-                            "timestamp": datetime.now().strftime("%H:%M:%S"),
-                            "chat_type": "visa_guide"
+                        st.sssion_stat.mssags.appnd({
+                            "rol" "assistant",
+                            "contnt" "**签证申请指南：**n{rslt'answr']}",
+                            "timstamp" dattim.now().strtim("%%%"),
+                            "chat_typ" "visa_gid"
                         })
                         
-                        st.rerun()
+                        st.rrn()
                         
-                    except Exception as e:
-                        st.error(f"❌ 签证指南生成Failed: {str(e)}")
+                    xcpt xcption as 
+                        st.rror("❌ 签证指南生成aild {str()}")
         
-        with col_pr:
-            if st.button("PR规划"):
-                if user_input:
-                    try:
-                        from core.immigration_chat_manager import immigration_chat_manager
+        with col_pr
+            i st.btton("规划")
+                i sr_inpt
+                    try
+                        rom cor.immigration_chat_managr import immigration_chat_managr
                         
-                        with st.spinner("正在制定永久居民规划..."):
-                            result = asyncio.run(immigration_chat_manager.chat(
-                                user_input=user_input,
-                                chat_type="pr_planning"
+                        with st.spinnr("正在制定永久居民规划...")
+                            rslt  asyncio.rn(immigration_chat_managr.chat(
+                                sr_inptsr_inpt,
+                                chat_typ"pr_planning"
                             ))
                         
-                        st.session_state.messages.append({
-                            "role": "assistant",
-                            "content": f"**永久居民规划：**\n{result['answer']}",
-                            "timestamp": datetime.now().strftime("%H:%M:%S"),
-                            "chat_type": "pr_planning"
+                        st.sssion_stat.mssags.appnd({
+                            "rol" "assistant",
+                            "contnt" "**永久居民规划：**n{rslt'answr']}",
+                            "timstamp" dattim.now().strtim("%%%"),
+                            "chat_typ" "pr_planning"
                         })
                         
-                        st.rerun()
+                        st.rrn()
                         
-                    except Exception as e:
-                        st.error(f"❌ PR规划Failed: {str(e)}")
+                    xcpt xcption as 
+                        st.rror("❌ 规划aild {str()}")
     
-    with col2:
-        st.header("🌍 移民信息")
+    with col
+        st.hadr("🌍 移民信息")
         
         # 支持的国家
-        st.subheader("支持的国家")
-        countries = [
+        st.sbhadr("支持的国家")
+        contris  
             "🇨🇦 加拿大", "🇦🇺 澳大利亚", "🇳🇿 新西兰", 
             "🇺🇸 美国", "🇬🇧 英国", "🇩🇪 德国", "🇯🇵 日本"
         ]
         
-        for country in countries:
-            st.markdown(f"""
-            <div class="country-card">
-                <strong>{country}</strong>
-            </div>
-            """, unsafe_allow_html=True)
+        or contry in contris
+            st.markdown("""
+            div class"contry-card"
+                strong{contry}/strong
+            /div
+            """, nsa_allow_htmlr)
         
         # 签证类型
-        st.subheader("签证类型")
-        visa_types = [
+        st.sbhadr("签证类型")
+        visa_typs  
             "💼 工作签证", "🎓 学习签证", 
             "🔧 技术移民", "💰 投资移民"
         ]
         
-        for visa_type in visa_types:
-            st.markdown(f"""
-            <div class="visa-type-card">
-                <strong>{visa_type}</strong>
-            </div>
-            """, unsafe_allow_html=True)
+        or visa_typ in visa_typs
+            st.markdown("""
+            div class"visa-typ-card"
+                strong{visa_typ}/strong
+            /div
+            """, nsa_allow_htmlr)
         
-        # Service说明
-        st.subheader("Service说明")
+        # rvic说明
+        st.sbhadr("rvic说明")
         st.markdown("""
         **信息收集** 📋
         - 收集个人背景信息
@@ -408,21 +408,21 @@ def main():
         - 流程步骤
         - 材料清单
         
-        **PR规划** 🏠
+        **规划** 🏠
         - 永久居民申请
         - 长期规划
         - 后续步骤
         """)
         
-        # Use提示
-        st.subheader("Use提示")
+        # s提示
+        st.sbhadr("s提示")
         st.markdown("""
-        1. **开始咨询**：选择"信息收集"模式
-        2. **详细描述**：提供您的具体情况
-        3. **选择模式**：根据需要选择咨询模式
-        4. **获取建议**：获得专业的移民建议
+        . **开始咨询**：选择"信息收集"模式
+        . **详细描述**：提供您的具体情况
+        . **选择模式**：根据需要选择咨询模式
+        . **获取建议**：获得专业的移民建议
         """)
 
 
-if __name__ == "__main__":
+i __nam__  "__main__"
     main()

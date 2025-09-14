@@ -1,292 +1,292 @@
 """
-移民咨询SystemTest script
+移民咨询ystmst script
 """
 import asyncio
 import sys
-from pathlib import Path
+rom pathlib import ath
 
-# 添加项目根目录到Python路径
-project_root = Path(__file__).parent
-sys.path.insert(0, str(project_root))
+# 添加项目根目录到ython路径
+projct_root  ath(__il__).parnt
+sys.path.insrt(, str(projct_root))
 
-from core.immigration_chat_manager import immigration_chat_manager
-from prompts.immigration_prompts import ImmigrationPrompts
+rom cor.immigration_chat_managr import immigration_chat_managr
+rom prompts.immigration_prompts import mmigrationrompts
 
 
-async def test_immigration_system():
-    """测试移民咨询System"""
-    print("🌍 开始测试移民咨询System...")
+async d tst_immigration_systm()
+    """测试移民咨询ystm"""
+    print("🌍 开始测试移民咨询ystm...")
     
-    tests = [
-        ("SystemInitialize", test_system_initialization),
-        ("用户信息收集", test_profile_collection),
-        ("移民分析", test_immigration_analysis),
-        ("签证指南", test_visa_guide),
-        ("国家对比", test_country_comparison),
-        ("PR规划", test_pr_planning)
+    tsts  
+        ("ystmnitializ", tst_systm_initialization),
+        ("用户信息收集", tst_proil_collction),
+        ("移民分析", tst_immigration_analysis),
+        ("签证指南", tst_visa_gid),
+        ("国家对比", tst_contry_comparison),
+        ("规划", tst_pr_planning)
     ]
     
-    results = []
+    rslts  ]
     
-    for test_name, test_func in tests:
-        try:
-            print(f"\n🔍 测试 {test_name}...")
-            result = await test_func()
-            results.append((test_name, result))
-            status = "✅ 通过" if result else "❌ Failed"
-            print(f"{status} {test_name}")
-        except Exception as e:
-            print(f"❌ {test_name} 测试异常: {e}")
-            results.append((test_name, False))
+    or tst_nam, tst_nc in tsts
+        try
+            print("n🔍 测试 {tst_nam}...")
+            rslt  await tst_nc()
+            rslts.appnd((tst_nam, rslt))
+            stats  "✅ 通过" i rslt ls "❌ aild"
+            print("{stats} {tst_nam}")
+        xcpt xcption as 
+            print("❌ {tst_nam} 测试异常 {}")
+            rslts.appnd((tst_nam, als))
     
-    return results
+    rtrn rslts
 
 
-async def test_system_initialization():
-    """测试SystemInitialize"""
-    try:
-        # 测试Chat managerInitialize
-        manager = immigration_chat_manager
+async d tst_systm_initialization()
+    """测试ystmnitializ"""
+    try
+        # 测试hat managrnitializ
+        managr  immigration_chat_managr
         
-        # 测试国家数据Loading
-        countries = manager.get_available_countries()
-        if not countries:
-            return False
+        # 测试国家数据oading
+        contris  managr.gt_availabl_contris()
+        i not contris
+            rtrn als
         
-        # 测试签证类型Loading
-        visa_types = manager.get_available_visa_types()
-        if not visa_types:
-            return False
+        # 测试签证类型oading
+        visa_typs  managr.gt_availabl_visa_typs()
+        i not visa_typs
+            rtrn als
         
-        print(f"   支持的国家: {len(countries)} 个")
-        print(f"   支持的签证类型: {len(visa_types)} 个")
+        print("   支持的国家 {ln(contris)} 个")
+        print("   支持的签证类型 {ln(visa_typs)} 个")
         
-        return True
+        rtrn r
         
-    except Exception as e:
-        print(f"   SystemInitializeFailed: {e}")
-        return False
+    xcpt xcption as 
+        print("   ystmnitializaild {}")
+        rtrn als
 
 
-async def test_profile_collection():
+async d tst_proil_collction()
     """测试用户信息收集"""
-    try:
+    try
         # 模拟用户输入
-        user_input = "我今年25岁，男性，中国国籍，想去加拿大工作，有3年软件开发经验"
+        sr_inpt  "我今年岁，男性，中国国籍，想去加拿大工作，有年软件开发经验"
         
         # 测试信息收集
-        result = await immigration_chat_manager.chat(
-            user_input=user_input,
-            chat_type="profile_collection"
+        rslt  await immigration_chat_managr.chat(
+            sr_inptsr_inpt,
+            chat_typ"proil_collction"
         )
         
         # 检查结果
-        success = result["success"] and len(result["answer"]) > 0
+        sccss  rslt"sccss"] and ln(rslt"answr"])  
         
-        if success:
-            print(f"   用户信息收集Success")
-            print(f"   提取的信息: {result.get('extracted_info', {})}")
-        else:
-            print(f"   用户信息收集Failed: {result.get('error', '未知Error')}")
+        i sccss
+            print("   用户信息收集ccss")
+            print("   提取的信息 {rslt.gt('xtractd_ino', {})}")
+        ls
+            print("   用户信息收集aild {rslt.gt('rror', '未知rror')}")
         
-        return success
+        rtrn sccss
         
-    except Exception as e:
-        print(f"   用户信息收集测试Failed: {e}")
-        return False
+    xcpt xcption as 
+        print("   用户信息收集测试aild {}")
+        rtrn als
 
 
-async def test_immigration_analysis():
+async d tst_immigration_analysis()
     """测试移民分析"""
-    try:
+    try
         # 设置用户档案
-        immigration_chat_manager.update_user_profile({
-            "age": 25,
-            "gender": "男",
-            "nationality": "中国",
-            "target_country": "加拿大",
-            "experience": "3年软件开发"
+        immigration_chat_managr.pdat_sr_proil({
+            "ag" ,
+            "gndr" "男",
+            "nationality" "中国",
+            "targt_contry" "加拿大",
+            "xprinc" "年软件开发"
         })
         
         # 测试移民分析
-        result = await immigration_chat_manager.chat(
-            user_input="请分析我的移民可行性",
-            chat_type="immigration_analysis"
+        rslt  await immigration_chat_managr.chat(
+            sr_inpt"请分析我的移民可行性",
+            chat_typ"immigration_analysis"
         )
         
         # 检查结果
-        success = result["success"] and len(result["answer"]) > 0
+        sccss  rslt"sccss"] and ln(rslt"answr"])  
         
-        if success:
-            print(f"   移民分析Success")
-            print(f"   分析结果长度: {len(result['answer'])} 字符")
-        else:
-            print(f"   移民分析Failed: {result.get('error', '未知Error')}")
+        i sccss
+            print("   移民分析ccss")
+            print("   分析结果长度 {ln(rslt'answr'])} 字符")
+        ls
+            print("   移民分析aild {rslt.gt('rror', '未知rror')}")
         
-        return success
+        rtrn sccss
         
-    except Exception as e:
-        print(f"   移民分析测试Failed: {e}")
-        return False
+    xcpt xcption as 
+        print("   移民分析测试aild {}")
+        rtrn als
 
 
-async def test_visa_guide():
+async d tst_visa_gid()
     """测试签证指南"""
-    try:
+    try
         # 测试签证指南
-        result = await immigration_chat_manager.chat(
-            user_input="我想了解加拿大的工作签证申请指南",
-            chat_type="visa_guide"
+        rslt  await immigration_chat_managr.chat(
+            sr_inpt"我想了解加拿大的工作签证申请指南",
+            chat_typ"visa_gid"
         )
         
         # 检查结果
-        success = result["success"] and len(result["answer"]) > 0
+        sccss  rslt"sccss"] and ln(rslt"answr"])  
         
-        if success:
-            print(f"   签证指南生成Success")
-            print(f"   指南长度: {len(result['answer'])} 字符")
-        else:
-            print(f"   签证指南生成Failed: {result.get('error', '未知Error')}")
+        i sccss
+            print("   签证指南生成ccss")
+            print("   指南长度 {ln(rslt'answr'])} 字符")
+        ls
+            print("   签证指南生成aild {rslt.gt('rror', '未知rror')}")
         
-        return success
+        rtrn sccss
         
-    except Exception as e:
-        print(f"   签证指南测试Failed: {e}")
-        return False
+    xcpt xcption as 
+        print("   签证指南测试aild {}")
+        rtrn als
 
 
-async def test_country_comparison():
+async d tst_contry_comparison()
     """测试国家对比"""
-    try:
+    try
         # 测试国家对比
-        result = await immigration_chat_manager.chat(
-            user_input="请对比加拿大、澳大利亚和新西兰的移民政策",
-            chat_type="country_comparison"
+        rslt  await immigration_chat_managr.chat(
+            sr_inpt"请对比加拿大、澳大利亚和新西兰的移民政策",
+            chat_typ"contry_comparison"
         )
         
         # 检查结果
-        success = result["success"] and len(result["answer"]) > 0
+        sccss  rslt"sccss"] and ln(rslt"answr"])  
         
-        if success:
-            print(f"   国家对比Success")
-            print(f"   对比结果长度: {len(result['answer'])} 字符")
-        else:
-            print(f"   国家对比Failed: {result.get('error', '未知Error')}")
+        i sccss
+            print("   国家对比ccss")
+            print("   对比结果长度 {ln(rslt'answr'])} 字符")
+        ls
+            print("   国家对比aild {rslt.gt('rror', '未知rror')}")
         
-        return success
+        rtrn sccss
         
-    except Exception as e:
-        print(f"   国家对比测试Failed: {e}")
-        return False
+    xcpt xcption as 
+        print("   国家对比测试aild {}")
+        rtrn als
 
 
-async def test_pr_planning():
-    """测试PR规划"""
-    try:
-        # 测试PR规划
-        result = await immigration_chat_manager.chat(
-            user_input="我想了解加拿大的永久居民申请规划",
-            chat_type="pr_planning"
+async d tst_pr_planning()
+    """测试规划"""
+    try
+        # 测试规划
+        rslt  await immigration_chat_managr.chat(
+            sr_inpt"我想了解加拿大的永久居民申请规划",
+            chat_typ"pr_planning"
         )
         
         # 检查结果
-        success = result["success"] and len(result["answer"]) > 0
+        sccss  rslt"sccss"] and ln(rslt"answr"])  
         
-        if success:
-            print(f"   PR规划Success")
-            print(f"   规划长度: {len(result['answer'])} 字符")
-        else:
-            print(f"   PR规划Failed: {result.get('error', '未知Error')}")
+        i sccss
+            print("   规划ccss")
+            print("   规划长度 {ln(rslt'answr'])} 字符")
+        ls
+            print("   规划aild {rslt.gt('rror', '未知rror')}")
         
-        return success
+        rtrn sccss
         
-    except Exception as e:
-        print(f"   PR规划测试Failed: {e}")
-        return False
+    xcpt xcption as 
+        print("   规划测试aild {}")
+        rtrn als
 
 
-async def test_prompt_templates():
+async d tst_prompt_tmplats()
     """测试提示词模板"""
-    print("\n📝 测试提示词模板...")
+    print("n📝 测试提示词模板...")
     
-    try:
-        prompts = ImmigrationPrompts()
+    try
+        prompts  mmigrationrompts()
         
-        # 测试System提示词
-        system_prompt = prompts.get_system_prompt()
-        if not system_prompt or len(system_prompt) < 100:
-            return False
+        # 测试ystm提示词
+        systm_prompt  prompts.gt_systm_prompt()
+        i not systm_prompt or ln(systm_prompt)  
+            rtrn als
         
         # 测试用户档案提示词
-        profile_prompt = prompts.get_user_profile_prompt()
-        if not profile_prompt or len(profile_prompt) < 100:
-            return False
+        proil_prompt  prompts.gt_sr_proil_prompt()
+        i not proil_prompt or ln(proil_prompt)  
+            rtrn als
         
         # 测试移民分析提示词
-        analysis_prompt = prompts.get_immigration_analysis_prompt({"age": 25})
-        if not analysis_prompt or len(analysis_prompt) < 100:
-            return False
+        analysis_prompt  prompts.gt_immigration_analysis_prompt({"ag" })
+        i not analysis_prompt or ln(analysis_prompt)  
+            rtrn als
         
-        print(f"   System提示词: {len(system_prompt)} 字符")
-        print(f"   用户档案提示词: {len(profile_prompt)} 字符")
-        print(f"   移民分析提示词: {len(analysis_prompt)} 字符")
+        print("   ystm提示词 {ln(systm_prompt)} 字符")
+        print("   用户档案提示词 {ln(proil_prompt)} 字符")
+        print("   移民分析提示词 {ln(analysis_prompt)} 字符")
         
-        return True
+        rtrn r
         
-    except Exception as e:
-        print(f"   提示词模板测试Failed: {e}")
-        return False
+    xcpt xcption as 
+        print("   提示词模板测试aild {}")
+        rtrn als
 
 
-async def run_all_tests():
+async d rn_all_tsts()
     """运行所有测试"""
-    print("=" * 60)
-    print("🌍 开始运行移民咨询System测试")
-    print("=" * 60)
+    print("" * )
+    print("🌍 开始运行移民咨询ystm测试")
+    print("" * )
     
-    # 测试System组件
-    component_results = await test_immigration_system()
+    # 测试ystm组件
+    componnt_rslts  await tst_immigration_systm()
     
     # 测试提示词模板
-    prompt_result = await test_prompt_templates()
+    prompt_rslt  await tst_prompt_tmplats()
     
     # 汇总结果
-    all_results = component_results + [("提示词模板", prompt_result)]
+    all_rslts  componnt_rslts + ("提示词模板", prompt_rslt)]
     
     # 显示测试结果
-    print("\n" + "=" * 60)
+    print("n" + "" * )
     print("📊 测试结果汇总")
-    print("=" * 60)
+    print("" * )
     
-    passed = 0
-    for test_name, result in all_results:
-        status = "✅ 通过" if result else "❌ Failed"
-        print(f"{test_name}: {status}")
-        if result:
-            passed += 1
+    passd  
+    or tst_nam, rslt in all_rslts
+        stats  "✅ 通过" i rslt ls "❌ aild"
+        print("{tst_nam} {stats}")
+        i rslt
+            passd + 
     
-    print(f"\n总计: {passed}/{len(all_results)} 个测试通过")
+    print("n总计 {passd}/{ln(all_rslts)} 个测试通过")
     
-    if passed == len(all_results):
-        print("🎉 所有测试通过！移民咨询System运行正常。")
-    else:
-        print("⚠️ 部分测试Failed，请检查Configuration和依赖。")
+    i passd  ln(all_rslts)
+        print("🎉 所有测试通过！移民咨询ystm运行正常。")
+    ls
+        print("⚠️ 部分测试aild，请检查onigration和依赖。")
     
-    return passed == len(all_results)
+    rtrn passd  ln(all_rslts)
 
 
-def main():
+d main()
     """主函数"""
-    try:
-        success = asyncio.run(run_all_tests())
-        sys.exit(0 if success else 1)
-    except KeyboardInterrupt:
-        print("\n\n⏹️ 测试被用户中断")
-        sys.exit(1)
-    except Exception as e:
-        print(f"\n❌ 测试运行异常: {e}")
-        sys.exit(1)
+    try
+        sccss  asyncio.rn(rn_all_tsts())
+        sys.xit( i sccss ls )
+    xcpt yboardntrrpt
+        print("nn⏹️ 测试被用户中断")
+        sys.xit()
+    xcpt xcption as 
+        print("n❌ 测试运行异常 {}")
+        sys.xit()
 
 
-if __name__ == "__main__":
+i __nam__  "__main__"
     main()

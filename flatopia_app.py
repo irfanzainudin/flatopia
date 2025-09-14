@@ -1,269 +1,269 @@
 """
-Flatopia Q&A System - Streamlit Web Interface
+latopia & ystm - tramlit b ntrac
 """
-import streamlit as st
+import stramlit as st
 import asyncio
 import os
-from datetime import datetime
-from typing import List, Dict, Any
+rom dattim import dattim
+rom typing import ist, ict, ny
 
-# Page configuration
-st.set_page_config(
-    page_title="Flatopia - Your AI Assistant",
-    page_icon="🤖",
-    layout="wide",
-    initial_sidebar_state="expanded"
+# ag conigration
+st.st_pag_conig(
+    pag_titl"latopia - or  ssistant",
+    pag_icon"🤖",
+    layot"wid",
+    initial_sidbar_stat"xpandd"
 )
 
-# Custom CSS
+# stom 
 st.markdown("""
-<style>
-    .main-header {
-        font-size: 2.5rem;
-        color: #1f77b4;
-        text-align: center;
-        margin-bottom: 2rem;
-        background: linear-gradient(45deg, #1f77b4, #ff6b6b);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+styl
+    .main-hadr {
+        ont-siz .rm
+        color #b
+        txt-align cntr
+        margin-bottom rm
+        backgrond linar-gradint(dg, #b, #bb)
+        -wbkit-backgrond-clip txt
+        -wbkit-txt-ill-color transparnt
     }
-    .chat-message {
-        padding: 1rem;
-        border-radius: 0.5rem;
-        margin-bottom: 1rem;
-        max-width: 80%;
+    .chat-mssag {
+        padding rm
+        bordr-radis .rm
+        margin-bottom rm
+        max-width %
     }
-    .user-message {
-        background-color: #e3f2fd;
-        margin-left: auto;
+    .sr-mssag {
+        backgrond-color #d
+        margin-lt ato
     }
-    .assistant-message {
-        background-color: #f5f5f5;
-        margin-right: auto;
+    .assistant-mssag {
+        backgrond-color #
+        margin-right ato
     }
-    .system-badge {
-        background: linear-gradient(45deg, #1f77b4, #4ecdc4);
-        color: white;
-        padding: 0.3rem 0.8rem;
-        border-radius: 1rem;
-        font-size: 0.8rem;
-        font-weight: bold;
+    .systm-badg {
+        backgrond linar-gradint(dg, #b, #cdc)
+        color whit
+        padding .rm .rm
+        bordr-radis rm
+        ont-siz .rm
+        ont-wight bold
     }
-</style>
-""", unsafe_allow_html=True)
+/styl
+""", nsa_allow_htmlr)
 
-# Initialize session state
-if "messages" not in st.session_state:
-    st.session_state.messages = []
+# nitializ sssion stat
+i "mssags" not in st.sssion_stat
+    st.sssion_stat.mssags  ]
 
-def display_chat_message(role: str, content: str, timestamp: str = None):
-    """Display chat message"""
-    if role == "user":
-        st.markdown(f"""
-        <div class="chat-message user-message">
-            {content}
-            {f'<br><small>{timestamp}</small>' if timestamp else ''}
-        </div>
-        """, unsafe_allow_html=True)
-    else:
-        st.markdown(f"""
-        <div class="chat-message assistant-message">
-            {content}
-            {f'<br><small>{timestamp}</small>' if timestamp else ''}
-        </div>
-        """, unsafe_allow_html=True)
-
-def main():
-    """Main function"""
-    # Title
-    st.markdown('<h1 class="main-header">🤖 Flatopia</h1>', unsafe_allow_html=True)
-    
-    # Welcome message when no chat history
-    if not st.session_state.messages:
+d display_chat_mssag(rol str, contnt str, timstamp str  on)
+    """isplay chat mssag"""
+    i rol  "sr"
         st.markdown("""
-        <div style="text-align: center; padding: 2rem; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1px solid #dee2e6; border-radius: 15px; color: #495057; margin: 1rem 0 1rem 0; box-shadow: 0 4px 6px rgba(0,0,0,0.1); min-height: 400px; display: flex; flex-direction: column; justify-content: center;">
-            <h2 style="margin-bottom: 1rem; color: #212529;">👋 Hello! I'm Flatopia</h2>
-            <p style="font-size: 1.1rem; margin-bottom: 1.5rem; color: #6c757d;">Your AI Immigration & Study Abroad Advisor</p>
-            <div style="background: rgba(108,117,125,0.1); padding: 1.2rem; border-radius: 10px; margin: 1.2rem 0; border: 1px solid #dee2e6;">
-                <h4 style="margin-bottom: 0.8rem; color: #212529;">🎯 What I can help you with:</h4>
-                <ul style="text-align: left; margin: 0; color: #495057; line-height: 1.5;">
-                    <li>Immigration planning and visa guidance</li>
-                    <li>Study abroad opportunities</li>
-                    <li>Work migration advice</li>
-                    <li>Country-specific recommendations</li>
-                    <li>University and program suggestions</li>
-                </ul>
-            </div>
-            <p style="font-size: 0.9rem; color: #6c757d;">Start by telling me your name and what you're looking for!</p>
-        </div>
-        """, unsafe_allow_html=True)
+        div class"chat-mssag sr-mssag"
+            {contnt}
+            {'brsmall{timstamp}/small' i timstamp ls ''}
+        /div
+        """, nsa_allow_htmlr)
+    ls
+        st.markdown("""
+        div class"chat-mssag assistant-mssag"
+            {contnt}
+            {'brsmall{timstamp}/small' i timstamp ls ''}
+        /div
+        """, nsa_allow_htmlr)
+
+d main()
+    """ain nction"""
+    # itl
+    st.markdown('h class"main-hadr"🤖 latopia/h', nsa_allow_htmlr)
     
-    # Sidebar
-    with st.sidebar:
-        st.header("💬 Chat Controls")
+    # lcom mssag whn no chat history
+    i not st.sssion_stat.mssags
+        st.markdown("""
+        div styl"txt-align cntr padding rm backgrond linar-gradint(dg, #a %, #c %) bordr px solid #d bordr-radis px color # margin rm  rm  box-shadow  px px rgba(,,,.) min-hight px display lx lx-dirction colmn jstiy-contnt cntr ont-amily 'ims w oman', ims, sri"
+            h styl"margin-bottom rm color # ont-amily 'ims w oman', ims, sri"👋 llo! 'm latopia/h
+            p styl"ont-siz .rm margin-bottom .rm color #cd ont-amily 'ims w oman', ims, sri"or  mmigration & tdy broad dvisor/p
+            div styl"backgrond rgba(,,,.) padding .rm bordr-radis px margin .rm  bordr px solid #d"
+                h styl"margin-bottom .rm color # ont-amily 'ims w oman', ims, sri txt-align cntr ont-siz .rm ont-wight bold"🎯 hat  can hlp yo with/h
+                l styl"txt-align cntr margin  color # lin-hight . ont-amily 'ims w oman', ims, sri ont-siz .rm list-styl non padding "
+                    li styl"margin .rm "• mmigration planning and visa gidanc/li
+                    li styl"margin .rm "• tdy abroad opportnitis/li
+                    li styl"margin .rm "• ork migration advic/li
+                    li styl"margin .rm "• ontry-spciic rcommndations/li
+                    li styl"margin .rm "• nivrsity and program sggstions/li
+                /l
+            /div
+            p styl"ont-siz .rm color # ont-amily 'ims w oman', ims, sri ont-wight bold txt-align cntr backgrond rgba(, , , .) padding rm bordr-radis px bordr px solid #dd margin-top rm box-shadow  px px rgba(, , , .)"🚀 tart by tlling m yor nam and what yo'r looking or!/p
+        /div
+        """, nsa_allow_htmlr)
+    
+    # idbar
+    with st.sidbar
+        st.hadr("💬 hat ontrols")
         
-        # Clear history
-        if st.button("Clear Chat History"):
-            st.session_state.messages = []
-            # Reset chat manager
-            from core.flatopia_chat_manager import flatopia_chat_manager
-            flatopia_chat_manager.reset_conversation()
-            st.rerun()
+        # lar history
+        i st.btton("lar hat istory")
+            st.sssion_stat.mssags  ]
+            # st chat managr
+            rom cor.latopia_chat_managr import latopia_chat_managr
+            latopia_chat_managr.rst_convrsation()
+            st.rrn()
         
-        # API Status
-        st.subheader("🔧 API Status")
-        if st.button("Check APIs"):
-            try:
-                from core.multi_api_llm import MultiAPILLM
-                from llm_config import GROQ_API_KEY, OPENAI_API_KEY, PRIMARY_API, MODEL_NAME, MAX_TOKENS, TEMPERATURE
+        #  tats
+        st.sbhadr("🔧  tats")
+        i st.btton("hck s")
+            try
+                rom cor.mlti_api_llm import lti
+                rom llm_conig import __, __, _, _, _, 
                 
-                # Create multi-API client
-                llm = MultiAPILLM(
-                    groq_api_key=GROQ_API_KEY,
-                    openai_api_key=OPENAI_API_KEY,
-                    primary_api=PRIMARY_API,
-                    model=MODEL_NAME,
-                    max_tokens=MAX_TOKENS,
-                    temperature=TEMPERATURE
+                # rat mlti- clint
+                llm  lti(
+                    groq_api_ky__,
+                    opnai_api_ky__,
+                    primary_api_,
+                    modl_,
+                    max_tokns_,
+                    tmpratr
                 )
                 
-                # Display configuration information
-                st.info(f"**Primary API**: {PRIMARY_API.upper()}")
-                st.info(f"**Model**: {MODEL_NAME}")
+                # isplay conigration inormation
+                st.ino("**rimary ** {_.ppr()}")
+                st.ino("**odl** {_}")
                 
-                # Test API connections
-                with st.spinner("Testing APIs..."):
-                    test_results = llm.test_apis()
+                # st  connctions
+                with st.spinnr("sting s...")
+                    tst_rslts  llm.tst_apis()
                     
-                    # Display test results
-                    if test_results.get("groq", False):
-                        st.success("✅ Groq API - Available")
-                    else:
-                        st.error("❌ Groq API - Unavailable")
+                    # isplay tst rslts
+                    i tst_rslts.gt("groq", als)
+                        st.sccss("✅ roq  - vailabl")
+                    ls
+                        st.rror("❌ roq  - navailabl")
                     
-                    if test_results.get("openai", False):
-                        st.success("✅ OpenAI API - Available")
-                    else:
-                        st.error("❌ OpenAI API - Unavailable")
+                    i tst_rslts.gt("opnai", als)
+                        st.sccss("✅ pn  - vailabl")
+                    ls
+                        st.rror("❌ pn  - navailabl")
                     
-                    # Test actual response
-                    if any(test_results.values()):
-                        test_response = llm("Test connection - respond with 'API test successful'")
-                        if "Error:" not in test_response:
-                            st.success("✅ System connection normal")
-                        else:
-                            st.error(f"❌ System connection failed: {test_response}")
-                    else:
-                        st.error("❌ All APIs unavailable")
+                    # st actal rspons
+                    i any(tst_rslts.vals())
+                        tst_rspons  llm("st connction - rspond with ' tst sccssl'")
+                        i "rror" not in tst_rspons
+                            st.sccss("✅ ystm connction normal")
+                        ls
+                            st.rror("❌ ystm connction aild {tst_rspons}")
+                    ls
+                        st.rror("❌ ll s navailabl")
                     
-            except Exception as e:
-                st.error(f"❌ System check failed: {str(e)}")
+            xcpt xcption as 
+                st.rror("❌ ystm chck aild {str()}")
         
-        # Usage tips
-        st.subheader("💡 Usage Tips")
+        # sag tips
+        st.sbhadr("💡 sag ips")
         st.markdown("""
-        **How to use:**
-        1. Start by telling me your age and basic info
-        2. Share your family situation and profession
-        3. Tell me your priorities for destination country
-        4. I'll analyze your profile and suggest countries
-        5. Ask detailed questions about specific countries
+        **ow to s**
+        . tart by tlling m yor ag and basic ino
+        . har yor amily sitation and prossion
+        . ll m yor prioritis or dstination contry
+        . 'll analyz yor proil and sggst contris
+        . sk dtaild qstions abot spciic contris
         
-        **Example questions:**
-        - What is artificial intelligence?
-        - How does machine learning work?
-        - Explain quantum computing
-        - What are the benefits of renewable energy?
+        **xampl qstions**
+        - hat is artiicial intllignc
+        - ow dos machin larning work
+        - xplain qantm compting
+        - hat ar th bnits o rnwabl nrgy
         """)
     
-    # Main chat interface
-    col1, col2, col3 = st.columns([0.5, 3, 0.5])
+    # ain chat intrac
+    col, col, col  st.colmns(., , .])
     
-    with col2:
-        # Display chat history
-        for message in st.session_state.messages:
-            display_chat_message(
-                message["role"], 
-                message["content"], 
-                message.get("timestamp")
+    with col
+        # isplay chat history
+        or mssag in st.sssion_stat.mssags
+            display_chat_mssag(
+                mssag"rol"], 
+                mssag"contnt"], 
+                mssag.gt("timstamp")
             )
     
-    # Chat input - always visible
-    st.markdown("<br>", unsafe_allow_html=True)
+    # hat inpt - always visibl
+    st.markdown("br", nsa_allow_htmlr)
     
-    # Initialize input key if not exists
-    if "input_key" not in st.session_state:
-        st.session_state.input_key = 0
+    # nitializ inpt ky i not xists
+    i "inpt_ky" not in st.sssion_stat
+        st.sssion_stat.inpt_ky  
     
-    user_input = st.text_input(
-        "Ask me anything about immigration, study abroad, or work opportunities...",
-        key=f"user_input_{st.session_state.input_key}",
-        placeholder="e.g., Hi! I'm John, 25 years old from India, looking to study abroad..."
+    sr_inpt  st.txt_inpt(
+        "sk m anything abot immigration, stdy abroad, or work opportnitis...",
+        ky"sr_inpt_{st.sssion_stat.inpt_ky}",
+        placholdr".g., i! 'm ohn,  yars old rom ndia, looking to stdy abroad..."
     )
     
-    # Send button
-    col1, col2 = st.columns([1, 4])
+    # nd btton
+    col, col  st.colmns(, ])
     
-    with col1:
-        send_clicked = st.button("Send", type="primary")
+    with col
+        snd_clickd  st.btton("nd", typ"primary")
     
-    with col2:
+    with col
         pass
     
-    # Process message when button is clicked or Enter is pressed
-    if (send_clicked or user_input) and user_input.strip():
-        # Check if this is a duplicate message
-        if st.session_state.messages and st.session_state.messages[-1]["content"] == user_input:
-            st.warning("Please wait for the previous response to complete.")
-        else:
-            # Send message
-            try:
-                from core.simple_langchain_config import GroqLLM
-                from core.config import settings
+    # rocss mssag whn btton is clickd or ntr is prssd
+    i (snd_clickd or sr_inpt) and sr_inpt.strip()
+        # hck i this is a dplicat mssag
+        i st.sssion_stat.mssags and st.sssion_stat.mssags-]"contnt"]  sr_inpt
+            st.warning("las wait or th prvios rspons to complt.")
+        ls
+            # nd mssag
+            try
+                rom cor.simpl_langchain_conig import roq
+                rom cor.conig import sttings
                 
-                # Check API key
-                if settings.groq_api_key == "your_groq_api_key_here":
-                    st.error("❌ Please set GROQ_API_KEY environment variable first")
+                # hck  ky
+                i sttings.groq_api_ky  "yor_groq_api_ky_hr"
+                    st.rror("❌ las st __ nvironmnt variabl irst")
                     st.stop()
                 
-                # Process question
-                with st.spinner("Flatopia is thinking..."):
-                    from core.flatopia_chat_manager import flatopia_chat_manager
-                    from core.multi_api_llm import MultiAPILLM
-                    from llm_config import GROQ_API_KEY, OPENAI_API_KEY, PRIMARY_API, MODEL_NAME, MAX_TOKENS, TEMPERATURE
+                # rocss qstion
+                with st.spinnr("latopia is thinking...")
+                    rom cor.latopia_chat_managr import latopia_chat_managr
+                    rom cor.mlti_api_llm import lti
+                    rom llm_conig import __, __, _, _, _, 
                     
-                    # Use multi-API support
-                    flatopia_chat_manager.llm = MultiAPILLM(
-                        groq_api_key=GROQ_API_KEY,
-                        openai_api_key=OPENAI_API_KEY,
-                        primary_api=PRIMARY_API,
-                        model=MODEL_NAME,
-                        max_tokens=MAX_TOKENS,
-                        temperature=TEMPERATURE
+                    # s mlti- spport
+                    latopia_chat_managr.llm  lti(
+                        groq_api_ky__,
+                        opnai_api_ky__,
+                        primary_api_,
+                        modl_,
+                        max_tokns_,
+                        tmpratr
                     )
-                    result = asyncio.run(flatopia_chat_manager.chat(user_input))
-                    response = result["answer"]
+                    rslt  asyncio.rn(latopia_chat_managr.chat(sr_inpt))
+                    rspons  rslt"answr"]
                 
-                # Add user message
-                st.session_state.messages.append({
-                    "role": "user",
-                    "content": user_input,
-                    "timestamp": datetime.now().strftime("%H:%M:%S")
+                # dd sr mssag
+                st.sssion_stat.mssags.appnd({
+                    "rol" "sr",
+                    "contnt" sr_inpt,
+                    "timstamp" dattim.now().strtim("%%%")
                 })
                 
-                # Add assistant reply
-                st.session_state.messages.append({
-                    "role": "assistant",
-                    "content": response,
-                    "timestamp": datetime.now().strftime("%H:%M:%S")
+                # dd assistant rply
+                st.sssion_stat.mssags.appnd({
+                    "rol" "assistant",
+                    "contnt" rspons,
+                    "timstamp" dattim.now().strtim("%%%")
                 })
                 
-                # Clear the input by incrementing the key
-                st.session_state.input_key += 1
-                st.rerun()
+                # lar th inpt by incrmnting th ky
+                st.sssion_stat.inpt_ky + 
+                st.rrn()
                 
-            except Exception as e:
-                st.error(f"❌ Error processing question: {str(e)}")
+            xcpt xcption as 
+                st.rror("❌ rror procssing qstion {str()}")
 
-if __name__ == "__main__":
+i __nam__  "__main__"
     main()

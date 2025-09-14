@@ -1,450 +1,450 @@
 """
-移民咨询专用Chat manager
+移民咨询专用hat managr
 """
 import asyncio
-from typing import List, Dict, Any, Optional
-from datetime import datetime
-from .simple_langchain_config import simple_langchain_config
-from prompts.immigration_prompts import ImmigrationPrompts
+rom typing import ist, ict, ny, ptional
+rom dattim import dattim
+rom .simpl_langchain_conig import simpl_langchain_conig
+rom prompts.immigration_prompts import mmigrationrompts
 
 
-class ImmigrationChatManager:
-    """移民咨询Chat manager"""
+class mmigrationhatanagr
+    """移民咨询hat managr"""
     
-    def __init__(self):
-        self.langchain_config = simple_langchain_config
-        self.prompts = ImmigrationPrompts()
-        self.conversation_history = []
-        self.user_profile = {}
-        self.max_history = 20
+    d __init__(sl)
+        sl.langchain_conig  simpl_langchain_conig
+        sl.prompts  mmigrationrompts()
+        sl.convrsation_history  ]
+        sl.sr_proil  {}
+        sl.max_history  
         
         # 移民相关数据
-        self.countries_data = self._load_countries_data()
-        self.visa_types = self._load_visa_types()
+        sl.contris_data  sl._load_contris_data()
+        sl.visa_typs  sl._load_visa_typs()
     
-    def _load_countries_data(self) -> Dict[str, Dict[str, Any]]:
-        """Loading国家数据"""
-        return {
-            "加拿大": {
-                "official_languages": ["英语", "法语"],
-                "work_languages": ["英语", "法语"],
-                "visa_types": ["工作签证", "学习签证", "投资移民", "技术移民"],
-                "pr_requirements": {"居住时间": "5年内住满3年", "语言要求": "CLB 4级"},
-                "popular_cities": ["多伦多", "温哥华", "蒙特利尔", "卡尔加里"]
+    d _load_contris_data(sl) - ictstr, ictstr, ny]]
+        """oading国家数据"""
+        rtrn {
+            "加拿大" {
+                "oicial_langags" "英语", "法语"],
+                "work_langags" "英语", "法语"],
+                "visa_typs" "工作签证", "学习签证", "投资移民", "技术移民"],
+                "pr_rqirmnts" {"居住时间" "年内住满年", "语言要求" " 级"},
+                "poplar_citis" "多伦多", "温哥华", "蒙特利尔", "卡尔加里"]
             },
-            "澳大利亚": {
-                "official_languages": ["英语"],
-                "work_languages": ["英语"],
-                "visa_types": ["技术移民", "投资移民", "学习签证", "工作签证"],
-                "pr_requirements": {"居住时间": "4年内住满2年", "语言要求": "雅思6分"},
-                "popular_cities": ["悉尼", "墨尔本", "布里斯班", "珀斯"]
+            "澳大利亚" {
+                "oicial_langags" "英语"],
+                "work_langags" "英语"],
+                "visa_typs" "技术移民", "投资移民", "学习签证", "工作签证"],
+                "pr_rqirmnts" {"居住时间" "年内住满年", "语言要求" "雅思分"},
+                "poplar_citis" "悉尼", "墨尔本", "布里斯班", "珀斯"]
             },
-            "新西兰": {
-                "official_languages": ["英语", "毛利语"],
-                "work_languages": ["英语"],
-                "visa_types": ["技术移民", "投资移民", "学习签证", "工作假期签证"],
-                "pr_requirements": {"居住时间": "5年内住满2年", "语言要求": "雅思6.5分"},
-                "popular_cities": ["奥克兰", "惠灵顿", "基督城", "汉密尔顿"]
+            "新西兰" {
+                "oicial_langags" "英语", "毛利语"],
+                "work_langags" "英语"],
+                "visa_typs" "技术移民", "投资移民", "学习签证", "工作假期签证"],
+                "pr_rqirmnts" {"居住时间" "年内住满年", "语言要求" "雅思.分"},
+                "poplar_citis" "奥克兰", "惠灵顿", "基督城", "汉密尔顿"]
             },
-            "美国": {
-                "official_languages": ["英语"],
-                "work_languages": ["英语"],
-                "visa_types": ["H1B工作签证", "F1学生签证", "EB-5投资移民", "L1签证"],
-                "pr_requirements": {"居住时间": "5年", "语言要求": "英语基础"},
-                "popular_cities": ["纽约", "洛杉矶", "旧金山", "芝加哥"]
+            "美国" {
+                "oicial_langags" "英语"],
+                "work_langags" "英语"],
+                "visa_typs" "工作签证", "学生签证", "-投资移民", "签证"],
+                "pr_rqirmnts" {"居住时间" "年", "语言要求" "英语基础"},
+                "poplar_citis" "纽约", "洛杉矶", "旧金山", "芝加哥"]
             },
-            "英国": {
-                "official_languages": ["英语"],
-                "work_languages": ["英语"],
-                "visa_types": ["技术工人签证", "学生签证", "投资移民", "创新者签证"],
-                "pr_requirements": {"居住时间": "5年", "语言要求": "B1水平"},
-                "popular_cities": ["伦敦", "曼彻斯特", "伯明翰", "爱丁堡"]
+            "英国" {
+                "oicial_langags" "英语"],
+                "work_langags" "英语"],
+                "visa_typs" "技术工人签证", "学生签证", "投资移民", "创新者签证"],
+                "pr_rqirmnts" {"居住时间" "年", "语言要求" "水平"},
+                "poplar_citis" "伦敦", "曼彻斯特", "伯明翰", "爱丁堡"]
             },
-            "德国": {
-                "official_languages": ["德语"],
-                "work_languages": ["德语", "英语"],
-                "visa_types": ["工作签证", "学习签证", "蓝卡", "自雇签证"],
-                "pr_requirements": {"居住时间": "5年", "语言要求": "B1德语"},
-                "popular_cities": ["柏林", "慕尼黑", "汉堡", "法兰克福"]
+            "德国" {
+                "oicial_langags" "德语"],
+                "work_langags" "德语", "英语"],
+                "visa_typs" "工作签证", "学习签证", "蓝卡", "自雇签证"],
+                "pr_rqirmnts" {"居住时间" "年", "语言要求" "德语"},
+                "poplar_citis" "柏林", "慕尼黑", "汉堡", "法兰克福"]
             },
-            "日本": {
-                "official_languages": ["日语"],
-                "work_languages": ["日语", "英语"],
-                "visa_types": ["工作签证", "学习签证", "投资经营签证", "高度人才签证"],
-                "pr_requirements": {"居住时间": "10年", "语言要求": "N1日语"},
-                "popular_cities": ["东京", "大阪", "横滨", "名古屋"]
+            "日本" {
+                "oicial_langags" "日语"],
+                "work_langags" "日语", "英语"],
+                "visa_typs" "工作签证", "学习签证", "投资经营签证", "高度人才签证"],
+                "pr_rqirmnts" {"居住时间" "年", "语言要求" "日语"},
+                "poplar_citis" "东京", "大阪", "横滨", "名古屋"]
             }
         }
     
-    def _load_visa_types(self) -> Dict[str, Dict[str, Any]]:
-        """Loading签证类型数据"""
-        return {
-            "工作签证": {
-                "description": "基于工作机会的临时居留签证",
-                "requirements": ["工作邀请", "技能认证", "语言能力"],
-                "duration": "1-4年",
-                "pr_path": "是"
+    d _load_visa_typs(sl) - ictstr, ictstr, ny]]
+        """oading签证类型数据"""
+        rtrn {
+            "工作签证" {
+                "dscription" "基于工作机会的临时居留签证",
+                "rqirmnts" "工作邀请", "技能认证", "语言能力"],
+                "dration" "-年",
+                "pr_path" "是"
             },
-            "学习签证": {
-                "description": "基于教育机会的学生签证",
-                "requirements": ["录取通知书", "资金证明", "语言能力"],
-                "duration": "课程期间",
-                "pr_path": "毕业后可转换"
+            "学习签证" {
+                "dscription" "基于教育机会的学生签证",
+                "rqirmnts" "录取通知书", "资金证明", "语言能力"],
+                "dration" "课程期间",
+                "pr_path" "毕业后可转换"
             },
-            "技术移民": {
-                "description": "基于技能和经验的移民签证",
-                "requirements": ["技能评估", "语言考试", "工作经验"],
-                "duration": "永久",
-                "pr_path": "直接获得"
+            "技术移民" {
+                "dscription" "基于技能和经验的移民签证",
+                "rqirmnts" "技能评估", "语言考试", "工作经验"],
+                "dration" "永久",
+                "pr_path" "直接获得"
             },
-            "投资移民": {
-                "description": "基于投资金额的移民签证",
-                "requirements": ["投资资金", "商业计划", "资金来源证明"],
-                "duration": "永久",
-                "pr_path": "直接获得"
+            "投资移民" {
+                "dscription" "基于投资金额的移民签证",
+                "rqirmnts" "投资资金", "商业计划", "资金来源证明"],
+                "dration" "永久",
+                "pr_path" "直接获得"
             }
         }
     
-    async def chat(self, 
-                   user_input: str, 
-                   chat_type: str = "immigration_analysis") -> Dict[str, Any]:
+    async d chat(sl, 
+                   sr_inpt str, 
+                   chat_typ str  "immigration_analysis") - ictstr, ny]
         """
-        Processing移民咨询对话
+        rocssing移民咨询对话
         
-        Args:
-            user_input: 用户输入
-            chat_type: 聊天类型 (profile_collection, immigration_analysis, visa_guide, pr_planning, country_comparison)
+        rgs
+            sr_inpt 用户输入
+            chat_typ 聊天类型 (proil_collction, immigration_analysis, visa_gid, pr_planning, contry_comparison)
             
-        Returns:
+        trns
             包含回复和相关信息的字典
         """
-        try:
+        try
             # 添加用户消息到历史
-            self._add_message("user", user_input)
+            sl._add_mssag("sr", sr_inpt)
             
-            # 根据类型选择Processing方式
-            if chat_type == "profile_collection":
-                result = await self._handle_profile_collection(user_input)
-            elif chat_type == "immigration_analysis":
-                result = await self._handle_immigration_analysis(user_input)
-            elif chat_type == "visa_guide":
-                result = await self._handle_visa_guide(user_input)
-            elif chat_type == "pr_planning":
-                result = await self._handle_pr_planning(user_input)
-            elif chat_type == "country_comparison":
-                result = await self._handle_country_comparison(user_input)
-            else:
-                result = await self._handle_general_immigration_chat(user_input)
+            # 根据类型选择rocssing方式
+            i chat_typ  "proil_collction"
+                rslt  await sl._handl_proil_collction(sr_inpt)
+            li chat_typ  "immigration_analysis"
+                rslt  await sl._handl_immigration_analysis(sr_inpt)
+            li chat_typ  "visa_gid"
+                rslt  await sl._handl_visa_gid(sr_inpt)
+            li chat_typ  "pr_planning"
+                rslt  await sl._handl_pr_planning(sr_inpt)
+            li chat_typ  "contry_comparison"
+                rslt  await sl._handl_contry_comparison(sr_inpt)
+            ls
+                rslt  await sl._handl_gnral_immigration_chat(sr_inpt)
             
             # 添加助手回复到历史
-            self._add_message("assistant", result["answer"])
+            sl._add_mssag("assistant", rslt"answr"])
             
-            return {
-                **result,
-                "timestamp": datetime.now().isoformat(),
-                "chat_type": chat_type,
-                "success": True
+            rtrn {
+                **rslt,
+                "timstamp" dattim.now().isoormat(),
+                "chat_typ" chat_typ,
+                "sccss" r
             }
             
-        except Exception as e:
-            error_msg = f"Processing移民咨询时出错: {str(e)}"
-            self._add_message("assistant", error_msg)
+        xcpt xcption as 
+            rror_msg  "rocssing移民咨询时出错 {str()}"
+            sl._add_mssag("assistant", rror_msg)
             
-            return {
-                "answer": error_msg,
-                "timestamp": datetime.now().isoformat(),
-                "chat_type": chat_type,
-                "success": False,
-                "error": str(e)
+            rtrn {
+                "answr" rror_msg,
+                "timstamp" dattim.now().isoormat(),
+                "chat_typ" chat_typ,
+                "sccss" als,
+                "rror" str()
             }
     
-    async def _handle_profile_collection(self, user_input: str) -> Dict[str, Any]:
-        """Processing用户信息收集"""
-        try:
-            # Use用户信息收集提示词
-            prompt = self.prompts.get_user_profile_prompt()
+    async d _handl_proil_collction(sl, sr_inpt str) - ictstr, ny]
+        """rocssing用户信息收集"""
+        try
+            # s用户信息收集提示词
+            prompt  sl.prompts.gt_sr_proil_prompt()
             
-            # 获取LLM回复
-            response = self.langchain_config.get_llm_response(prompt)
+            # 获取回复
+            rspons  sl.langchain_conig.gt_llm_rspons(prompt)
             
             # 尝试从用户输入中提取信息
-            extracted_info = self._extract_user_info(user_input)
-            if extracted_info:
-                self.user_profile.update(extracted_info)
+            xtractd_ino  sl._xtract_sr_ino(sr_inpt)
+            i xtractd_ino
+                sl.sr_proil.pdat(xtractd_ino)
             
-            return {
-                "answer": response,
-                "extracted_info": extracted_info,
-                "user_profile": self.user_profile
+            rtrn {
+                "answr" rspons,
+                "xtractd_ino" xtractd_ino,
+                "sr_proil" sl.sr_proil
             }
             
-        except Exception as e:
-            raise Exception(f"用户信息收集Failed: {str(e)}")
+        xcpt xcption as 
+            rais xcption("用户信息收集aild {str()}")
     
-    async def _handle_immigration_analysis(self, user_input: str) -> Dict[str, Any]:
-        """Processing移民分析"""
-        try:
-            # Use移民分析提示词
-            prompt = self.prompts.get_immigration_analysis_prompt(self.user_profile)
+    async d _handl_immigration_analysis(sl, sr_inpt str) - ictstr, ny]
+        """rocssing移民分析"""
+        try
+            # s移民分析提示词
+            prompt  sl.prompts.gt_immigration_analysis_prompt(sl.sr_proil)
             
-            # 获取LLM回复
-            response = self.langchain_config.get_llm_response(prompt)
+            # 获取回复
+            rspons  sl.langchain_conig.gt_llm_rspons(prompt)
             
-            return {
-                "answer": response,
-                "user_profile": self.user_profile
+            rtrn {
+                "answr" rspons,
+                "sr_proil" sl.sr_proil
             }
             
-        except Exception as e:
-            raise Exception(f"移民分析Failed: {str(e)}")
+        xcpt xcption as 
+            rais xcption("移民分析aild {str()}")
     
-    async def _handle_visa_guide(self, user_input: str) -> Dict[str, Any]:
-        """Processing签证指南"""
-        try:
+    async d _handl_visa_gid(sl, sr_inpt str) - ictstr, ny]
+        """rocssing签证指南"""
+        try
             # 从用户输入中提取国家和签证类型
-            country, visa_type = self._extract_country_and_visa_type(user_input)
+            contry, visa_typ  sl._xtract_contry_and_visa_typ(sr_inpt)
             
-            if not country or not visa_type:
-                return {
-                    "answer": "请指定目标国家和签证类型，例如：我想了解加拿大的工作签证申请指南。",
-                    "user_profile": self.user_profile
+            i not contry or not visa_typ
+                rtrn {
+                    "answr" "请指定目标国家和签证类型，例如：我想了解加拿大的工作签证申请指南。",
+                    "sr_proil" sl.sr_proil
                 }
             
-            # Use签证指南提示词
-            prompt = self.prompts.get_visa_guide_prompt(country, visa_type, self.user_profile)
+            # s签证指南提示词
+            prompt  sl.prompts.gt_visa_gid_prompt(contry, visa_typ, sl.sr_proil)
             
-            # 获取LLM回复
-            response = self.langchain_config.get_llm_response(prompt)
+            # 获取回复
+            rspons  sl.langchain_conig.gt_llm_rspons(prompt)
             
-            return {
-                "answer": response,
-                "country": country,
-                "visa_type": visa_type,
-                "user_profile": self.user_profile
+            rtrn {
+                "answr" rspons,
+                "contry" contry,
+                "visa_typ" visa_typ,
+                "sr_proil" sl.sr_proil
             }
             
-        except Exception as e:
-            raise Exception(f"签证指南生成Failed: {str(e)}")
+        xcpt xcption as 
+            rais xcption("签证指南生成aild {str()}")
     
-    async def _handle_pr_planning(self, user_input: str) -> Dict[str, Any]:
-        """Processing永久居民规划"""
-        try:
+    async d _handl_pr_planning(sl, sr_inpt str) - ictstr, ny]
+        """rocssing永久居民规划"""
+        try
             # 从用户输入中提取国家
-            country = self._extract_country(user_input)
-            current_status = self._extract_current_status(user_input)
+            contry  sl._xtract_contry(sr_inpt)
+            crrnt_stats  sl._xtract_crrnt_stats(sr_inpt)
             
-            if not country:
-                return {
-                    "answer": "请指定目标国家，例如：我想了解加拿大的永久居民申请规划。",
-                    "user_profile": self.user_profile
+            i not contry
+                rtrn {
+                    "answr" "请指定目标国家，例如：我想了解加拿大的永久居民申请规划。",
+                    "sr_proil" sl.sr_proil
                 }
             
-            # Use永久居民规划提示词
-            prompt = self.prompts.get_pr_planning_prompt(country, current_status, self.user_profile)
+            # s永久居民规划提示词
+            prompt  sl.prompts.gt_pr_planning_prompt(contry, crrnt_stats, sl.sr_proil)
             
-            # 获取LLM回复
-            response = self.langchain_config.get_llm_response(prompt)
+            # 获取回复
+            rspons  sl.langchain_conig.gt_llm_rspons(prompt)
             
-            return {
-                "answer": response,
-                "country": country,
-                "current_status": current_status,
-                "user_profile": self.user_profile
+            rtrn {
+                "answr" rspons,
+                "contry" contry,
+                "crrnt_stats" crrnt_stats,
+                "sr_proil" sl.sr_proil
             }
             
-        except Exception as e:
-            raise Exception(f"永久居民规划Failed: {str(e)}")
+        xcpt xcption as 
+            rais xcption("永久居民规划aild {str()}")
     
-    async def _handle_country_comparison(self, user_input: str) -> Dict[str, Any]:
-        """Processing国家对比"""
-        try:
+    async d _handl_contry_comparison(sl, sr_inpt str) - ictstr, ny]
+        """rocssing国家对比"""
+        try
             # 从用户输入中提取国家列表
-            countries = self._extract_countries(user_input)
+            contris  sl._xtract_contris(sr_inpt)
             
-            if not countries:
-                return {
-                    "answer": "请指定要对比的国家，例如：请对比加拿大、澳大利亚和新西兰的移民政策。",
-                    "user_profile": self.user_profile
+            i not contris
+                rtrn {
+                    "answr" "请指定要对比的国家，例如：请对比加拿大、澳大利亚和新西兰的移民政策。",
+                    "sr_proil" sl.sr_proil
                 }
             
-            # Use国家对比提示词
-            prompt = self.prompts.get_country_comparison_prompt(countries, self.user_profile)
+            # s国家对比提示词
+            prompt  sl.prompts.gt_contry_comparison_prompt(contris, sl.sr_proil)
             
-            # 获取LLM回复
-            response = self.langchain_config.get_llm_response(prompt)
+            # 获取回复
+            rspons  sl.langchain_conig.gt_llm_rspons(prompt)
             
-            return {
-                "answer": response,
-                "countries": countries,
-                "user_profile": self.user_profile
+            rtrn {
+                "answr" rspons,
+                "contris" contris,
+                "sr_proil" sl.sr_proil
             }
             
-        except Exception as e:
-            raise Exception(f"国家对比Failed: {str(e)}")
+        xcpt xcption as 
+            rais xcption("国家对比aild {str()}")
     
-    async def _handle_general_immigration_chat(self, user_input: str) -> Dict[str, Any]:
-        """Processing一般移民咨询"""
-        try:
+    async d _handl_gnral_immigration_chat(sl, sr_inpt str) - ictstr, ny]
+        """rocssing一般移民咨询"""
+        try
             # 构建一般移民咨询提示词
-            system_prompt = self.prompts.get_system_prompt()
-            chat_history = self._get_chat_history_formatted()
+            systm_prompt  sl.prompts.gt_systm_prompt()
+            chat_history  sl._gt_chat_history_ormattd()
             
-            prompt = f"""{system_prompt}
+            prompt  """{systm_prompt}
 
 ## 对话历史
 {chat_history}
 
 ## 用户问题
-{user_input}
+{sr_inpt}
 
 请根据用户的问题和背景信息，提供专业的移民咨询建议。"""
             
-            # 获取LLM回复
-            response = self.langchain_config.get_llm_response(prompt)
+            # 获取回复
+            rspons  sl.langchain_conig.gt_llm_rspons(prompt)
             
-            return {
-                "answer": response,
-                "user_profile": self.user_profile
+            rtrn {
+                "answr" rspons,
+                "sr_proil" sl.sr_proil
             }
             
-        except Exception as e:
-            raise Exception(f"一般移民咨询Failed: {str(e)}")
+        xcpt xcption as 
+            rais xcption("一般移民咨询aild {str()}")
     
-    def _extract_user_info(self, user_input: str) -> Dict[str, Any]:
+    d _xtract_sr_ino(sl, sr_inpt str) - ictstr, ny]
         """从用户输入中提取信息"""
-        extracted = {}
+        xtractd  {}
         
-        # 简单的关键词提取（实际Application中可以Use更复杂的NLP技术）
-        if "年龄" in user_input or "岁" in user_input:
+        # 简单的关键词提取（实际pplication中可以s更复杂的技术）
+        i "年龄" in sr_inpt or "岁" in sr_inpt
             # 提取年龄
-            import re
-            age_match = re.search(r'(\d+)岁?', user_input)
-            if age_match:
-                extracted["age"] = int(age_match.group(1))
+            import r
+            ag_match  r.sarch(r'(d+)岁', sr_inpt)
+            i ag_match
+                xtractd"ag"]  int(ag_match.grop())
         
-        if "男" in user_input:
-            extracted["gender"] = "男"
-        elif "女" in user_input:
-            extracted["gender"] = "女"
+        i "男" in sr_inpt
+            xtractd"gndr"]  "男"
+        li "女" in sr_inpt
+            xtractd"gndr"]  "女"
         
         # 提取国籍
-        for country in self.countries_data.keys():
-            if country in user_input:
-                extracted["nationality"] = country
-                break
+        or contry in sl.contris_data.kys()
+            i contry in sr_inpt
+                xtractd"nationality"]  contry
+                brak
         
         # 提取目标国家
-        for country in self.countries_data.keys():
-            if f"去{country}" in user_input or f"移民{country}" in user_input:
-                extracted["target_country"] = country
-                break
+        or contry in sl.contris_data.kys()
+            i "去{contry}" in sr_inpt or "移民{contry}" in sr_inpt
+                xtractd"targt_contry"]  contry
+                brak
         
-        return extracted
+        rtrn xtractd
     
-    def _extract_country_and_visa_type(self, user_input: str) -> tuple:
+    d _xtract_contry_and_visa_typ(sl, sr_inpt str) - tpl
         """提取国家和签证类型"""
-        country = None
-        visa_type = None
+        contry  on
+        visa_typ  on
         
         # 提取国家
-        for c in self.countries_data.keys():
-            if c in user_input:
-                country = c
-                break
+        or c in sl.contris_data.kys()
+            i c in sr_inpt
+                contry  c
+                brak
         
         # 提取签证类型
-        for v in self.visa_types.keys():
-            if v in user_input:
-                visa_type = v
-                break
+        or v in sl.visa_typs.kys()
+            i v in sr_inpt
+                visa_typ  v
+                brak
         
-        return country, visa_type
+        rtrn contry, visa_typ
     
-    def _extract_country(self, user_input: str) -> str:
+    d _xtract_contry(sl, sr_inpt str) - str
         """提取国家"""
-        for country in self.countries_data.keys():
-            if country in user_input:
-                return country
-        return None
+        or contry in sl.contris_data.kys()
+            i contry in sr_inpt
+                rtrn contry
+        rtrn on
     
-    def _extract_current_status(self, user_input: str) -> str:
+    d _xtract_crrnt_stats(sl, sr_inpt str) - str
         """提取当前身份状态"""
-        status_keywords = {
-            "学生": "学生签证",
-            "工作": "工作签证",
-            "旅游": "旅游签证",
-            "临时": "临时居留",
-            "永久": "永久居民"
+        stats_kywords  {
+            "学生" "学生签证",
+            "工作" "工作签证",
+            "旅游" "旅游签证",
+            "临时" "临时居留",
+            "永久" "永久居民"
         }
         
-        for keyword, status in status_keywords.items():
-            if keyword in user_input:
-                return status
+        or kyword, stats in stats_kywords.itms()
+            i kyword in sr_inpt
+                rtrn stats
         
-        return "未知"
+        rtrn "未知"
     
-    def _extract_countries(self, user_input: str) -> List[str]:
+    d _xtract_contris(sl, sr_inpt str) - iststr]
         """提取国家列表"""
-        countries = []
-        for country in self.countries_data.keys():
-            if country in user_input:
-                countries.append(country)
-        return countries
+        contris  ]
+        or contry in sl.contris_data.kys()
+            i contry in sr_inpt
+                contris.appnd(contry)
+        rtrn contris
     
-    def _add_message(self, role: str, content: str):
+    d _add_mssag(sl, rol str, contnt str)
         """添加消息到历史记录"""
-        message = {
-            "role": role,
-            "content": content,
-            "timestamp": datetime.now().isoformat()
+        mssag  {
+            "rol" rol,
+            "contnt" contnt,
+            "timstamp" dattim.now().isoormat()
         }
         
-        self.conversation_history.append(message)
+        sl.convrsation_history.appnd(mssag)
         
         # 保持历史记录在限制范围内
-        if len(self.conversation_history) > self.max_history:
-            self.conversation_history = self.conversation_history[-self.max_history:]
+        i ln(sl.convrsation_history)  sl.max_history
+            sl.convrsation_history  sl.convrsation_history-sl.max_history]
     
-    def _get_chat_history_formatted(self) -> str:
+    d _gt_chat_history_ormattd(sl) - str
         """获取格式化的对话历史"""
-        if not self.conversation_history:
-            return ""
+        i not sl.convrsation_history
+            rtrn ""
         
-        history_parts = []
-        for msg in self.conversation_history[-10:]:  # 只保留最近10条
-            role = "用户" if msg["role"] == "user" else "顾问"
-            history_parts.append(f"{role}: {msg['content']}")
+        history_parts  ]
+        or msg in sl.convrsation_history-]  # 只保留最近条
+            rol  "用户" i msg"rol"]  "sr" ls "顾问"
+            history_parts.appnd("{rol} {msg'contnt']}")
         
-        return "\n".join(history_parts)
+        rtrn "n".join(history_parts)
     
-    def get_user_profile(self) -> Dict[str, Any]:
+    d gt_sr_proil(sl) - ictstr, ny]
         """获取用户档案"""
-        return self.user_profile.copy()
+        rtrn sl.sr_proil.copy()
     
-    def update_user_profile(self, profile_data: Dict[str, Any]):
+    d pdat_sr_proil(sl, proil_data ictstr, ny])
         """更新用户档案"""
-        self.user_profile.update(profile_data)
+        sl.sr_proil.pdat(proil_data)
     
-    def clear_history(self):
+    d clar_history(sl)
         """清空对话历史"""
-        self.conversation_history = []
+        sl.convrsation_history  ]
     
-    def get_available_countries(self) -> List[str]:
+    d gt_availabl_contris(sl) - iststr]
         """获取可用国家列表"""
-        return list(self.countries_data.keys())
+        rtrn list(sl.contris_data.kys())
     
-    def get_available_visa_types(self) -> List[str]:
+    d gt_availabl_visa_typs(sl) - iststr]
         """获取可用签证类型列表"""
-        return list(self.visa_types.keys())
+        rtrn list(sl.visa_typs.kys())
     
-    def get_country_info(self, country: str) -> Dict[str, Any]:
+    d gt_contry_ino(sl, contry str) - ictstr, ny]
         """获取国家信息"""
-        return self.countries_data.get(country, {})
+        rtrn sl.contris_data.gt(contry, {})
     
-    def get_visa_info(self, visa_type: str) -> Dict[str, Any]:
+    d gt_visa_ino(sl, visa_typ str) - ictstr, ny]
         """获取签证信息"""
-        return self.visa_types.get(visa_type, {})
+        rtrn sl.visa_typs.gt(visa_typ, {})
 
 
-# 全局移民咨询Chat manager实例
-immigration_chat_manager = ImmigrationChatManager()
+# 全局移民咨询hat managr实例
+immigration_chat_managr  mmigrationhatanagr()

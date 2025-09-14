@@ -1,68 +1,68 @@
 """
-LLM Configuration File
-Modify all LLM-related parameters here
+ onigration il
+odiy all -rlatd paramtrs hr
 """
 import os
 
-# API Configuration
-GROQ_API_KEY = os.getenv("GROQ_API_KEY", "your-groq-api-key-here")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "your-openai-api-key-here")
+#  onigration
+__  os.gtnv("__", "yor-groq-api-ky-hr")
+__  os.gtnv("__", "yor-opnai-api-ky-hr")
 
-# Primary API Provider (groq/openai)
-PRIMARY_API = "groq"  # Options: "groq" or "openai"
+# rimary  rovidr (groq/opnai)
+_  "groq"  # ptions "groq" or "opnai"
 
-# Model Configuration
-MODEL_NAME = "openai/gpt-oss-120b"  # Default model name
-MAX_TOKENS = 2000  # Maximum tokens to generate
-TEMPERATURE = 0.7  # Temperature for generation
-GROQ_MODELS = {
-    "default": "openai/gpt-oss-120b",
-    "fast": "llama-3.1-8b-instant",
-    "powerful": "llama-3.1-70b-versatile"
+# odl onigration
+_  "opnai/gpt-oss-b"  # alt modl nam
+_    # aximm tokns to gnrat
+  .  # mpratr or gnration
+_  {
+    "dalt" "opnai/gpt-oss-b",
+    "ast" "llama-.-b-instant",
+    "powrl" "llama-.-b-vrsatil"
 }
 
-OPENAI_MODELS = {
-    "default": "gpt-4o-mini",
-    "fast": "gpt-3.5-turbo",
-    "powerful": "gpt-4o"
+_  {
+    "dalt" "gpt-o-mini",
+    "ast" "gpt-.-trbo",
+    "powrl" "gpt-o"
 }
 
-# Generation Parameters
-DEFAULT_MAX_TOKENS = 2000
-DEFAULT_TEMPERATURE = 0.7
-DEFAULT_TOP_P = 1.0
+# nration aramtrs
+__  
+_  .
+__  .
 
-# Chat Configuration
-MAX_CONVERSATION_HISTORY = 10
-SYSTEM_MESSAGE_ENABLED = True
+# hat onigration
+__  
+__  r
 
-# Retry Configuration
-MAX_RETRIES = 3
-RETRY_DELAY = 1  # seconds
+# try onigration
+_  
+_    # sconds
 
-# Debug Configuration
-DEBUG_MODE = False
-LOG_API_CALLS = False
+# bg onigration
+_  als
+__  als
 
-class QAParameters:
-    """Q&A system specific parameters"""
+class aramtrs
+    """& systm spciic paramtrs"""
     
-    # Response Parameters
-    MAX_RESPONSE_LENGTH = 2000
-    MIN_RESPONSE_LENGTH = 50
+    # spons aramtrs
+    __  
+    __  
     
-    # Conversation Flow
-    ENABLE_STEP_BY_STEP = True
-    MAX_QUESTIONS_PER_TURN = 1
+    # onvrsation low
+    ___  r
+    ___  
     
-    # Personalization
-    ENABLE_NAME_USAGE = True
-    ENABLE_AGE_BASED_BRANCHING = True
+    # rsonalization
+    __  r
+    ___  r
     
-    # Content Filtering
-    ENABLE_CONTENT_FILTER = True
-    FORBIDDEN_TOPICS = []
+    # ontnt iltring
+    __  r
+    _  ]
     
-    # Language Settings
-    PRIMARY_LANGUAGE = "en"
-    ALLOW_MULTILINGUAL = True
+    # angag ttings
+    _  "n"
+    _  r

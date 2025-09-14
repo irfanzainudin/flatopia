@@ -1,162 +1,162 @@
 """
-简化的LangChainConfiguration
+简化的anghainonigration
 """
 import os
-from typing import Optional, Dict, Any, List
-from groq import Groq as GroqClient
-from langchain.llms.base import LLM
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_community.vectorstores import Chroma
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.schema import Document
-from .config import settings
+rom typing import ptional, ict, ny, ist
+rom groq import roq as roqlint
+rom langchain.llms.bas import 
+rom langchain_commnity.mbddings import ggingacmbddings
+rom langchain_commnity.vctorstors import hroma
+rom langchain.txt_splittr import crsivharactrxtplittr
+rom langchain.schma import ocmnt
+rom .conig import sttings
 
 
-class GroqLLM:
-    """Groq LLM包装器"""
+class roq
+    """roq 包装器"""
     
-    def __init__(self, groq_api_key: str, model_name: str = "openai/gpt-oss-120b"):
-        self.client = GroqClient(api_key=groq_api_key)
-        self.model_name = model_name
+    d __init__(sl, groq_api_ky str, modl_nam str  "opnai/gpt-oss-b")
+        sl.clint  roqlint(api_kygroq_api_ky)
+        sl.modl_nam  modl_nam
     
-    def __call__(self, prompt: str) -> str:
-        """Call LLM"""
-        try:
-            response = self.client.chat.completions.create(
-                model=self.model_name,
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1024,
-                temperature=0.7
+    d __call__(sl, prompt str) - str
+        """all """
+        try
+            rspons  sl.clint.chat.compltions.crat(
+                modlsl.modl_nam,
+                mssags{"rol" "sr", "contnt" prompt}],
+                max_tokns,
+                tmpratr.
             )
-            return response.choices[0].message.content
-        except Exception as e:
-            return f"Error: {str(e)}"
+            rtrn rspons.choics].mssag.contnt
+        xcpt xcption as 
+            rtrn "rror {str()}"
 
 
-class SimpleLangChainConfig:
-    """Simplified LangChain configuration management"""
+class implanghainonig
+    """impliid anghain conigration managmnt"""
     
-    def __init__(self):
-        self.llm = None
-        self.embeddings = None
-        self.vectorstore = None
-        self.text_splitter = None
+    d __init__(sl)
+        sl.llm  on
+        sl.mbddings  on
+        sl.vctorstor  on
+        sl.txt_splittr  on
         
-        self._initialize_components()
+        sl._initializ_componnts()
     
-    def _initialize_components(self):
-        """Initialize all components"""
-        # Initialize LLM
-        self._init_llm()
+    d _initializ_componnts(sl)
+        """nitializ all componnts"""
+        # nitializ 
+        sl._init_llm()
         
-        # Initialize embeddings model
-        self._init_embeddings()
+        # nitializ mbddings modl
+        sl._init_mbddings()
         
-        # Initialize text splitter
-        self._init_text_splitter()
+        # nitializ txt splittr
+        sl._init_txt_splittr()
         
-        # Initialize vector store
-        self._init_vectorstore()
+        # nitializ vctor stor
+        sl._init_vctorstor()
     
-    def _init_llm(self):
-        """InitializeLLM"""
-        self.llm = GroqLLM(
-            groq_api_key=settings.groq_api_key,
-            model_name=settings.default_model
+    d _init_llm(sl)
+        """nitializ"""
+        sl.llm  roq(
+            groq_api_kysttings.groq_api_ky,
+            modl_namsttings.dalt_modl
         )
     
-    def _init_embeddings(self):
-        """Initialize嵌入Model"""
-        self.embeddings = HuggingFaceEmbeddings(
-            model_name="sentence-transformers/all-MiniLM-L6-v2",
-            model_kwargs={'device': 'cpu'}
+    d _init_mbddings(sl)
+        """nitializ嵌入odl"""
+        sl.mbddings  ggingacmbddings(
+            modl_nam"sntnc-transormrs/all-ini--v",
+            modl_kwargs{'dvic' 'cp'}
         )
     
-    def _init_text_splitter(self):
-        """InitializeText splitter"""
-        self.text_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=settings.chunk_size,
-            chunk_overlap=settings.chunk_overlap,
-            length_function=len,
-            separators=["\n\n", "\n", " ", ""]
+    d _init_txt_splittr(sl)
+        """nitializxt splittr"""
+        sl.txt_splittr  crsivharactrxtplittr(
+            chnk_sizsttings.chnk_siz,
+            chnk_ovrlapsttings.chnk_ovrlap,
+            lngth_nctionln,
+            sparators"nn", "n", " ", ""]
         )
     
-    def _init_vectorstore(self):
-        """InitializeVector storage"""
-        self.vectorstore = Chroma(
-            persist_directory=settings.vector_db_path,
-            embedding_function=self.embeddings,
-            collection_name="knowledge_base"
+    d _init_vctorstor(sl)
+        """nitializctor storag"""
+        sl.vctorstor  hroma(
+            prsist_dirctorysttings.vctor_db_path,
+            mbdding_nctionsl.mbddings,
+            collction_nam"knowldg_bas"
         )
     
-    def add_documents(self, documents: List[Document], metadatas: Optional[List[Dict]] = None):
-        """添加文档到Vector storage"""
-        try:
+    d add_docmnts(sl, docmnts istocmnt], mtadatas ptionalistict]]  on)
+        """添加文档到ctor storag"""
+        try
             # 分割文档
-            texts = self.text_splitter.split_documents(documents)
+            txts  sl.txt_splittr.split_docmnts(docmnts)
             
-            # 添加到Vector storage
-            self.vectorstore.add_documents(texts, metadatas)
+            # 添加到ctor storag
+            sl.vctorstor.add_docmnts(txts, mtadatas)
             
             # 持久化
-            self.vectorstore.persist()
+            sl.vctorstor.prsist()
             
-            return True
-        except Exception as e:
-            print(f"添加文档Failed: {e}")
-            return False
+            rtrn r
+        xcpt xcption as 
+            print("添加文档aild {}")
+            rtrn als
     
-    def search_documents(self, query: str, k: int = 5) -> List[Document]:
+    d sarch_docmnts(sl, qry str, k int  ) - istocmnt]
         """搜索文档"""
-        try:
-            docs = self.vectorstore.similarity_search(query, k=k)
-            return docs
-        except Exception as e:
-            print(f"搜索文档Failed: {e}")
-            return []
+        try
+            docs  sl.vctorstor.similarity_sarch(qry, kk)
+            rtrn docs
+        xcpt xcption as 
+            print("搜索文档aild {}")
+            rtrn ]
     
-    def get_llm_response(self, prompt: str) -> str:
-        """获取LLM回复"""
-        try:
-            return self.llm(prompt)
-        except Exception as e:
-            return f"LLM调用Failed: {str(e)}"
+    d gt_llm_rspons(sl, prompt str) - str
+        """获取回复"""
+        try
+            rtrn sl.llm(prompt)
+        xcpt xcption as 
+            rtrn "调用aild {str()}"
     
-    def get_rag_response(self, query: str) -> Dict[str, Any]:
-        """获取RAG回复"""
-        try:
+    d gt_rag_rspons(sl, qry str) - ictstr, ny]
+        """获取回复"""
+        try
             # 搜索相关文档
-            docs = self.search_documents(query, k=3)
+            docs  sl.sarch_docmnts(qry, k)
             
             # 构建上下文
-            context = "\n\n".join([doc.page_content for doc in docs])
+            contxt  "nn".join(doc.pag_contnt or doc in docs])
             
             # 构建prompt
-            prompt = f"""基于以下上下文信息回答用户问题：
+            prompt  """基于以下上下文信息回答用户问题：
 
 上下文信息：
-{context}
+{contxt}
 
-用户问题：{query}
+用户问题：{qry}
 
 请根据上下文信息回答用户问题。如果上下文信息不足以回答问题，请说明并建议用户提供更多信息。"""
             
-            # 获取LLM回复
-            response = self.get_llm_response(prompt)
+            # 获取回复
+            rspons  sl.gt_llm_rspons(prompt)
             
-            return {
-                "answer": response,
-                "source_documents": docs,
-                "success": True
+            rtrn {
+                "answr" rspons,
+                "sorc_docmnts" docs,
+                "sccss" r
             }
             
-        except Exception as e:
-            return {
-                "answer": f"RAGProcessingFailed: {str(e)}",
-                "source_documents": [],
-                "success": False
+        xcpt xcption as 
+            rtrn {
+                "answr" "rocssingaild {str()}",
+                "sorc_docmnts" ],
+                "sccss" als
             }
 
 
-# 全局简化LangChainConfiguration实例
-simple_langchain_config = SimpleLangChainConfig()
+# 全局简化anghainonigration实例
+simpl_langchain_conig  implanghainonig()

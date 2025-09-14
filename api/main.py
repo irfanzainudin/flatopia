@@ -1,5 +1,5 @@
 """
-FastAPI主Application
+FastAPI Main Application
 """
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,14 +12,14 @@ from ..core.rag_system import rag_system
 from ..core.groq_client import groq_client
 
 
-# 创建FastAPIApplication
+# Create FastAPI Application
 app = FastAPI(
-    title="FlatopiaQ问答A机器人API",
-    description="基于Groq API和RAG技术的智能Q问答A机器人",
+    title="Flatopia Q&A Bot API",
+    description="Intelligent Q&A Bot based on Groq API and RAG technology",
     version="1.0.0"
 )
 
-# 添加CORS中间件
+# Add CORS middleware
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -29,7 +29,7 @@ app.add_middleware(
 )
 
 
-# 请求Model
+# Request Models
 class ChatRequest(BaseModel):
     message: str
     use_rag: bool = True
@@ -46,7 +46,7 @@ class SearchRequest(BaseModel):
     top_k: Optional[int] = None
 
 
-# 响应Model
+# Response Models
 class ChatResponse(BaseModel):
     response: str
     timestamp: str
@@ -60,12 +60,12 @@ class SearchResponse(BaseModel):
     results: List[Dict[str, Any]]
 
 
-# API路由
+# API Routes
 @app.get("/")
 async def root():
-    """根路径"""
+    """Root path"""
     return {
-        "message": "欢迎UseFlatopiaQ问答A机器人API",
+        "message": "Welcome to Flatopia Q&A Bot API",
         "version": "1.0.0",
         "docs": "/docs"
     }
@@ -73,7 +73,7 @@ async def root():
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
-    """聊天Interface"""
+    """Chat Interface"""
     try:
         result = await chat_manager.chat(
             user_input=request.message,
@@ -87,7 +87,7 @@ async def chat(request: ChatRequest):
 
 @app.get("/chat/history")
 async def get_chat_history():
-    """获取聊天历史"""
+    """Get chat history"""
     return {
         "history": chat_manager.get_conversation_history(),
         "summary": chat_manager.get_history_summary()
@@ -96,27 +96,27 @@ async def get_chat_history():
 
 @app.delete("/chat/history")
 async def clear_chat_history():
-    """清空聊天历史"""
+    """Clear chat history"""
     chat_manager.clear_history()
-    return {"message": "聊天历史已清空"}
+    return {"message": "Chat history cleared"}
 
 
 @app.post("/documents")
 async def add_documents(request: DocumentRequest):
-    """添加文档到知识库"""
+    """Add documents to knowledge base"""
     try:
         rag_system.add_documents(
             documents=request.documents,
             metadatas=request.metadatas
         )
-        return {"message": f"Success添加 {len(request.documents)} 个文档"}
+        return {"message": f"Successfully added {len(request.documents)} documents"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
 
 @app.post("/search", response_model=SearchResponse)
 async def search_documents(request: SearchRequest):
-    """搜索文档"""
+    """Search documents"""
     try:
         results = rag_system.search(
             query=request.query,
@@ -129,7 +129,7 @@ async def search_documents(request: SearchRequest):
 
 @app.get("/knowledge/info")
 async def get_knowledge_info():
-    """获取知识库信息"""
+    """Get knowledge base info"""
     try:
         info = rag_system.get_collection_info()
         return info
@@ -139,7 +139,7 @@ async def get_knowledge_info():
 
 @app.get("/models")
 async def get_available_models():
-    """获取可用Model列表"""
+    """Get available model list"""
     return {
         "models": groq_client.get_available_models(),
         "default": groq_client.model
@@ -148,7 +148,7 @@ async def get_available_models():
 
 @app.post("/analyze")
 async def analyze_query(request: SearchRequest):
-    """分析查询"""
+    """Analyze query"""
     try:
         analysis = await chat_manager.analyze_query(request.query)
         return {"analysis": analysis}
@@ -158,7 +158,7 @@ async def analyze_query(request: SearchRequest):
 
 @app.post("/creative")
 async def get_creative_response(request: SearchRequest):
-    """获取创意回复"""
+    """Get creative response"""
     try:
         response = await chat_manager.get_creative_response(request.query)
         return {"response": response}

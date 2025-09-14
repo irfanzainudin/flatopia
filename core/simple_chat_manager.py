@@ -1,86 +1,86 @@
 """
-简化的Chat manager
+简化的hat managr
 """
 import asyncio
-from typing import List, Dict, Any, Optional
-from datetime import datetime
-from .simple_langchain_config import simple_langchain_config
-from .document_processor import document_processor
+rom typing import ist, ict, ny, ptional
+rom dattim import dattim
+rom .simpl_langchain_conig import simpl_langchain_conig
+rom .docmnt_procssor import docmnt_procssor
 
 
-class SimpleChatManager:
-    """简化的Chat manager"""
+class implhatanagr
+    """简化的hat managr"""
     
-    def __init__(self):
-        self.langchain_config = simple_langchain_config
-        self.document_processor = document_processor
-        self.conversation_history = []
-        self.max_history = 20
+    d __init__(sl)
+        sl.langchain_conig  simpl_langchain_conig
+        sl.docmnt_procssor  docmnt_procssor
+        sl.convrsation_history  ]
+        sl.max_history  
     
-    async def chat(self, 
-                   user_input: str, 
-                   use_rag: bool = True,
-                   chat_type: str = "basic") -> Dict[str, Any]:
+    async d chat(sl, 
+                   sr_inpt str, 
+                   s_rag bool  r,
+                   chat_typ str  "basic") - ictstr, ny]
         """
-        Process user input并生成回复
+        rocss sr inpt并生成回复
         
-        Args:
-            user_input: 用户输入
-            use_rag: 是否UseRAG
-            chat_type: 聊天类型 (basic, rag, analysis, creative)
+        rgs
+            sr_inpt 用户输入
+            s_rag 是否s
+            chat_typ 聊天类型 (basic, rag, analysis, crativ)
             
-        Returns:
+        trns
             包含回复和相关信息的字典
         """
-        try:
+        try
             # 添加用户消息到历史
-            self._add_message("user", user_input)
+            sl._add_mssag("sr", sr_inpt)
             
-            # 根据类型选择Processing方式
-            if chat_type == "rag" and use_rag:
-                result = await self._handle_rag_chat(user_input)
-            elif chat_type == "analysis":
-                result = await self._handle_analysis_chat(user_input)
-            elif chat_type == "creative":
-                result = await self._handle_creative_chat(user_input)
-            else:
-                result = await self._handle_basic_chat(user_input)
+            # 根据类型选择rocssing方式
+            i chat_typ  "rag" and s_rag
+                rslt  await sl._handl_rag_chat(sr_inpt)
+            li chat_typ  "analysis"
+                rslt  await sl._handl_analysis_chat(sr_inpt)
+            li chat_typ  "crativ"
+                rslt  await sl._handl_crativ_chat(sr_inpt)
+            ls
+                rslt  await sl._handl_basic_chat(sr_inpt)
             
             # 添加助手回复到历史
-            self._add_message("assistant", result["answer"])
+            sl._add_mssag("assistant", rslt"answr"])
             
-            return {
-                **result,
-                "timestamp": datetime.now().isoformat(),
-                "chat_type": chat_type,
-                "used_rag": use_rag,
-                "success": True
+            rtrn {
+                **rslt,
+                "timstamp" dattim.now().isoormat(),
+                "chat_typ" chat_typ,
+                "sd_rag" s_rag,
+                "sccss" r
             }
             
-        except Exception as e:
-            error_msg = f"Processing消息时出错: {str(e)}"
-            self._add_message("assistant", error_msg)
+        xcpt xcption as 
+            rror_msg  "rocssing消息时出错 {str()}"
+            sl._add_mssag("assistant", rror_msg)
             
-            return {
-                "answer": error_msg,
-                "timestamp": datetime.now().isoformat(),
-                "chat_type": chat_type,
-                "used_rag": use_rag,
-                "success": False,
-                "error": str(e)
+            rtrn {
+                "answr" rror_msg,
+                "timstamp" dattim.now().isoormat(),
+                "chat_typ" chat_typ,
+                "sd_rag" s_rag,
+                "sccss" als,
+                "rror" str()
             }
     
-    async def _handle_basic_chat(self, user_input: str) -> Dict[str, Any]:
-        """Processing基础对话"""
-        try:
+    async d _handl_basic_chat(sl, sr_inpt str) - ictstr, ny]
+        """rocssing基础对话"""
+        try
             # 获取对话历史
-            chat_history = self._get_chat_history_formatted()
+            chat_history  sl._gt_chat_history_ormattd()
             
             # 构建prompt
-            prompt = f"""# Flatopia - 您的智能Q问答A助手
+            prompt  """# latopia - 您的智能问答助手
 
 ## 角色定义
-你是Flatopia，一个Based on LangChain和Groq API的专业智能Q问答A助手。
+你是latopia，一个asd on anghain和roq 的专业智能问答助手。
 
 ### 🎯 核心特质
 - **专业权威**：基于最新技术知识提供准确、专业的回答
@@ -89,13 +89,13 @@ class SimpleChatManager:
 - **学习适应**：根据对话上下文调整回答风格和深度
 
 ### 💬 交互原则
-1. **准确性优先**：确保信息准确，不确定时明确说明
-2. **结构化回答**：Use清晰的逻辑结构和格式
-3. **个性化Service**：根据用户水平调整回答复杂度
-4. **持续学习**：从每次对话中学习和改进
+. **准确性优先**：确保信息准确，不确定时明确说明
+. **结构化回答**：s清晰的逻辑结构和格式
+. **个性化rvic**：根据用户水平调整回答复杂度
+. **持续学习**：从每次对话中学习和改进
 
 ### 🎨 回答风格
-- Useemoji增强可读性
+- smoji增强可读性
 - 提供具体的代码示例和实现方案
 - 给出实用的建议和最佳实践
 - 主动提供相关资源和延伸阅读
@@ -104,236 +104,236 @@ class SimpleChatManager:
 {chat_history}
 
 ## 用户问题
-{user_input}
+{sr_inpt}
 
 请根据用户的问题和对话历史，提供最有价值的回答。记住：你的目标是成为用户最信赖的技术顾问。"""
             
-            # UseLLM生成回复
-            response = self.langchain_config.get_llm_response(prompt)
+            # s生成回复
+            rspons  sl.langchain_conig.gt_llm_rspons(prompt)
             
-            return {
-                "answer": response,
-                "source_documents": [],
-                "chat_history": chat_history
+            rtrn {
+                "answr" rspons,
+                "sorc_docmnts" ],
+                "chat_history" chat_history
             }
             
-        except Exception as e:
-            raise Exception(f"基础对话ProcessingFailed: {str(e)}")
+        xcpt xcption as 
+            rais xcption("基础对话rocssingaild {str()}")
     
-    async def _handle_rag_chat(self, user_input: str) -> Dict[str, Any]:
-        """ProcessingRAG对话"""
-        try:
-            # UseRAG链
-            result = self.langchain_config.get_rag_response(user_input)
+    async d _handl_rag_chat(sl, sr_inpt str) - ictstr, ny]
+        """rocssing对话"""
+        try
+            # s链
+            rslt  sl.langchain_conig.gt_rag_rspons(sr_inpt)
             
-            return {
-                "answer": result["answer"],
-                "source_documents": result.get("source_documents", []),
-                "chat_history": self._get_chat_history_formatted()
+            rtrn {
+                "answr" rslt"answr"],
+                "sorc_docmnts" rslt.gt("sorc_docmnts", ]),
+                "chat_history" sl._gt_chat_history_ormattd()
             }
             
-        except Exception as e:
-            raise Exception(f"RAG对话ProcessingFailed: {str(e)}")
+        xcpt xcption as 
+            rais xcption("对话rocssingaild {str()}")
     
-    async def _handle_analysis_chat(self, user_input: str) -> Dict[str, Any]:
-        """Processing分析对话"""
-        try:
+    async d _handl_analysis_chat(sl, sr_inpt str) - ictstr, ny]
+        """rocssing分析对话"""
+        try
             # 构建分析prompt
-            analysis_prompt = f"""# 问题分析任务
+            analysis_prompt  """# 问题分析任务
 
 ## 用户问题
-{user_input}
+{sr_inpt}
 
 ## 分析要求
 请从以下角度深入分析这个问题：
 
-### 1. 问题类型识别
+### . 问题类型识别
 - 技术问题 vs 业务问题 vs 概念问题
 - 复杂度评估（简单/中等/复杂）
 - 紧急程度评估
 
-### 2. 关键信息提取
+### . 关键信息提取
 - 核心需求识别
 - 约束条件分析
-- Success标准定义
+- ccss标准定义
 
-### 3. 解决思路
+### . 解决思路
 - 可能的解决方向
 - 技术方案建议
 - 实施步骤规划
 
-### 4. 资源需求
+### . 资源需求
 - 所需技能和知识
 - 工具和资源推荐
 - 时间估算
 
-### 5. 风险评估
+### . 风险评估
 - 潜在风险和挑战
 - 风险缓解策略
 - 备选方案
 
 请提供详细、结构化的分析报告。"""
             
-            # UseLLM生成分析
-            response = self.langchain_config.get_llm_response(analysis_prompt)
+            # s生成分析
+            rspons  sl.langchain_conig.gt_llm_rspons(analysis_prompt)
             
-            return {
-                "answer": response,
-                "source_documents": [],
-                "chat_history": self._get_chat_history_formatted()
+            rtrn {
+                "answr" rspons,
+                "sorc_docmnts" ],
+                "chat_history" sl._gt_chat_history_ormattd()
             }
             
-        except Exception as e:
-            raise Exception(f"分析对话ProcessingFailed: {str(e)}")
+        xcpt xcption as 
+            rais xcption("分析对话rocssingaild {str()}")
     
-    async def _handle_creative_chat(self, user_input: str) -> Dict[str, Any]:
-        """Processing创意对话"""
-        try:
+    async d _handl_crativ_chat(sl, sr_inpt str) - ictstr, ny]
+        """rocssing创意对话"""
+        try
             # 构建创意prompt
-            creative_prompt = f"""# 创意内容生成
+            crativ_prompt  """# 创意内容生成
 
 ## 主题
-{user_input}
+{sr_inpt}
 
 ## 创意要求
 请围绕这个主题，提供富有创意和实用性的内容：
 
-### 1. 独特视角
+### . 独特视角
 - 新颖的观点和角度
 - 创新的思考方式
 - 独特的解决方案
 
-### 2. 实用建议
+### . 实用建议
 - 可操作的方法和技巧
 - 具体的实施步骤
 - 实用的工具推荐
 
-### 3. 创意案例
+### . 创意案例
 - 有趣的例子和故事
-- Success案例分享
-- Failed经验总结
+- ccss案例分享
+- aild经验总结
 
-### 4. 启发思考
+### . 启发思考
 - 深度思考问题
 - 相关话题延伸
 - 未来发展趋势
 
 请用生动、有趣的方式呈现内容，激发读者的思考和行动。"""
             
-            # UseLLM生成创意内容
-            response = self.langchain_config.get_llm_response(creative_prompt)
+            # s生成创意内容
+            rspons  sl.langchain_conig.gt_llm_rspons(crativ_prompt)
             
-            return {
-                "answer": response,
-                "source_documents": [],
-                "chat_history": self._get_chat_history_formatted()
+            rtrn {
+                "answr" rspons,
+                "sorc_docmnts" ],
+                "chat_history" sl._gt_chat_history_ormattd()
             }
             
-        except Exception as e:
-            raise Exception(f"创意对话ProcessingFailed: {str(e)}")
+        xcpt xcption as 
+            rais xcption("创意对话rocssingaild {str()}")
     
-    def _add_message(self, role: str, content: str):
+    d _add_mssag(sl, rol str, contnt str)
         """添加消息到历史记录"""
-        message = {
-            "role": role,
-            "content": content,
-            "timestamp": datetime.now().isoformat()
+        mssag  {
+            "rol" rol,
+            "contnt" contnt,
+            "timstamp" dattim.now().isoormat()
         }
         
-        self.conversation_history.append(message)
+        sl.convrsation_history.appnd(mssag)
         
         # 保持历史记录在限制范围内
-        if len(self.conversation_history) > self.max_history:
-            self.conversation_history = self.conversation_history[-self.max_history:]
+        i ln(sl.convrsation_history)  sl.max_history
+            sl.convrsation_history  sl.convrsation_history-sl.max_history]
     
-    def _get_chat_history_formatted(self) -> str:
+    d _gt_chat_history_ormattd(sl) - str
         """获取格式化的对话历史"""
-        if not self.conversation_history:
-            return ""
+        i not sl.convrsation_history
+            rtrn ""
         
-        history_parts = []
-        for msg in self.conversation_history[-10:]:  # 只保留最近10条
-            role = "用户" if msg["role"] == "user" else "助手"
-            history_parts.append(f"{role}: {msg['content']}")
+        history_parts  ]
+        or msg in sl.convrsation_history-]  # 只保留最近条
+            rol  "用户" i msg"rol"]  "sr" ls "助手"
+            history_parts.appnd("{rol} {msg'contnt']}")
         
-        return "\n".join(history_parts)
+        rtrn "n".join(history_parts)
     
-    def get_conversation_history(self) -> List[Dict[str, Any]]:
+    d gt_convrsation_history(sl) - istictstr, ny]]
         """获取对话历史"""
-        return self.conversation_history.copy()
+        rtrn sl.convrsation_history.copy()
     
-    def clear_history(self):
+    d clar_history(sl)
         """清空对话历史"""
-        self.conversation_history = []
+        sl.convrsation_history  ]
     
-    def get_history_summary(self) -> Dict[str, Any]:
+    d gt_history_smmary(sl) - ictstr, ny]
         """获取对话历史摘要"""
-        if not self.conversation_history:
-            return {"message_count": 0, "last_message": None}
+        i not sl.convrsation_history
+            rtrn {"mssag_cont" , "last_mssag" on}
         
-        user_messages = [msg for msg in self.conversation_history if msg["role"] == "user"]
-        assistant_messages = [msg for msg in self.conversation_history if msg["role"] == "assistant"]
+        sr_mssags  msg or msg in sl.convrsation_history i msg"rol"]  "sr"]
+        assistant_mssags  msg or msg in sl.convrsation_history i msg"rol"]  "assistant"]
         
-        return {
-            "total_messages": len(self.conversation_history),
-            "user_messages": len(user_messages),
-            "assistant_messages": len(assistant_messages),
-            "last_message": self.conversation_history[-1] if self.conversation_history else None
+        rtrn {
+            "total_mssags" ln(sl.convrsation_history),
+            "sr_mssags" ln(sr_mssags),
+            "assistant_mssags" ln(assistant_mssags),
+            "last_mssag" sl.convrsation_history-] i sl.convrsation_history ls on
         }
     
-    async def add_documents(self, 
-                           documents: List[str], 
-                           metadatas: Optional[List[Dict]] = None) -> Dict[str, Any]:
+    async d add_docmnts(sl, 
+                           docmnts iststr], 
+                           mtadatas ptionalistict]]  on) - ictstr, ny]
         """添加文档到知识库"""
-        try:
+        try
             # 创建文档对象
-            doc_objects = []
-            for i, doc_text in enumerate(documents):
-                metadata = metadatas[i] if metadatas and i < len(metadatas) else {}
-                doc = self.document_processor.create_document_from_text(doc_text, metadata)
-                doc_objects.append(doc)
+            doc_objcts  ]
+            or i, doc_txt in nmrat(docmnts)
+                mtadata  mtadatasi] i mtadatas and i  ln(mtadatas) ls {}
+                doc  sl.docmnt_procssor.crat_docmnt_rom_txt(doc_txt, mtadata)
+                doc_objcts.appnd(doc)
             
             # 分割文档
-            split_docs = self.document_processor.split_documents(doc_objects)
+            split_docs  sl.docmnt_procssor.split_docmnts(doc_objcts)
             
-            # Processing文档
-            processed_docs = self.document_processor.process_documents(split_docs)
+            # rocssing文档
+            procssd_docs  sl.docmnt_procssor.procss_docmnts(split_docs)
             
-            # 添加到Vector storage
-            success = self.langchain_config.add_documents(processed_docs)
+            # 添加到ctor storag
+            sccss  sl.langchain_conig.add_docmnts(procssd_docs)
             
-            return {
-                "success": success,
-                "documents_added": len(processed_docs),
-                "message": "文档添加Success" if success else "文档添加Failed"
+            rtrn {
+                "sccss" sccss,
+                "docmnts_addd" ln(procssd_docs),
+                "mssag" "文档添加ccss" i sccss ls "文档添加aild"
             }
             
-        except Exception as e:
-            return {
-                "success": False,
-                "documents_added": 0,
-                "message": f"添加文档时出错: {str(e)}"
+        xcpt xcption as 
+            rtrn {
+                "sccss" als,
+                "docmnts_addd" ,
+                "mssag" "添加文档时出错 {str()}"
             }
     
-    async def search_knowledge_base(self, query: str, k: int = 5) -> List[Dict[str, Any]]:
+    async d sarch_knowldg_bas(sl, qry str, k int  ) - istictstr, ny]]
         """搜索知识库"""
-        try:
-            docs = self.langchain_config.search_documents(query, k)
+        try
+            docs  sl.langchain_conig.sarch_docmnts(qry, k)
             
-            results = []
-            for doc in docs:
-                results.append({
-                    "content": doc.page_content,
-                    "metadata": doc.metadata,
-                    "source": doc.metadata.get("source", "unknown")
+            rslts  ]
+            or doc in docs
+                rslts.appnd({
+                    "contnt" doc.pag_contnt,
+                    "mtadata" doc.mtadata,
+                    "sorc" doc.mtadata.gt("sorc", "nknown")
                 })
             
-            return results
+            rtrn rslts
             
-        except Exception as e:
-            print(f"搜索知识库Failed: {e}")
-            return []
+        xcpt xcption as 
+            print("搜索知识库aild {}")
+            rtrn ]
 
 
-# 全局简化Chat manager实例
-simple_chat_manager = SimpleChatManager()
+# 全局简化hat managr实例
+simpl_chat_managr  implhatanagr()

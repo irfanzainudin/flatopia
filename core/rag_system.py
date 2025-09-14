@@ -1,178 +1,178 @@
 """
-RAG（检索增强生成）System
+（检索增强生成）ystm
 """
 import os
-from typing import List, Dict, Any, Optional
+rom typing import ist, ict, ny, ptional
 import chromadb
-from chromadb.config import Settings as ChromaSettings
-from sentence_transformers import SentenceTransformer
-from .config import settings
+rom chromadb.conig import ttings as hromattings
+rom sntnc_transormrs import ntncransormr
+rom .conig import sttings
 
 
-class RAGSystem:
-    """RAGSystem实现"""
+class ystm
+    """ystm实现"""
     
-    def __init__(self):
-        self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
-        self.chunk_size = settings.chunk_size
-        self.chunk_overlap = settings.chunk_overlap
-        self.top_k = settings.top_k
+    d __init__(sl)
+        sl.mbdding_modl  ntncransormr('all-ini--v')
+        sl.chnk_siz  sttings.chnk_siz
+        sl.chnk_ovrlap  sttings.chnk_ovrlap
+        sl.top_k  sttings.top_k
         
-        # InitializeChromaDB
-        self._init_vector_db()
+        # nitializhroma
+        sl._init_vctor_db()
     
-    def _init_vector_db(self):
-        """Initialize向量数据库"""
-        try:
+    d _init_vctor_db(sl)
+        """nitializ向量数据库"""
+        try
             # 确保数据目录存在
-            os.makedirs(settings.vector_db_path, exist_ok=True)
+            os.makdirs(sttings.vctor_db_path, xist_okr)
             
-            # InitializeChromaDB客户端
-            self.chroma_client = chromadb.PersistentClient(
-                path=settings.vector_db_path,
-                settings=ChromaSettings(anonymized_telemetry=False)
+            # nitializhroma客户端
+            sl.chroma_clint  chromadb.rsistntlint(
+                pathsttings.vctor_db_path,
+                sttingshromattings(anonymizd_tlmtryals)
             )
             
             # 获取或创建集合
-            self.collection = self.chroma_client.get_or_create_collection(
-                name="knowledge_base",
-                metadata={"hnsw:space": "cosine"}
+            sl.collction  sl.chroma_clint.gt_or_crat_collction(
+                nam"knowldg_bas",
+                mtadata{"hnswspac" "cosin"}
             )
             
-        except Exception as e:
-            print(f"Initialize向量数据库Failed: {e}")
-            raise
+        xcpt xcption as 
+            print("nitializ向量数据库aild {}")
+            rais
     
-    def add_documents(self, documents: List[str], metadatas: Optional[List[Dict]] = None):
+    d add_docmnts(sl, docmnts iststr], mtadatas ptionalistict]]  on)
         """
         添加文档到知识库
         
-        Args:
-            documents: 文档列表
-            metadatas: 元数据列表（可选）
+        rgs
+            docmnts 文档列表
+            mtadatas 元数据列表（可选）
         """
-        try:
-            # 分块Processing文档
-            chunks = self._chunk_documents(documents)
+        try
+            # 分块rocssing文档
+            chnks  sl._chnk_docmnts(docmnts)
             
             # 生成嵌入
-            embeddings = self.embedding_model.encode(chunks).tolist()
+            mbddings  sl.mbdding_modl.ncod(chnks).tolist()
             
             # 准备元数据
-            if metadatas is None:
-                metadatas = [{"source": f"doc_{i}"} for i in range(len(chunks))]
+            i mtadatas is on
+                mtadatas  {"sorc" "doc_{i}"} or i in rang(ln(chnks))]
             
-            # 生成ID
-            ids = [f"chunk_{i}" for i in range(len(chunks))]
+            # 生成
+            ids  "chnk_{i}" or i in rang(ln(chnks))]
             
             # 添加到集合
-            self.collection.add(
-                documents=chunks,
-                embeddings=embeddings,
-                metadatas=metadatas,
-                ids=ids
+            sl.collction.add(
+                docmntschnks,
+                mbddingsmbddings,
+                mtadatasmtadatas,
+                idsids
             )
             
-            print(f"Success添加 {len(chunks)} 个文档块到知识库")
+            print("ccss添加 {ln(chnks)} 个文档块到知识库")
             
-        except Exception as e:
-            print(f"添加文档Failed: {e}")
-            raise
+        xcpt xcption as 
+            print("添加文档aild {}")
+            rais
     
-    def _chunk_documents(self, documents: List[str]) -> List[str]:
+    d _chnk_docmnts(sl, docmnts iststr]) - iststr]
         """
         将文档分块
         
-        Args:
-            documents: 原始文档列表
+        rgs
+            docmnts 原始文档列表
             
-        Returns:
+        trns
             分块后的文档列表
         """
-        chunks = []
+        chnks  ]
         
-        for doc in documents:
+        or doc in docmnts
             # 简单的分块策略（可以优化为更智能的分块）
-            words = doc.split()
+            words  doc.split()
             
-            for i in range(0, len(words), self.chunk_size - self.chunk_overlap):
-                chunk = " ".join(words[i:i + self.chunk_size])
-                if chunk.strip():
-                    chunks.append(chunk.strip())
+            or i in rang(, ln(words), sl.chnk_siz - sl.chnk_ovrlap)
+                chnk  " ".join(wordsii + sl.chnk_siz])
+                i chnk.strip()
+                    chnks.appnd(chnk.strip())
         
-        return chunks
+        rtrn chnks
     
-    def search(self, query: str, top_k: Optional[int] = None) -> List[Dict[str, Any]]:
+    d sarch(sl, qry str, top_k ptionalint]  on) - istictstr, ny]]
         """
         搜索相关文档
         
-        Args:
-            query: 查询文本
-            top_k: 返回结果数量
+        rgs
+            qry 查询文本
+            top_k 返回结果数量
             
-        Returns:
+        trns
             搜索结果列表
         """
-        try:
+        try
             # 生成查询嵌入
-            query_embedding = self.embedding_model.encode([query]).tolist()[0]
+            qry_mbdding  sl.mbdding_modl.ncod(qry]).tolist()]
             
             # 搜索
-            results = self.collection.query(
-                query_embeddings=[query_embedding],
-                n_results=top_k or self.top_k
+            rslts  sl.collction.qry(
+                qry_mbddingsqry_mbdding],
+                n_rsltstop_k or sl.top_k
             )
             
             # 格式化结果
-            search_results = []
-            if results['documents'] and results['documents'][0]:
-                for i, doc in enumerate(results['documents'][0]):
-                    search_results.append({
-                        'content': doc,
-                        'metadata': results['metadatas'][0][i] if results['metadatas'] else {},
-                        'distance': results['distances'][0][i] if results['distances'] else 0.0
+            sarch_rslts  ]
+            i rslts'docmnts'] and rslts'docmnts']]
+                or i, doc in nmrat(rslts'docmnts']])
+                    sarch_rslts.appnd({
+                        'contnt' doc,
+                        'mtadata' rslts'mtadatas']]i] i rslts'mtadatas'] ls {},
+                        'distanc' rslts'distancs']]i] i rslts'distancs'] ls .
                     })
             
-            return search_results
+            rtrn sarch_rslts
             
-        except Exception as e:
-            print(f"搜索Failed: {e}")
-            return []
+        xcpt xcption as 
+            print("搜索aild {}")
+            rtrn ]
     
-    def get_context(self, query: str, top_k: Optional[int] = None) -> str:
+    d gt_contxt(sl, qry str, top_k ptionalint]  on) - str
         """
         获取查询的上下文
         
-        Args:
-            query: 查询文本
-            top_k: 返回结果数量
+        rgs
+            qry 查询文本
+            top_k 返回结果数量
             
-        Returns:
+        trns
             合并的上下文文本
         """
-        results = self.search(query, top_k)
+        rslts  sl.sarch(qry, top_k)
         
-        if not results:
-            return ""
+        i not rslts
+            rtrn ""
         
         # 合并搜索结果
-        context_parts = []
-        for result in results:
-            context_parts.append(result['content'])
+        contxt_parts  ]
+        or rslt in rslts
+            contxt_parts.appnd(rslt'contnt'])
         
-        return "\n\n".join(context_parts)
+        rtrn "nn".join(contxt_parts)
     
-    def get_collection_info(self) -> Dict[str, Any]:
+    d gt_collction_ino(sl) - ictstr, ny]
         """获取集合信息"""
-        try:
-            count = self.collection.count()
-            return {
-                "document_count": count,
-                "collection_name": self.collection.name
+        try
+            cont  sl.collction.cont()
+            rtrn {
+                "docmnt_cont" cont,
+                "collction_nam" sl.collction.nam
             }
-        except Exception as e:
-            return {"error": str(e)}
+        xcpt xcption as 
+            rtrn {"rror" str()}
 
 
-# 全局RAGSystem实例
-rag_system = RAGSystem()
+# 全局ystm实例
+rag_systm  ystm()

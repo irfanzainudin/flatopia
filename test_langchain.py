@@ -1,284 +1,284 @@
 """
-LangChainTest script
+anghainst script
 """
 import asyncio
 import sys
-from pathlib import Path
+rom pathlib import ath
 
-# 添加项目根目录到Python路径
-project_root = Path(__file__).parent
-sys.path.insert(0, str(project_root))
+# 添加项目根目录到ython路径
+projct_root  ath(__il__).parnt
+sys.path.insrt(, str(projct_root))
 
-from core.langchain_chat_manager import langchain_chat_manager
-from core.document_processor import document_processor
-from core.langchain_config import langchain_config
-from utils.data_loader import DataLoader
+rom cor.langchain_chat_managr import langchain_chat_managr
+rom cor.docmnt_procssor import docmnt_procssor
+rom cor.langchain_conig import langchain_conig
+rom tils.data_loadr import ataoadr
 
 
-async def test_langchain_components():
-    """测试LangChain组件"""
-    print("🧪 测试LangChain组件...")
+async d tst_langchain_componnts()
+    """测试anghain组件"""
+    print("🧪 测试anghain组件...")
     
-    tests = [
-        ("LLM", test_llm),
-        ("嵌入Model", test_embeddings),
-        ("Vector storage", test_vectorstore),
-        ("文档Processing器", test_document_processor),
-        ("Memory management", test_memory),
-        ("Chat manager", test_chat_manager),
-        ("RAG链", test_rag_chain),
-        ("代理", test_agent)
+    tsts  
+        ("", tst_llm),
+        ("嵌入odl", tst_mbddings),
+        ("ctor storag", tst_vctorstor),
+        ("文档rocssing器", tst_docmnt_procssor),
+        ("mory managmnt", tst_mmory),
+        ("hat managr", tst_chat_managr),
+        ("链", tst_rag_chain),
+        ("代理", tst_agnt)
     ]
     
-    results = []
+    rslts  ]
     
-    for test_name, test_func in tests:
-        try:
-            print(f"\n🔍 测试 {test_name}...")
-            result = await test_func()
-            results.append((test_name, result))
-            status = "✅ 通过" if result else "❌ Failed"
-            print(f"{status} {test_name}")
-        except Exception as e:
-            print(f"❌ {test_name} 测试异常: {e}")
-            results.append((test_name, False))
+    or tst_nam, tst_nc in tsts
+        try
+            print("n🔍 测试 {tst_nam}...")
+            rslt  await tst_nc()
+            rslts.appnd((tst_nam, rslt))
+            stats  "✅ 通过" i rslt ls "❌ aild"
+            print("{stats} {tst_nam}")
+        xcpt xcption as 
+            print("❌ {tst_nam} 测试异常 {}")
+            rslts.appnd((tst_nam, als))
     
-    return results
+    rtrn rslts
 
 
-async def test_llm():
-    """测试LLM"""
-    try:
-        response = langchain_config.llm("你好，请简单介绍一下自己")
-        return len(response) > 0
-    except Exception as e:
-        print(f"LLM测试Failed: {e}")
-        return False
+async d tst_llm()
+    """测试"""
+    try
+        rspons  langchain_conig.llm("你好，请简单介绍一下自己")
+        rtrn ln(rspons)  
+    xcpt xcption as 
+        print("测试aild {}")
+        rtrn als
 
 
-async def test_embeddings():
-    """测试嵌入Model"""
-    try:
-        test_text = "这是一个测试文本"
-        embedding = langchain_config.embeddings.embed_query(test_text)
-        return len(embedding) > 0
-    except Exception as e:
-        print(f"嵌入Model测试Failed: {e}")
-        return False
+async d tst_mbddings()
+    """测试嵌入odl"""
+    try
+        tst_txt  "这是一个测试文本"
+        mbdding  langchain_conig.mbddings.mbd_qry(tst_txt)
+        rtrn ln(mbdding)  
+    xcpt xcption as 
+        print("嵌入odl测试aild {}")
+        rtrn als
 
 
-async def test_vectorstore():
-    """测试Vector storage"""
-    try:
+async d tst_vctorstor()
+    """测试ctor storag"""
+    try
         # 添加测试文档
-        test_doc = document_processor.create_document_from_text(
-            "这是一个测试文档，用于测试Vector storage功能。",
-            {"source": "test", "type": "test_doc"}
+        tst_doc  docmnt_procssor.crat_docmnt_rom_txt(
+            "这是一个测试文档，用于测试ctor storag功能。",
+            {"sorc" "tst", "typ" "tst_doc"}
         )
         
-        # 添加到Vector storage
-        success = langchain_config.add_documents([test_doc])
+        # 添加到ctor storag
+        sccss  langchain_conig.add_docmnts(tst_doc])
         
-        if success:
+        i sccss
             # 测试搜索
-            docs = langchain_config.search_documents("测试文档", k=1)
-            return len(docs) > 0
+            docs  langchain_conig.sarch_docmnts("测试文档", k)
+            rtrn ln(docs)  
         
-        return False
-    except Exception as e:
-        print(f"Vector storage测试Failed: {e}")
-        return False
+        rtrn als
+    xcpt xcption as 
+        print("ctor storag测试aild {}")
+        rtrn als
 
 
-async def test_document_processor():
-    """测试文档Processing器"""
-    try:
-        # 测试文本Processing
-        test_text = "这是一个测试文档。它包含多个句子。用于测试文档Processing功能。"
-        doc = document_processor.create_document_from_text(test_text)
+async d tst_docmnt_procssor()
+    """测试文档rocssing器"""
+    try
+        # 测试文本rocssing
+        tst_txt  "这是一个测试文档。它包含多个句子。用于测试文档rocssing功能。"
+        doc  docmnt_procssor.crat_docmnt_rom_txt(tst_txt)
         
         # 测试文档分割
-        split_docs = document_processor.split_documents([doc])
+        split_docs  docmnt_procssor.split_docmnts(doc])
         
-        # 测试文档Processing
-        processed_docs = document_processor.process_documents(split_docs)
+        # 测试文档rocssing
+        procssd_docs  docmnt_procssor.procss_docmnts(split_docs)
         
-        return len(processed_docs) > 0
-    except Exception as e:
-        print(f"文档Processing器测试Failed: {e}")
-        return False
+        rtrn ln(procssd_docs)  
+    xcpt xcption as 
+        print("文档rocssing器测试aild {}")
+        rtrn als
 
 
-async def test_memory():
-    """测试Memory management"""
-    try:
+async d tst_mmory()
+    """测试mory managmnt"""
+    try
         # 测试内存操作
-        memory_info = langchain_config.get_memory_summary()
+        mmory_ino  langchain_conig.gt_mmory_smmary()
         
         # 清空内存
-        langchain_config.clear_memory()
+        langchain_conig.clar_mmory()
         
-        return "memory_type" in memory_info
-    except Exception as e:
-        print(f"Memory management测试Failed: {e}")
-        return False
+        rtrn "mmory_typ" in mmory_ino
+    xcpt xcption as 
+        print("mory managmnt测试aild {}")
+        rtrn als
 
 
-async def test_chat_manager():
-    """测试Chat manager"""
-    try:
+async d tst_chat_managr()
+    """测试hat managr"""
+    try
         # 测试基础对话
-        result = await langchain_chat_manager.chat("你好，请介绍一下自己")
+        rslt  await langchain_chat_managr.chat("你好，请介绍一下自己")
         
-        return result["success"]
-    except Exception as e:
-        print(f"Chat manager测试Failed: {e}")
-        return False
+        rtrn rslt"sccss"]
+    xcpt xcption as 
+        print("hat managr测试aild {}")
+        rtrn als
 
 
-async def test_rag_chain():
-    """测试RAG链"""
-    try:
-        # 测试RAG对话
-        result = await langchain_chat_manager.chat("什么是RAG技术？", chat_type="rag")
+async d tst_rag_chain()
+    """测试链"""
+    try
+        # 测试对话
+        rslt  await langchain_chat_managr.chat("什么是技术？", chat_typ"rag")
         
-        return result["success"]
-    except Exception as e:
-        print(f"RAG链测试Failed: {e}")
-        return False
+        rtrn rslt"sccss"]
+    xcpt xcption as 
+        print("链测试aild {}")
+        rtrn als
 
 
-async def test_agent():
+async d tst_agnt()
     """测试代理"""
-    try:
+    try
         # 测试代理
-        result = langchain_config.get_agent_response("你好，请介绍一下自己")
+        rslt  langchain_conig.gt_agnt_rspons("你好，请介绍一下自己")
         
-        return result["success"]
-    except Exception as e:
-        print(f"代理测试Failed: {e}")
-        return False
+        rtrn rslt"sccss"]
+    xcpt xcption as 
+        print("代理测试aild {}")
+        rtrn als
 
 
-async def test_document_workflow():
+async d tst_docmnt_worklow()
     """测试文档工作流"""
-    print("\n📚 测试文档工作流...")
+    print("n📚 测试文档工作流...")
     
-    try:
-        # Loading示例文档
-        sample_docs = DataLoader.load_sample_documents()
+    try
+        # oading示例文档
+        sampl_docs  ataoadr.load_sampl_docmnts()
         
         # 创建文档对象
-        doc_objects = []
-        for i, doc_text in enumerate(sample_docs[:2]):  # 只测试前2个文档
-            doc = document_processor.create_document_from_text(
-                doc_text,
-                {"source": f"test_doc_{i}", "type": "sample"}
+        doc_objcts  ]
+        or i, doc_txt in nmrat(sampl_docs])  # 只测试前个文档
+            doc  docmnt_procssor.crat_docmnt_rom_txt(
+                doc_txt,
+                {"sorc" "tst_doc_{i}", "typ" "sampl"}
             )
-            doc_objects.append(doc)
+            doc_objcts.appnd(doc)
         
         # 分割文档
-        split_docs = document_processor.split_documents(doc_objects)
-        print(f"   文档分割: {len(split_docs)} 个文档块")
+        split_docs  docmnt_procssor.split_docmnts(doc_objcts)
+        print("   文档分割 {ln(split_docs)} 个文档块")
         
-        # Processing文档
-        processed_docs = document_processor.process_documents(split_docs)
-        print(f"   文档Processing: {len(processed_docs)} 个Processing后的文档")
+        # rocssing文档
+        procssd_docs  docmnt_procssor.procss_docmnts(split_docs)
+        print("   文档rocssing {ln(procssd_docs)} 个rocssing后的文档")
         
-        # 添加到Vector storage
-        success = langchain_config.add_documents(processed_docs)
-        print(f"   Vector storage: {'Success' if success else 'Failed'}")
+        # 添加到ctor storag
+        sccss  langchain_conig.add_docmnts(procssd_docs)
+        print("   ctor storag {'ccss' i sccss ls 'aild'}")
         
         # 测试搜索
-        search_results = langchain_config.search_documents("RAG技术", k=3)
-        print(f"   搜索测试: 找到 {len(search_results)} 个相关文档")
+        sarch_rslts  langchain_conig.sarch_docmnts("技术", k)
+        print("   搜索测试 找到 {ln(sarch_rslts)} 个相关文档")
         
-        return success and len(search_results) > 0
+        rtrn sccss and ln(sarch_rslts)  
         
-    except Exception as e:
-        print(f"文档工作流测试Failed: {e}")
-        return False
+    xcpt xcption as 
+        print("文档工作流测试aild {}")
+        rtrn als
 
 
-async def test_chat_types():
+async d tst_chat_typs()
     """测试不同聊天类型"""
-    print("\n💬 测试不同聊天类型...")
+    print("n💬 测试不同聊天类型...")
     
-    test_queries = [
+    tst_qris  
         ("基础对话", "你好，请介绍一下自己", "basic"),
-        ("RAG对话", "什么是RAG技术？", "rag"),
-        ("分析对话", "如何优化Python代码性能？", "analysis"),
-        ("创意对话", "人工智能的未来发展", "creative")
+        ("对话", "什么是技术？", "rag"),
+        ("分析对话", "如何优化ython代码性能？", "analysis"),
+        ("创意对话", "人工智能的未来发展", "crativ")
     ]
     
-    results = []
+    rslts  ]
     
-    for chat_type, query, expected_type in test_queries:
-        try:
-            result = await langchain_chat_manager.chat(query, chat_type=expected_type)
-            success = result["success"] and len(result["answer"]) > 0
-            results.append((chat_type, success))
-            status = "✅" if success else "❌"
-            print(f"   {status} {chat_type}: {result['answer'][:50]}...")
-        except Exception as e:
-            print(f"   ❌ {chat_type}: {e}")
-            results.append((chat_type, False))
+    or chat_typ, qry, xpctd_typ in tst_qris
+        try
+            rslt  await langchain_chat_managr.chat(qry, chat_typxpctd_typ)
+            sccss  rslt"sccss"] and ln(rslt"answr"])  
+            rslts.appnd((chat_typ, sccss))
+            stats  "✅" i sccss ls "❌"
+            print("   {stats} {chat_typ} {rslt'answr']]}...")
+        xcpt xcption as 
+            print("   ❌ {chat_typ} {}")
+            rslts.appnd((chat_typ, als))
     
-    return results
+    rtrn rslts
 
 
-async def run_all_tests():
+async d rn_all_tsts()
     """运行所有测试"""
-    print("=" * 60)
-    print("🧪 开始运行LangChain测试")
-    print("=" * 60)
+    print("" * )
+    print("🧪 开始运行anghain测试")
+    print("" * )
     
     # 测试组件
-    component_results = await test_langchain_components()
+    componnt_rslts  await tst_langchain_componnts()
     
     # 测试文档工作流
-    doc_workflow_result = await test_document_workflow()
+    doc_worklow_rslt  await tst_docmnt_worklow()
     
     # 测试聊天类型
-    chat_type_results = await test_chat_types()
+    chat_typ_rslts  await tst_chat_typs()
     
     # 汇总结果
-    all_results = component_results + [("文档工作流", doc_workflow_result)] + chat_type_results
+    all_rslts  componnt_rslts + ("文档工作流", doc_worklow_rslt)] + chat_typ_rslts
     
     # 显示测试结果
-    print("\n" + "=" * 60)
+    print("n" + "" * )
     print("📊 测试结果汇总")
-    print("=" * 60)
+    print("" * )
     
-    passed = 0
-    for test_name, result in all_results:
-        status = "✅ 通过" if result else "❌ Failed"
-        print(f"{test_name}: {status}")
-        if result:
-            passed += 1
+    passd  
+    or tst_nam, rslt in all_rslts
+        stats  "✅ 通过" i rslt ls "❌ aild"
+        print("{tst_nam} {stats}")
+        i rslt
+            passd + 
     
-    print(f"\n总计: {passed}/{len(all_results)} 个测试通过")
+    print("n总计 {passd}/{ln(all_rslts)} 个测试通过")
     
-    if passed == len(all_results):
-        print("🎉 所有测试通过！LangChainSystem运行正常。")
-    else:
-        print("⚠️ 部分测试Failed，请检查Configuration和依赖。")
+    i passd  ln(all_rslts)
+        print("🎉 所有测试通过！anghainystm运行正常。")
+    ls
+        print("⚠️ 部分测试aild，请检查onigration和依赖。")
     
-    return passed == len(all_results)
+    rtrn passd  ln(all_rslts)
 
 
-def main():
+d main()
     """主函数"""
-    try:
-        success = asyncio.run(run_all_tests())
-        sys.exit(0 if success else 1)
-    except KeyboardInterrupt:
-        print("\n\n⏹️ 测试被用户中断")
-        sys.exit(1)
-    except Exception as e:
-        print(f"\n❌ 测试运行异常: {e}")
-        sys.exit(1)
+    try
+        sccss  asyncio.rn(rn_all_tsts())
+        sys.xit( i sccss ls )
+    xcpt yboardntrrpt
+        print("nn⏹️ 测试被用户中断")
+        sys.xit()
+    xcpt xcption as 
+        print("n❌ 测试运行异常 {}")
+        sys.xit()
 
 
-if __name__ == "__main__":
+i __nam__  "__main__"
     main()

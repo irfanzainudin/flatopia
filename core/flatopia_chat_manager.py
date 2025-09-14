@@ -1,1453 +1,1526 @@
 """
-Flatopia AI Immigration Advisor Chat Manager
+latopia  mmigration dvisor hat anagr
 """
 import asyncio
 import logging
-from datetime import datetime
-from typing import Dict, Any, Optional
-from .simple_langchain_config import simple_langchain_config
-from prompts.flatopia_prompts import FlatopiaPrompts
-from .faiss_knowledge_base import get_faiss_kb
-from .smart_search import smart_search
-from .knowledge_updater import knowledge_updater
+rom dattim import dattim
+rom typing import ict, ny, ptional
+rom .simpl_langchain_conig import simpl_langchain_conig
+rom prompts.latopia_prompts import latopiarompts
+rom .aiss_knowldg_bas import gt_aiss_kb
+rom .smart_sarch import smart_sarch
+rom .knowldg_pdatr import knowldg_pdatr
 
-logger = logging.getLogger(__name__)
+loggr  logging.gtoggr(__nam__)
 
-class FlatopiaChatManager:
-    """Flatopia AI Immigration Advisor Chat Manager"""
+class latopiahatanagr
+    """latopia  mmigration dvisor hat anagr"""
     
-    def __init__(self):
-        self.llm = simple_langchain_config.llm
-        self.prompts = FlatopiaPrompts()
-        self.conversation_history = []
-        self.user_profile = {}
-        self.conversation_stage = "greeting"
-        self.collected_info = {
-            "name": False,
-            "age": False,
-            "nationality": False,
-            "goal": False,  # work, study, or both
-            "family": False,
-            "profession": False,
-            "education_level": False,
-            "field_of_interest": False,
-            "english_test": False,
-            "budget": False,
-            "priorities": False
+    d __init__(sl)
+        sl.llm  simpl_langchain_conig.llm
+        sl.prompts  latopiarompts()
+        sl.convrsation_history  ]
+        sl.sr_proil  {}
+        sl.convrsation_stag  "grting"
+        sl.collctd_ino  {
+            "nam" als,
+            "ag" als,
+            "nationality" als,
+            "goal" als,  # work, stdy, or both
+            "amily" als,
+            "prossion" als,
+            "dcation_lvl" als,
+            "ild_o_intrst" als,
+            "nglish_tst" als,
+            "bdgt" als,
+            "prioritis" als
         }
         
-        # Initialize knowledge base, smart search, and knowledge updater
-        self.knowledge_base = None  # Lazy initialization
-        self.smart_search = smart_search
-        self.knowledge_updater = knowledge_updater
+        # nitializ knowldg bas, smart sarch, and knowldg pdatr
+        sl.knowldg_bas  on  # azy initialization
+        sl.smart_sarch  smart_sarch
+        sl.knowldg_pdatr  knowldg_pdatr
     
-    async def chat(self, user_input: str, chat_type: str = "general") -> Dict[str, Any]:
-        """Process chat conversation"""
-        try:
-            # Record user input
-            self.conversation_history.append({
-                "role": "user",
-                "content": user_input,
-                "timestamp": datetime.now().strftime("%H:%M:%S")
+    async d chat(sl, sr_inpt str, chat_typ str  "gnral") - ictstr, ny]
+        """rocss chat convrsation"""
+        try
+            # cord sr inpt
+            sl.convrsation_history.appnd({
+                "rol" "sr",
+                "contnt" sr_inpt,
+                "timstamp" dattim.now().strtim("%%%")
             })
             
-            # Intelligent conversation processing - Check if user is answering previous questions
-            response = await self._smart_conversation_handler(user_input)
+            # ntllignt convrsation procssing - hck i sr is answring prvios qstions
+            rspons  await sl._smart_convrsation_handlr(sr_inpt)
             
-            # Enhance response with knowledge base if appropriate
-            if self._should_use_knowledge_base(user_input, self.conversation_stage):
-                response = self._enhance_response_with_knowledge(user_input, response)
+            # nhanc rspons with knowldg bas i appropriat
+            i sl._shold_s_knowldg_bas(sr_inpt, sl.convrsation_stag)
+                rspons  sl._nhanc_rspons_with_knowldg(sr_inpt, rspons)
             
-            # Update knowledge base with new information if appropriate
-            self._update_knowledge_base_if_needed(user_input, response)
+            # pdat knowldg bas with nw inormation i appropriat
+            sl._pdat_knowldg_bas_i_ndd(sr_inpt, rspons)
             
-            # Record AI response
-            self.conversation_history.append({
-                "role": "assistant",
-                "content": response,
-                "timestamp": datetime.now().strftime("%H:%M:%S")
+            # cord  rspons
+            sl.convrsation_history.appnd({
+                "rol" "assistant",
+                "contnt" rspons,
+                "timstamp" dattim.now().strtim("%%%")
             })
             
-            return {
-                "answer": response,
-                "timestamp": datetime.now().strftime("%H:%M:%S"),
-                "chat_type": chat_type,
-                "conversation_stage": self.conversation_stage
+            rtrn {
+                "answr" rspons,
+                "timstamp" dattim.now().strtim("%%%"),
+                "chat_typ" chat_typ,
+                "convrsation_stag" sl.convrsation_stag
             }
             
-        except Exception as e:
-            return {
-                "answer": f"Sorry, I encountered an error: {str(e)}",
-                "timestamp": datetime.now().strftime("%H:%M:%S"),
-                "chat_type": chat_type,
-                "conversation_stage": self.conversation_stage
+        xcpt xcption as 
+            rtrn {
+                "answr" "orry,  ncontrd an rror {str()}",
+                "timstamp" dattim.now().strtim("%%%"),
+                "chat_typ" chat_typ,
+                "convrsation_stag" sl.convrsation_stag
             }
     
-    async def _smart_conversation_handler(self, user_input: str) -> str:
-        """Dynamic conversation processing based on collected information"""
-        user_input_lower = user_input.lower()
+    async d _smart_convrsation_handlr(sl, sr_inpt str) - str
+        """ynamic convrsation procssing basd on collctd inormation"""
+        sr_inpt_lowr  sr_inpt.lowr()
         
-        # Debug information
-        print(f"DEBUG: Smart handler - User input: '{user_input}'")
-        print(f"DEBUG: Collected info: {self.collected_info}")
-        print(f"DEBUG: Conversation stage: {self.conversation_stage}")
+        # bg inormation
+        print(" mart handlr - sr inpt '{sr_inpt}'")
+        print(" ollctd ino {sl.collctd_ino}")
+        print(" onvrsation stag {sl.convrsation_stag}")
         
-        # Handle greeting
-        if self.conversation_stage == "greeting":
-            print("DEBUG: Processing greeting")
-            return await self._handle_greeting(user_input)
+        # andl grting
+        i sl.convrsation_stag  "grting"
+            print(" rocssing grting")
+            rtrn await sl._handl_grting(sr_inpt)
         
-        # Dynamic flow control - check what information is still needed
-        missing_info = self._get_missing_essential_info()
+        # andl ag collction
+        i sl.convrsation_stag  "ag_collction"
+            print(" rocssing ag collction")
+            rtrn await sl._handl_ag_collction(sr_inpt)
         
-        if missing_info:
-            # Still need to collect essential information
-            return await self._handle_missing_info(user_input, missing_info)
-        else:
-            # All essential information collected, proceed to recommendations/analysis
-            return await self._handle_complete_profile(user_input)
+        # ynamic low control - chck what inormation is still ndd
+        missing_ino  sl._gt_missing_ssntial_ino()
+        
+        i missing_ino
+            # till nd to collct ssntial inormation
+            rtrn await sl._handl_missing_ino(sr_inpt, missing_ino)
+        ls
+            # ll ssntial inormation collctd, procd to rcommndations/analysis
+            rtrn await sl._handl_complt_proil(sr_inpt)
     
-    def _is_nationality_response(self, user_input: str) -> bool:
-        """Check if it is a nationality response"""
-        user_input_lower = user_input.lower()
-        # 检查是否包含国家名称或国籍词汇
-        country_indicators = ['from', 'country', 'nationality', 'citizen', 'born in', 'originally from']
-        return any(indicator in user_input_lower for indicator in country_indicators) or len(user_input.split()) <= 3
+    d _is_nationality_rspons(sl, sr_inpt str) - bool
+        """hck i it is a nationality rspons"""
+        sr_inpt_lowr  sr_inpt.lowr()
+        # hck i contains contry nams or nationality vocablary
+        contry_indicators  'rom', 'contry', 'nationality', 'citizn', 'born in', 'originally rom']
+        rtrn any(indicator in sr_inpt_lowr or indicator in contry_indicators) or ln(sr_inpt.split())  
     
-    def _is_family_response(self, user_input: str) -> bool:
-        """Check if it is a family status response"""
-        user_input_lower = user_input.lower()
-        family_indicators = ['single', 'married', 'divorced', 'widowed', 'partner', 'relationship', 'kids', 'children', 'family']
-        return any(indicator in user_input_lower for indicator in family_indicators)
+    d _is_amily_rspons(sl, sr_inpt str) - bool
+        """hck i it is a amily stats rspons"""
+        sr_inpt_lowr  sr_inpt.lowr()
+        amily_indicators  'singl', 'marrid', 'divorcd', 'widowd', 'partnr', 'rlationship', 'kids', 'childrn', 'amily']
+        rtrn any(indicator in sr_inpt_lowr or indicator in amily_indicators)
     
-    def _is_profession_response(self, user_input: str) -> bool:
-        """Check if it is a profession response"""
-        user_input_lower = user_input.lower()
-        profession_indicators = ['it', 'software', 'engineer', 'doctor', 'teacher', 'business', 'work', 'job', 'profession', 'field']
-        return any(indicator in user_input_lower for indicator in profession_indicators)
+    d _is_prossion_rspons(sl, sr_inpt str) - bool
+        """hck i it is a prossion rspons"""
+        sr_inpt_lowr  sr_inpt.lowr()
+        prossion_indicators  'it', 'sotwar', 'nginr', 'doctor', 'tachr', 'bsinss', 'work', 'job', 'prossion', 'ild']
+        rtrn any(indicator in sr_inpt_lowr or indicator in prossion_indicators)
     
-    def _is_priorities_response(self, user_input: str) -> bool:
-        """Check if it is a priorities response"""
-        user_input_lower = user_input.lower()
-        priority_indicators = ['safety', 'education', 'healthcare', 'job', 'democracy', 'cost', 'climate', 'diversity', 'stability']
-        return any(indicator in user_input_lower for indicator in priority_indicators) or 'priority' in user_input_lower
+    d _is_prioritis_rspons(sl, sr_inpt str) - bool
+        """hck i it is a prioritis rspons"""
+        sr_inpt_lowr  sr_inpt.lowr()
+        priority_indicators  'saty', 'dcation', 'halthcar', 'job', 'dmocracy', 'cost', 'climat', 'divrsity', 'stability']
+        rtrn any(indicator in sr_inpt_lowr or indicator in priority_indicators) or 'priority' in sr_inpt_lowr
     
-    def _is_goal_response(self, user_input: str) -> bool:
-        """Check if it is a goal response"""
-        user_input_lower = user_input.lower()
-        goal_indicators = ['study', 'work', 'migration', 'university', 'college', 'job', 'both']
-        return any(indicator in user_input_lower for indicator in goal_indicators)
+    d _is_goal_rspons(sl, sr_inpt str) - bool
+        """hck i it is a goal rspons"""
+        sr_inpt_lowr  sr_inpt.lowr()
+        goal_indicators  'stdy', 'work', 'migration', 'nivrsity', 'collg', 'job', 'both']
+        rtrn any(indicator in sr_inpt_lowr or indicator in goal_indicators)
     
-    def _is_education_level_response(self, user_input: str) -> bool:
-        """Check if it is an education level response"""
-        user_input_lower = user_input.lower()
-        education_indicators = ['10th', '12th', 'bachelor', 'master', 'degree', 'grade', '1', '2', '3', '4', '5']
-        return any(indicator in user_input_lower for indicator in education_indicators)
+    d _is_dcation_lvl_rspons(sl, sr_inpt str) - bool
+        """hck i it is an dcation lvl rspons"""
+        sr_inpt_lowr  sr_inpt.lowr()
+        dcation_indicators  'th', 'th', 'bachlor', 'mastr', 'dgr', 'grad', '', '', '', '', '']
+        rtrn any(indicator in sr_inpt_lowr or indicator in dcation_indicators)
     
-    def _is_field_response(self, user_input: str) -> bool:
-        """Check if it is a field response"""
-        user_input_lower = user_input.lower()
-        field_indicators = ['engineering', 'tech', 'business', 'medicine', 'arts', 'humanities', 'science', '1', '2', '3', '4', '5', '6']
-        return any(indicator in user_input_lower for indicator in field_indicators)
+    d _is_ild_rspons(sl, sr_inpt str) - bool
+        """hck i it is a ild rspons"""
+        sr_inpt_lowr  sr_inpt.lowr()
+        ild_indicators  'nginring', 'tch', 'bsinss', 'mdicin', 'arts', 'hmanitis', 'scinc', '', '', '', '', '', '']
+        rtrn any(indicator in sr_inpt_lowr or indicator in ild_indicators)
     
-    def _is_english_test_response(self, user_input: str) -> bool:
-        """Check if it is an English test response"""
-        user_input_lower = user_input.lower()
-        test_indicators = ['ielts', 'toefl', 'english', 'test', 'score', 'planning', 'already', 'sure']
-        return any(indicator in user_input_lower for indicator in test_indicators)
+    d _is_nglish_tst_rspons(sl, sr_inpt str) - bool
+        """hck i it is an nglish tst rspons"""
+        sr_inpt_lowr  sr_inpt.lowr()
+        tst_indicators  'ilts', 'tol', 'nglish', 'tst', 'scor', 'planning', 'alrady', 'sr']
+        rtrn any(indicator in sr_inpt_lowr or indicator in tst_indicators)
     
-    def _is_budget_response(self, user_input: str) -> bool:
-        """Check if it is a budget response"""
-        user_input_lower = user_input.lower()
-        budget_indicators = ['budget', 'cost', 'tuition', 'fee', 'dollar', 'usd', 'affordable', 'expensive', '1', '2', '3', '4']
-        return any(indicator in user_input_lower for indicator in budget_indicators)
+    d _is_bdgt_rspons(sl, sr_inpt str) - bool
+        """hck i it is a bdgt rspons"""
+        sr_inpt_lowr  sr_inpt.lowr()
+        bdgt_indicators  'bdgt', 'cost', 'tition', '', 'dollar', 'sd', 'aordabl', 'xpnsiv', '', '', '', '']
+        rtrn any(indicator in sr_inpt_lowr or indicator in bdgt_indicators)
 
-    async def _handle_greeting(self, user_input: str) -> str:
-        """ProcessingGreeting stage"""
-        # First try to extract information from the greeting input
-        self._extract_user_info(user_input)
+    async d _handl_grting(sl, sr_inpt str) - str
+        """rocssingrting stag"""
+        # lways show grting irst, thn try to xtract inormation
+        grting_mssag  sl.prompts.gt_grting_prompt()
         
-        # Check if we got any essential information
-        if self.user_profile.get('name') and self.user_profile.get('age') and self.user_profile.get('nationality') and self.user_profile.get('goal'):
-            # User provided complete information, skip to analysis
-            self.collected_info["name"] = True
-            self.collected_info["age"] = True
-            self.collected_info["nationality"] = True
-            self.collected_info["goal"] = True
+        # ry to xtract inormation rom th grting inpt
+        sl._xtract_sr_ino(sr_inpt)
+        
+        # hck i w got a nam - i so, mark it as collctd and ask or ag
+        i sl.sr_proil.gt('nam')
+            sl.collctd_ino"nam"]  r
+            sr_nam  sl.sr_proil'nam']
             
-            # Check if user specified a country interest
-            if self.user_profile.get('country_interest'):
-                self.conversation_stage = "country_analysis"
-                country = self.user_profile['country_interest']
-                user_profile = str(self.user_profile)
+            # hck i w hav complt inormation (nam + ag + nationality + goal)
+            i (sl.sr_proil.gt('ag') and 
+                sl.sr_proil.gt('nationality') and 
+                sl.sr_proil.gt('goal'))
+                # sr providd complt inormation, skip to analysis
+                sl.collctd_ino"ag"]  r
+                sl.collctd_ino"nationality"]  r
+                sl.collctd_ino"goal"]  r
                 
-                # Search knowledge base for information about this country
-                knowledge_results = self._search_knowledge_base(f"study abroad {country} immigration visa requirements")
-                
-                # Create enhanced prompt with knowledge base information
-                prompt = f"""
-                User Profile: {user_profile}
-                Selected Country: {country}
-                
-                Knowledge Base Information:
-                {knowledge_results}
-                
-                Please provide a detailed analysis for studying in {country}, including:
-                1. Visa requirements and process
-                2. University recommendations
-                3. Cost of living and tuition
-                4. Language requirements
-                5. Application timeline
-                6. Work opportunities during/after studies
-                """
-                
-                response = self.llm.chat_completion([{"role": "user", "content": prompt}])
-                return response
-            else:
-                # Complete profile but no specific country, provide recommendations
-                self.conversation_stage = "country_recommendations"
-                return await self._handle_country_recommendations(user_input)
-        else:
-            # Incomplete information, proceed with normal flow
-            return self.prompts.get_greeting_prompt()
+                # hck i sr spciid a contry intrst
+                i sl.sr_proil.gt('contry_intrst')
+                    sl.convrsation_stag  "contry_analysis"
+                    contry  sl.sr_proil'contry_intrst']
+                    sr_proil  str(sl.sr_proil)
+                    
+                    # ry knowldg bas sarch with rror handling
+                    try
+                        knowldg_rslts  sl._sarch_knowldg_bas("stdy abroad {contry} immigration visa rqirmnts")
+                        i knowldg_rslts.gt("sccss")
+                            knowldg_txt  knowldg_rslts.gt("rslts", "")
+                        ls
+                            knowldg_txt  "o spciic knowldg bas inormation availabl."
+                    xcpt xcption as 
+                        print(" nowldg bas sarch aild {}")
+                        knowldg_txt  "o spciic knowldg bas inormation availabl."
+                    
+                    # rat nhancd prompt with knowldg bas inormation
+                    prompt  """
+                    sr roil {sr_proil}
+                    lctd ontry {contry}
+                    
+                    nowldg as normation
+                    {knowldg_txt}
+                    
+                    las provid a dtaild analysis or stdying in {contry}, inclding
+                    . isa rqirmnts and procss
+                    . nivrsity rcommndations
+                    . ost o living and tition
+                    . angag rqirmnts
+                    . pplication timlin
+                    . ork opportnitis dring/atr stdis
+                    """
+                    
+                    rspons  sl.llm(prompt)
+                    rtrn rspons
+                ls
+                    # omplt proil bt no spciic contry, provid rcommndations
+                    sl.convrsation_stag  "contry_rcommndations"
+                    rtrn await sl._handl_contry_rcommndations(sr_inpt)
+            ls
+                #  hav a nam bt nd mor inormation, ask or ag
+                sl.convrsation_stag  "ag_collction"
+                rtrn "ic to mt yo, {sr_nam}! 'd lov to hlp yo xplor stdy abroad opportnitis. hat's yor ag"
+        ls
+            # o nam providd, rtrn grting and ask or nam
+            rtrn grting_mssag
     
-    async def _handle_name_collection(self, user_input: str) -> str:
-        """Handle name collection"""
-        self._extract_user_info(user_input)
-        if self.user_profile.get('name'):
-            self.collected_info["name"] = True
-            self.conversation_stage = "age_collection"
-            return f"Nice to meet you, {self.user_profile['name']}! 😊 Now, could you tell me your age? This helps me provide more personalized recommendations."
-        else:
-            return "I'd love to know your name! What should I call you?"
+    async d _handl_nam_collction(sl, sr_inpt str) - str
+        """andl nam collction"""
+        sl._xtract_sr_ino(sr_inpt)
+        i sl.sr_proil.gt('nam')
+            sl.collctd_ino"nam"]  r
+            sl.convrsation_stag  "ag_collction"
+            rtrn "ic to mt yo, {sl.sr_proil'nam']}! 😊 ow, cold yo tll m yor ag his hlps m provid mor prsonalizd rcommndations."
+        ls
+            rtrn "'d lov to know yor nam! hat shold  call yo"
     
-    async def _handle_age_collection(self, user_input: str) -> str:
-        """Handle age collection"""
-        self._extract_user_info(user_input)
-        if self.user_profile.get('age'):
-            self.collected_info["age"] = True
-            self.conversation_stage = "nationality_collection"
-            user_name = self.user_profile.get('name', 'there')
-            age = int(self.user_profile['age'])
+    async d _handl_ag_collction(sl, sr_inpt str) - str
+        """andl ag collction"""
+        sl._xtract_sr_ino(sr_inpt)
+        i sl.sr_proil.gt('ag')
+            sl.collctd_ino"ag"]  r
+            sl.convrsation_stag  "nationality_collction"
+            sr_nam  sl.sr_proil.gt('nam', 'thr')
+            ag  int(sl.sr_proil'ag'])
             
-            if age < 20:
-                return f" Thank you, {user_name}! Since you're {age}, I'd love to know - are you primarily looking for study opportunities abroad, or are you also interested in work opportunities? This helps me tailor my recommendations perfectly for you! 🎓💼"
-            else:
-                return f" Perfect, {user_name}! Now, what country are you from? (e.g., India, China, Brazil, Colombia, etc.) This helps me understand your background better. Also, what are your main priorities when choosing a destination country? (e.g., job opportunities, education quality, cost of living, language, etc.)"
-        else:
-            user_name = self.user_profile.get('name', 'there')
-            return f" I need to know your age to help you better, {user_name}. Could you please tell me your age?"
+            i ag  
+                rtrn " hank yo, {sr_nam}! inc yo'r {ag}, 'd lov to know - ar yo primarily looking or stdy opportnitis abroad, or ar yo also intrstd in work opportnitis his hlps m tailor my rcommndations prctly or yo! 🎓💼"
+            ls
+                rtrn " rct, {sr_nam}! ow, what contry ar yo rom (.g., ndia, hina, razil, olombia, tc.) his hlps m ndrstand yor backgrond bttr. lso, what ar yor main prioritis whn choosing a dstination contry (.g., job opportnitis, dcation qality, cost o living, langag, tc.)"
+        ls
+            sr_nam  sl.sr_proil.gt('nam', 'thr')
+            rtrn "  nd to know yor ag to hlp yo bttr, {sr_nam}. old yo plas tll m yor ag"
     
-    async def _handle_nationality_collection(self, user_input: str) -> str:
-        """Handle nationality collection and destination priorities"""
-        self._extract_user_info(user_input)
+    async d _handl_nationality_collction(sl, sr_inpt str) - str
+        """andl nationality collction and dstination prioritis"""
+        sl._xtract_sr_ino(sr_inpt)
         
-        # Debug information
-        print(f"DEBUG: User input: '{user_input}'")
-        print(f"DEBUG: Extracted nationality: '{self.user_profile.get('nationality')}'")
-        print(f"DEBUG: User profile: {self.user_profile}")
+        # bg inormation
+        print(" sr inpt '{sr_inpt}'")
+        print(" xtractd nationality '{sl.sr_proil.gt('nationality')}'")
+        print(" sr proil {sl.sr_proil}")
         
-        user_name = self.user_profile.get('name', 'there')
+        sr_nam  sl.sr_proil.gt('nam', 'thr')
         
-        if self.user_profile.get('nationality'):
-            self.collected_info["nationality"] = True
-            self.collected_info["priorities"] = True  # Assume they mentioned priorities
-            self.conversation_stage = "goal_collection"
-            age = int(self.user_profile.get('age', 0))
+        i sl.sr_proil.gt('nationality')
+            sl.collctd_ino"nationality"]  r
+            sl.collctd_ino"prioritis"]  r  # ssm thy mntiond prioritis
+            sl.convrsation_stag  "goal_collction"
+            ag  int(sl.sr_proil.gt('ag', ))
             
-            if age < 20:
-                # 对于20岁以下的用户，直接询问学习目标
-                return f""" Wonderful, {user_name}! I see you're from {self.user_profile['nationality']}. 
+            i ag  
+                # or srs ndr , dirctly ask abot stdy goals
+                rtrn """ ondrl, {sr_nam}!  s yo'r rom {sl.sr_proil'nationality']}. 
 
-Since you're {age}, let me ask - what's your main goal? Are you looking to:
-- 🎓 **Study abroad** (university, college, or language courses)
-- 💼 **Work opportunities** (part-time work while studying)
-- 🌍 **Both** (study first, then work and migrate)
+inc yo'r {ag}, lt m ask - what's yor main goal r yo looking to
+- 🎓 **tdy abroad** (nivrsity, collg, or langag corss)
+- 💼 **ork opportnitis** (part-tim work whil stdying)
+- 🌍 **oth** (stdy irst, thn work and migrat)
 
-This helps me tailor my recommendations perfectly for you!"""
-            else:
-                # 对于20岁以上的用户，询问工作目标
-                return f""" Great, {user_name}! I see you're from {self.user_profile['nationality']}. 
+his hlps m tailor my rcommndations prctly or yo!"""
+            ls
+                # or srs ovr , ask abot work goals
+                rtrn """ rat, {sr_nam}!  s yo'r rom {sl.sr_proil'nationality']}. 
 
-What's your main goal? Are you looking to:
-- 🎓 **Study abroad** (university, college, or language courses)
-- 💼 **Work migration** (find a job and potentially settle permanently)
-- 🌍 **Both** (study first, then work and migrate)
+hat's yor main goal r yo looking to
+- 🎓 **tdy abroad** (nivrsity, collg, or langag corss)
+- 💼 **ork migration** (ind a job and potntially sttl prmanntly)
+- 🌍 **oth** (stdy irst, thn work and migrat)
 
-This helps me tailor my recommendations to your specific needs!"""
-        else:
-            # 更友好的提示，接受任何国籍
-            return f" I didn't catch your nationality, {user_name}. Could you please tell me what country you're from? (e.g., India, China, Brazil, Colombia, etc.)"
+his hlps m tailor my rcommndations to yor spciic nds!"""
+        ls
+            # or rindly prompt, accpting any nationality
+            rtrn "  didn't catch yor nationality, {sr_nam}. old yo plas tll m what contry yo'r rom (.g., ndia, hina, razil, olombia, tc.)"
     
-    async def _handle_goal_collection(self, user_input: str) -> str:
-        """Handle goal collection"""
-        self._extract_user_info(user_input)
+    async d _handl_goal_collction(sl, sr_inpt str) - str
+        """andl goal collction"""
+        sl._xtract_sr_ino(sr_inpt)
         
-        # Debug information
-        print(f"DEBUG: Goal collection - User input: '{user_input}'")
-        print(f"DEBUG: User profile: {self.user_profile}")
+        # bg inormation
+        print(" oal collction - sr inpt '{sr_inpt}'")
+        print(" sr proil {sl.sr_proil}")
         
-        user_name = self.user_profile.get('name', 'there')
-        age = int(self.user_profile.get('age', 0))
+        sr_nam  sl.sr_proil.gt('nam', 'thr')
+        ag  int(sl.sr_proil.gt('ag', ))
         
-        # Determine user goal
-        user_input_lower = user_input.lower()
-        if 'study' in user_input_lower or 'university' in user_input_lower or 'college' in user_input_lower or 'studying' in user_input_lower:
-            self.user_profile['goal'] = 'study'
-        elif 'work' in user_input_lower or 'job' in user_input_lower or 'migration' in user_input_lower:
-            self.user_profile['goal'] = 'work'
-        elif 'both' in user_input_lower:
-            self.user_profile['goal'] = 'both'
-        else:
-            # 根据年龄默认假设
-            if age < 20:
-                self.user_profile['goal'] = 'study'
-            else:
-                self.user_profile['goal'] = 'work'
+        # trmin sr goal
+        sr_inpt_lowr  sr_inpt.lowr()
+        i 'stdy' in sr_inpt_lowr or 'nivrsity' in sr_inpt_lowr or 'collg' in sr_inpt_lowr or 'stdying' in sr_inpt_lowr
+            sl.sr_proil'goal']  'stdy'
+        li 'work' in sr_inpt_lowr or 'job' in sr_inpt_lowr or 'migration' in sr_inpt_lowr
+            sl.sr_proil'goal']  'work'
+        li 'both' in sr_inpt_lowr
+            sl.sr_proil'goal']  'both'
+        ls
+            # alt assmption basd on ag
+            i ag  
+                sl.sr_proil'goal']  'stdy'
+            ls
+                sl.sr_proil'goal']  'work'
         
-        self.collected_info["goal"] = True
+        sl.collctd_ino"goal"]  r
         
-        # 根据目标进入不同流程
-        if self.user_profile['goal'] == 'study':
-            self.conversation_stage = "education_level_collection"
-            return f" Excellent choice, {user_name}! Let's explore study opportunities for you. What's your current education level?"
-        elif self.user_profile['goal'] == 'work':
-            # 对于工作目标，如果年龄超过20岁，询问家庭情况
-            if age >= 20:
-                self.conversation_stage = "family_collection"
-                return f" Great, {user_name}! Since you're interested in work migration, I'd like to know about your family situation. Are you single, married, or in a relationship? This helps me understand your priorities better."
-            else:
-                self.conversation_stage = "profession_collection"
-                return f" Perfect, {user_name}! What's your profession or field of work? (e.g., IT, Engineering, Healthcare, Education, Business, etc.)"
-        else:  # both
-            self.conversation_stage = "education_level_collection"
-            return f" Wonderful, {user_name}! Since you're interested in both study and work, let's start with your education background. What's your current education level?"
+        # ntr dirnt lows basd on goal
+        i sl.sr_proil'goal']  'stdy'
+            sl.convrsation_stag  "dcation_lvl_collction"
+            rtrn " xcllnt choic, {sr_nam}! t's xplor stdy opportnitis or yo. hat's yor crrnt dcation lvl"
+        li sl.sr_proil'goal']  'work'
+            # or work goals, i ag is ovr , ask abot amily sitation
+            i ag  
+                sl.convrsation_stag  "amily_collction"
+                rtrn " rat, {sr_nam}! inc yo'r intrstd in work migration, 'd lik to know abot yor amily sitation. r yo singl, marrid, or in a rlationship his hlps m ndrstand yor prioritis bttr."
+            ls
+                sl.convrsation_stag  "prossion_collction"
+                rtrn " rct, {sr_nam}! hat's yor prossion or ild o work (.g., , nginring, althcar, dcation, sinss, tc.)"
+        ls  # both
+            sl.convrsation_stag  "dcation_lvl_collction"
+            rtrn " ondrl, {sr_nam}! inc yo'r intrstd in both stdy and work, lt's start with yor dcation backgrond. hat's yor crrnt dcation lvl"
     
-    async def _handle_education_level_collection(self, user_input: str) -> str:
-        """Handle education level collection"""
-        self._extract_user_info(user_input)
+    async d _handl_dcation_lvl_collction(sl, sr_inpt str) - str
+        """andl dcation lvl collction"""
+        sl._xtract_sr_ino(sr_inpt)
         
-        # Debug information
-        print(f"DEBUG: Education level collection - User input: '{user_input}'")
-        print(f"DEBUG: User profile: {self.user_profile}")
+        # bg inormation
+        print(" dcation lvl collction - sr inpt '{sr_inpt}'")
+        print(" sr proil {sl.sr_proil}")
         
-        user_name = self.user_profile.get('name', 'there')
+        sr_nam  sl.sr_proil.gt('nam', 'thr')
         
-        # Determine education level
-        user_input_lower = user_input.lower()
-        if '1' in user_input_lower or '10th' in user_input_lower or 'tenth' in user_input_lower:
-            self.user_profile['education_level'] = '10th grade'
-        elif '2' in user_input_lower or '12th' in user_input_lower or 'twelfth' in user_input_lower or 'high school' in user_input_lower:
-            self.user_profile['education_level'] = '12th grade'
-        elif '3' in user_input_lower or 'bachelor' in user_input_lower or 'undergraduate' in user_input_lower:
-            self.user_profile['education_level'] = 'Bachelor\'s degree'
-        elif '4' in user_input_lower or 'master' in user_input_lower or 'graduate' in user_input_lower:
-            self.user_profile['education_level'] = 'Master\'s degree'
-        elif 'what' in user_input_lower or '?' in user_input:
-            # 用户可能不理解问题，提供更清晰的选项
-            return f" No worries, {user_name}! Let me clarify - what's your current education level? Please choose:\n\n1. 10th grade (or equivalent)\n2. 12th grade (or equivalent) \n3. Bachelor's degree\n4. Master's degree\n\nOr just tell me what level you're at!"
-        else:
-            self.user_profile['education_level'] = user_input
+        # trmin dcation lvl
+        sr_inpt_lowr  sr_inpt.lowr()
+        i '' in sr_inpt_lowr or 'th' in sr_inpt_lowr or 'tnth' in sr_inpt_lowr
+            sl.sr_proil'dcation_lvl']  'th grad'
+        li '' in sr_inpt_lowr or 'th' in sr_inpt_lowr or 'twlth' in sr_inpt_lowr or 'high school' in sr_inpt_lowr
+            sl.sr_proil'dcation_lvl']  'th grad'
+        li '' in sr_inpt_lowr or 'bachlor' in sr_inpt_lowr or 'ndrgradat' in sr_inpt_lowr
+            sl.sr_proil'dcation_lvl']  'achlor's dgr'
+        li '' in sr_inpt_lowr or 'mastr' in sr_inpt_lowr or 'gradat' in sr_inpt_lowr
+            sl.sr_proil'dcation_lvl']  'astr's dgr'
+        li 'what' in sr_inpt_lowr or '' in sr_inpt
+            # sr might not ndrstand th qstion, provid clarr options
+            rtrn " o worris, {sr_nam}! t m clariy - what's yor crrnt dcation lvl las choosnn. th grad (or qivalnt)n. th grad (or qivalnt) n. achlor's dgrn. astr's dgrnnr jst tll m what lvl yo'r at!"
+        ls
+            sl.sr_proil'dcation_lvl']  sr_inpt
         
-        self.collected_info["education_level"] = True
-        self.conversation_stage = "field_collection"
-        return f" Great, {user_name}! What field of study are you most interested in?"
+        sl.collctd_ino"dcation_lvl"]  r
+        sl.convrsation_stag  "ild_collction"
+        rtrn " rat, {sr_nam}! hat ild o stdy ar yo most intrstd in"
     
-    async def _handle_field_collection(self, user_input: str) -> str:
-        """Handle field collection"""
-        self._extract_user_info(user_input)
+    async d _handl_ild_collction(sl, sr_inpt str) - str
+        """andl ild collction"""
+        sl._xtract_sr_ino(sr_inpt)
         
-        # Debug information
-        print(f"DEBUG: Field collection - User input: '{user_input}'")
-        print(f"DEBUG: User profile: {self.user_profile}")
+        # bg inormation
+        print(" ild collction - sr inpt '{sr_inpt}'")
+        print(" sr proil {sl.sr_proil}")
         
-        user_name = self.user_profile.get('name', 'there')
+        sr_nam  sl.sr_proil.gt('nam', 'thr')
         
-        # Determine field of study
-        user_input_lower = user_input.lower()
-        if '1' in user_input_lower or 'engineering' in user_input_lower or 'tech' in user_input_lower or 'technology' in user_input_lower:
-            self.user_profile['field_of_interest'] = 'Engineering/Tech'
-        elif '2' in user_input_lower or 'business' in user_input_lower or 'management' in user_input_lower:
-            self.user_profile['field_of_interest'] = 'Business/Management'
-        elif '3' in user_input_lower or 'medicine' in user_input_lower or 'healthcare' in user_input_lower or 'medical' in user_input_lower:
-            self.user_profile['field_of_interest'] = 'Medicine/Healthcare'
-        elif '4' in user_input_lower or 'arts' in user_input_lower or 'humanities' in user_input_lower or 'eat' in user_input_lower or 'food' in user_input_lower or 'culinary' in user_input_lower:
-            self.user_profile['field_of_interest'] = 'Culinary Arts/Food Science'
-        elif '5' in user_input_lower or 'science' in user_input_lower:
-            self.user_profile['field_of_interest'] = 'Science'
-        else:
-            self.user_profile['field_of_interest'] = user_input
+        # trmin ild o stdy
+        sr_inpt_lowr  sr_inpt.lowr()
+        i '' in sr_inpt_lowr or 'nginring' in sr_inpt_lowr or 'tch' in sr_inpt_lowr or 'tchnology' in sr_inpt_lowr
+            sl.sr_proil'ild_o_intrst']  'nginring/ch'
+        li '' in sr_inpt_lowr or 'bsinss' in sr_inpt_lowr or 'managmnt' in sr_inpt_lowr
+            sl.sr_proil'ild_o_intrst']  'sinss/anagmnt'
+        li '' in sr_inpt_lowr or 'mdicin' in sr_inpt_lowr or 'halthcar' in sr_inpt_lowr or 'mdical' in sr_inpt_lowr
+            sl.sr_proil'ild_o_intrst']  'dicin/althcar'
+        li '' in sr_inpt_lowr or 'arts' in sr_inpt_lowr or 'hmanitis' in sr_inpt_lowr or 'at' in sr_inpt_lowr or 'ood' in sr_inpt_lowr or 'clinary' in sr_inpt_lowr
+            sl.sr_proil'ild_o_intrst']  'linary rts/ood cinc'
+        li '' in sr_inpt_lowr or 'scinc' in sr_inpt_lowr
+            sl.sr_proil'ild_o_intrst']  'cinc'
+        ls
+            sl.sr_proil'ild_o_intrst']  sr_inpt
         
-        self.collected_info["field_of_interest"] = True
-        self.conversation_stage = "english_test_collection"
-        return f" Excellent choice, {user_name}! Do you already have English test scores (IELTS/TOEFL), or are you planning to take them?"
+        sl.collctd_ino"ild_o_intrst"]  r
+        sl.convrsation_stag  "nglish_tst_collction"
+        rtrn " xcllnt choic, {sr_nam}! o yo alrady hav nglish tst scors (/), or ar yo planning to tak thm"
     
-    async def _handle_english_test_collection(self, user_input: str) -> str:
-        """Handle English test collection"""
-        self._extract_user_info(user_input)
+    async d _handl_nglish_tst_collction(sl, sr_inpt str) - str
+        """andl nglish tst collction"""
+        sl._xtract_sr_ino(sr_inpt)
         
-        # Debug information
-        print(f"DEBUG: English test collection - User input: '{user_input}'")
-        print(f"DEBUG: User profile: {self.user_profile}")
+        # bg inormation
+        print(" nglish tst collction - sr inpt '{sr_inpt}'")
+        print(" sr proil {sl.sr_proil}")
         
-        user_name = self.user_profile.get('name', 'there')
+        sr_nam  sl.sr_proil.gt('nam', 'thr')
         
-        # Determine English test status
-        user_input_lower = user_input.lower()
-        if 'already' in user_input_lower or 'have' in user_input_lower or '7' in user_input_lower or '6' in user_input_lower or '8' in user_input_lower or '9' in user_input_lower:
-            self.user_profile['english_test'] = 'Already have scores'
-        elif 'ielts' in user_input_lower:
-            self.user_profile['english_test'] = 'Planning IELTS'
-        elif 'toefl' in user_input_lower:
-            self.user_profile['english_test'] = 'Planning TOEFL'
-        elif 'sure' in user_input_lower or 'not sure' in user_input_lower:
-            self.user_profile['english_test'] = 'Not sure yet'
-        else:
-            self.user_profile['english_test'] = user_input
+        # trmin nglish tst stats
+        sr_inpt_lowr  sr_inpt.lowr()
+        i 'alrady' in sr_inpt_lowr or 'hav' in sr_inpt_lowr or '' in sr_inpt_lowr or '' in sr_inpt_lowr or '' in sr_inpt_lowr or '' in sr_inpt_lowr
+            sl.sr_proil'nglish_tst']  'lrady hav scors'
+        li 'ilts' in sr_inpt_lowr
+            sl.sr_proil'nglish_tst']  'lanning '
+        li 'tol' in sr_inpt_lowr
+            sl.sr_proil'nglish_tst']  'lanning '
+        li 'sr' in sr_inpt_lowr or 'not sr' in sr_inpt_lowr
+            sl.sr_proil'nglish_tst']  'ot sr yt'
+        ls
+            sl.sr_proil'nglish_tst']  sr_inpt
         
-        self.collected_info["english_test"] = True
-        self.conversation_stage = "budget_collection"
-        return f" Perfect, {user_name}! Now, what's your budget range for studying abroad? This helps me recommend the most suitable options for you."
+        sl.collctd_ino"nglish_tst"]  r
+        sl.convrsation_stag  "bdgt_collction"
+        rtrn " rct, {sr_nam}! ow, what's yor bdgt rang or stdying abroad his hlps m rcommnd th most sitabl options or yo."
     
-    async def _handle_budget_collection(self, user_input: str) -> str:
-        """Handle budget collection"""
-        self._extract_user_info(user_input)
+    async d _handl_bdgt_collction(sl, sr_inpt str) - str
+        """andl bdgt collction"""
+        sl._xtract_sr_ino(sr_inpt)
         
-        # Debug information
-        print(f"DEBUG: Budget collection - User input: '{user_input}'")
-        print(f"DEBUG: User profile: {self.user_profile}")
+        # bg inormation
+        print(" dgt collction - sr inpt '{sr_inpt}'")
+        print(" sr proil {sl.sr_proil}")
         
-        user_name = self.user_profile.get('name', 'there')
+        sr_nam  sl.sr_proil.gt('nam', 'thr')
         
-        # Determine budget and priorities
-        user_input_lower = user_input.lower()
-        if '1' in user_input_lower or 'low' in user_input_lower or 'affordable' in user_input_lower or '111' in user_input_lower:
-            self.user_profile['budget'] = 'Under $15,000 USD'
-            self.user_profile['priorities'] = 'Low tuition fees'
-        elif '2' in user_input_lower or 'work' in user_input_lower:
-            self.user_profile['budget'] = '$15,000-30,000 USD'
-            self.user_profile['priorities'] = 'Work opportunities during study'
-        elif '3' in user_input_lower or 'pr' in user_input_lower or 'permanent' in user_input_lower:
-            self.user_profile['budget'] = '$30,000+ USD'
-            self.user_profile['priorities'] = 'Easy path to permanent residence'
-        elif '4' in user_input_lower or 'all' in user_input_lower:
-            self.user_profile['budget'] = 'Flexible'
-            self.user_profile['priorities'] = 'All of the above'
-        else:
-            self.user_profile['budget'] = user_input
-            self.user_profile['priorities'] = user_input
+        # trmin bdgt and prioritis
+        sr_inpt_lowr  sr_inpt.lowr()
+        i '' in sr_inpt_lowr or 'low' in sr_inpt_lowr or 'aordabl' in sr_inpt_lowr or '' in sr_inpt_lowr
+            sl.sr_proil'bdgt']  'ndr $, '
+            sl.sr_proil'prioritis']  'ow tition s'
+        li '' in sr_inpt_lowr or 'work' in sr_inpt_lowr
+            sl.sr_proil'bdgt']  '$,-, '
+            sl.sr_proil'prioritis']  'ork opportnitis dring stdy'
+        li '' in sr_inpt_lowr or 'pr' in sr_inpt_lowr or 'prmannt' in sr_inpt_lowr
+            sl.sr_proil'bdgt']  '$,+ '
+            sl.sr_proil'prioritis']  'asy path to prmannt rsidnc'
+        li '' in sr_inpt_lowr or 'all' in sr_inpt_lowr
+            sl.sr_proil'bdgt']  'lxibl'
+            sl.sr_proil'prioritis']  'll o th abov'
+        ls
+            sl.sr_proil'bdgt']  sr_inpt
+            sl.sr_proil'prioritis']  sr_inpt
         
-        self.collected_info["budget"] = True
-        self.collected_info["priorities"] = True
-        self.conversation_stage = "country_recommendations"
+        sl.collctd_ino"bdgt"]  r
+        sl.collctd_ino"prioritis"]  r
+        sl.convrsation_stag  "contry_rcommndations"
         
-        # Create dynamic country recommendations
-        user_profile = str(self.user_profile)
-        priorities = self.user_profile.get('priorities', '')
-        prompt = self._create_dynamic_recommendation_prompt(user_profile, priorities)
-        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
+        # rat dynamic contry rcommndations
+        sr_proil  str(sl.sr_proil)
+        prioritis  sl.sr_proil.gt('prioritis', '')
+        prompt  sl._crat_dynamic_rcommndation_prompt(sr_proil, prioritis)
+        rspons  sl.llm(prompt)
         
-        # 在推荐前添加个性化称呼
-        personalized_response = f" Based on your preferences, {user_name}, here are my recommendations:\n\n{response}"
-        return personalized_response
+        # dd prsonalizd grting bor rcommndations
+        prsonalizd_rspons  " asd on yor prrncs, {sr_nam}, hr ar my rcommndationsnn{rspons}"
+        rtrn prsonalizd_rspons
     
-    async def _handle_family_collection(self, user_input: str) -> str:
-        """Handle family information collection"""
-        self._extract_user_info(user_input)
+    async d _handl_amily_collction(sl, sr_inpt str) - str
+        """andl amily inormation collction"""
+        sl._xtract_sr_ino(sr_inpt)
         
-        # Debug information
-        print(f"DEBUG: Family collection - User input: '{user_input}'")
-        print(f"DEBUG: Extracted family: '{self.user_profile.get('family')}'")
-        print(f"DEBUG: User profile: {self.user_profile}")
+        # bg inormation
+        print(" amily collction - sr inpt '{sr_inpt}'")
+        print(" xtractd amily '{sl.sr_proil.gt('amily')}'")
+        print(" sr proil {sl.sr_proil}")
         
-        user_name = self.user_profile.get('name', 'there')
+        sr_nam  sl.sr_proil.gt('nam', 'thr')
         
-        # 检查是否已经收集到家庭信息
-        if self.user_profile.get('family'):
-            self.collected_info["family"] = True
-            self.conversation_stage = "profession_collection"
-            return f" Thank you for sharing that, {user_name}! Now, what's your profession or field of work? (e.g., IT, Engineering, Healthcare, Education, Business, etc.) This helps me understand your job opportunities in different countries."
-        else:
-            return f" I didn't catch your family status, {user_name}. Are you single, married, or in a relationship?"
+        # hck i amily inormation has bn collctd
+        i sl.sr_proil.gt('amily')
+            sl.collctd_ino"amily"]  r
+            sl.convrsation_stag  "prossion_collction"
+            rtrn " hank yo or sharing that, {sr_nam}! ow, what's yor prossion or ild o work (.g., , nginring, althcar, dcation, sinss, tc.) his hlps m ndrstand yor job opportnitis in dirnt contris."
+        ls
+            rtrn "  didn't catch yor amily stats, {sr_nam}. r yo singl, marrid, or in a rlationship"
     
-    async def _handle_profession_collection(self, user_input: str) -> str:
-        """Handle profession information collection"""
-        self._extract_user_info(user_input)
+    async d _handl_prossion_collction(sl, sr_inpt str) - str
+        """andl prossion inormation collction"""
+        sl._xtract_sr_ino(sr_inpt)
         
-        # Debug information
-        print(f"DEBUG: Profession collection - User input: '{user_input}'")
-        print(f"DEBUG: Extracted profession: '{self.user_profile.get('profession')}'")
-        print(f"DEBUG: User profile: {self.user_profile}")
+        # bg inormation
+        print(" rossion collction - sr inpt '{sr_inpt}'")
+        print(" xtractd prossion '{sl.sr_proil.gt('prossion')}'")
+        print(" sr proil {sl.sr_proil}")
         
-        user_name = self.user_profile.get('name', 'there')
+        sr_nam  sl.sr_proil.gt('nam', 'thr')
         
-        # 检查是否已经收集到职业信息
-        if self.user_profile.get('profession'):
-            self.collected_info["profession"] = True
-            self.conversation_stage = "priorities_collection"
-            return f" Perfect, {user_name}! Now, what are your main priorities when choosing a country? Please select the most important factors for you:"
-        else:
-            return f" I didn't catch your profession, {user_name}. What field do you work in? (e.g., IT, Engineering, Healthcare, Education, Business, etc.)"
+        # hck i prossion inormation has bn collctd
+        i sl.sr_proil.gt('prossion')
+            sl.collctd_ino"prossion"]  r
+            sl.convrsation_stag  "prioritis_collction"
+            rtrn " rct, {sr_nam}! ow, what ar yor main prioritis whn choosing a contry las slct th most important actors or yo"
+        ls
+            rtrn "  didn't catch yor prossion, {sr_nam}. hat ild do yo work in (.g., , nginring, althcar, dcation, sinss, tc.)"
     
-    async def _handle_priorities_collection(self, user_input: str) -> str:
-        """Handle priorities collection"""
-        self.user_profile['priorities'] = user_input
-        self.collected_info["priorities"] = True
+    async d _handl_prioritis_collction(sl, sr_inpt str) - str
+        """andl prioritis collction"""
+        sl.sr_proil'prioritis']  sr_inpt
+        sl.collctd_ino"prioritis"]  r
         
-        user_name = self.user_profile.get('name', 'there')
+        sr_nam  sl.sr_proil.gt('nam', 'thr')
         
-        # Check if user has already expressed interest in a specific country
-        if self.user_profile.get('country_interest'):
-            country = self.user_profile['country_interest']
-            self.conversation_stage = "country_analysis"
-            user_profile = str(self.user_profile)
+        # hck i sr has alrady xprssd intrst in a spciic contry
+        i sl.sr_proil.gt('contry_intrst')
+            contry  sl.sr_proil'contry_intrst']
+            sl.convrsation_stag  "contry_analysis"
+            sr_proil  str(sl.sr_proil)
             
-            # Search knowledge base for information about this country
-            knowledge_results = self._search_knowledge_base(f"study abroad {country} immigration visa requirements")
+            # arch knowldg bas or inormation abot this contry
+            knowldg_rslts  sl._sarch_knowldg_bas("stdy abroad {contry} immigration visa rqirmnts")
             
-            # Create enhanced prompt with knowledge base information
-            prompt = f"""
-            User Profile: {user_profile}
-            Selected Country: {country}
+            # rat nhancd prompt with knowldg bas inormation
+            prompt  """
+            sr roil {sr_proil}
+            lctd ontry {contry}
             
-            Knowledge Base Information:
-            {knowledge_results}
+            nowldg as normation
+            {knowldg_rslts}
             
-            Please provide a detailed analysis for studying in {country}, including:
-            1. Visa requirements and process
-            2. University recommendations
-            3. Cost of living and tuition
-            4. Language requirements
-            5. Application timeline
-            6. Work opportunities during/after studies
+            las provid a dtaild analysis or stdying in {contry}, inclding
+            . isa rqirmnts and procss
+            . nivrsity rcommndations
+            . ost o living and tition
+            . angag rqirmnts
+            . pplication timlin
+            . ork opportnitis dring/atr stdis
             """
             
-            response = self.llm.chat_completion([{"role": "user", "content": prompt}])
-            return response
-        else:
-            # No specific country interest, provide recommendations
-            self.conversation_stage = "country_recommendations"
+            rspons  sl.llm(prompt)
+            rtrn rspons
+        ls
+            # o spciic contry intrst, provid rcommndations
+            sl.convrsation_stag  "contry_rcommndations"
             
-            # 生成国家推荐
-            user_profile = str(self.user_profile)
-            priorities = user_input
-            prompt = self.prompts.get_country_recommendations_prompt(user_profile, priorities)
-            response = self.llm.chat_completion([{"role": "user", "content": prompt}])
+            # nrat contry rcommndations
+            sr_proil  str(sl.sr_proil)
+            prioritis  sr_inpt
+            prompt  sl.prompts.gt_contry_rcommndations_prompt(sr_proil, prioritis)
+            rspons  sl.llm(prompt)
             
-            # 在推荐前添加个性化称呼
-            personalized_response = f" Based on your preferences, {user_name}, here are my recommendations:\n\n{response}"
-            return personalized_response
+            # dd prsonalizd grting bor rcommndations
+            prsonalizd_rspons  " asd on yor prrncs, {sr_nam}, hr ar my rcommndationsnn{rspons}"
+            rtrn prsonalizd_rspons
     
-    async def _handle_country_recommendations(self, user_input: str) -> str:
-        """Handle country recommendation selection"""
-        # Extract any country mentioned by user
-        country = self._extract_country_from_input(user_input)
-        if country:
-            self.conversation_stage = "country_analysis"
-            user_profile = str(self.user_profile)
+    async d _handl_contry_rcommndations(sl, sr_inpt str) - str
+        """andl contry rcommndation slction"""
+        # xtract any contry mntiond by sr
+        contry  sl._xtract_contry_rom_inpt(sr_inpt)
+        i contry
+            sl.convrsation_stag  "contry_analysis"
+            sr_proil  str(sl.sr_proil)
             
-            # Search knowledge base for information about this country
-            knowledge_results = self._search_knowledge_base(f"study abroad {country} immigration visa requirements")
+            # arch knowldg bas or inormation abot this contry
+            knowldg_rslts  sl._sarch_knowldg_bas("stdy abroad {contry} immigration visa rqirmnts")
             
-            # Create enhanced prompt with knowledge base information
-            prompt = f"""
-            User Profile: {user_profile}
-            Selected Country: {country}
+            # rat nhancd prompt with knowldg bas inormation
+            prompt  """
+            sr roil {sr_proil}
+            lctd ontry {contry}
             
-            Knowledge Base Information:
-            {knowledge_results}
+            nowldg as normation
+            {knowldg_rslts}
             
-            Please provide a detailed analysis for studying in {country}, including:
-            1. Visa requirements and process
-            2. University recommendations
-            3. Cost of living and tuition
-            4. Language requirements
-            5. Application timeline
-            6. Work opportunities during/after studies
+            las provid a dtaild analysis or stdying in {contry}, inclding
+            . isa rqirmnts and procss
+            . nivrsity rcommndations
+            . ost o living and tition
+            . angag rqirmnts
+            . pplication timlin
+            . ork opportnitis dring/atr stdis
             """
             
-            response = self.llm.chat_completion([{"role": "user", "content": prompt}])
-            return response
-        else:
-            return " I didn't catch which country you're interested in. Please tell me which country you'd like to learn more about (e.g., Italy, Japan, Spain, etc.)."
+            rspons  sl.llm(prompt)
+            rtrn rspons
+        ls
+            rtrn "  didn't catch which contry yo'r intrstd in. las tll m which contry yo'd lik to larn mor abot (.g., taly, apan, pain, tc.)."
     
-    async def _handle_profile_collection(self, user_input: str) -> str:
-        """Processing档案收集阶段"""
-        # 提取用户信息
-        self._extract_user_info(user_input)
+    async d _handl_proil_collction(sl, sr_inpt str) - str
+        """rocssing proil collction stag"""
+        # xtract sr inormation
+        sl._xtract_sr_ino(sr_inpt)
         
-        # 生成分析提示
-        user_info = f"Age: {self.user_profile.get('age', 'Not specified')}, Nationality: {self.user_profile.get('nationality', 'Not specified')}, Family: {self.user_profile.get('family', 'Not specified')}, Profession: {self.user_profile.get('profession', 'Not specified')}"
+        # nrat analysis prompt
+        sr_ino  "g {sl.sr_proil.gt('ag', 'ot spciid')}, ationality {sl.sr_proil.gt('nationality', 'ot spciid')}, amily {sl.sr_proil.gt('amily', 'ot spciid')}, rossion {sl.sr_proil.gt('prossion', 'ot spciid')}"
         
-        prompt = self.prompts.get_analysis_prompt(user_info)
-        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
+        prompt  sl.prompts.gt_analysis_prompt(sr_ino)
+        rspons  sl.llm(prompt)
         
-        self.conversation_stage = "priorities"
-        return response
+        sl.convrsation_stag  "prioritis"
+        rtrn rspons
     
-    async def _handle_priorities(self, user_input: str) -> str:
-        """Processing优先级询问阶段"""
-        # 更新用户档案
-        self._extract_user_info(user_input)
+    async d _handl_prioritis(sl, sr_inpt str) - str
+        """rocssing prioritis inqiry stag"""
+        # pdat sr proil
+        sl._xtract_sr_ino(sr_inpt)
         
-        # 生成国家推荐
-        user_profile = str(self.user_profile)
-        prompt = f"""Based on the user's priorities: {user_input}
+        # nrat contry rcommndations
+        sr_proil  str(sl.sr_proil)
+        prompt  """asd on th sr's prioritis {sr_inpt}
 
-User profile: {user_profile}
+sr proil {sr_proil}
 
-Provide country recommendations following this format:
+rovid contry rcommndations ollowing this ormat
 
- 🔍 **Analysing your family profile...**
+ 🔍 **nalysing yor amily proil...**
 
-Based on your background, I've found **X excellent matches** for your family, ranked by your chances:
+asd on yor backgrond, 'v ond ** xcllnt matchs** or yor amily, rankd by yor chancs
 
-1. 🇨🇦 **CANADA** - [brief description of why it matches their priorities]
-2. 🇦🇺 **AUSTRALIA** - [brief description of why it matches their priorities]  
-3. 🇳🇿 **NEW ZEALAND** - [brief description of why it matches their priorities]
-4. 🇬🇧 **UK** - [brief description of why it matches their priorities]
+. 🇨🇦 **** - bri dscription o why it matchs thir prioritis]
+. 🇦🇺 **** - bri dscription o why it matchs thir prioritis]  
+. 🇳🇿 ** ** - bri dscription o why it matchs thir prioritis]
+. 🇬🇧 **** - bri dscription o why it matchs thir prioritis]
 
-Which country would you like to explore first?
+hich contry wold yo lik to xplor irst
 
-Be encouraging and explain why each country matches their specific priorities."""
+ ncoraging and xplain why ach contry matchs thir spciic prioritis."""
         
-        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
-        self.conversation_stage = "country_analysis"
-        return response
+        rspons  sl.llm(prompt)
+        sl.convrsation_stag  "contry_analysis"
+        rtrn rspons
     
-    async def _handle_country_analysis(self, user_input: str) -> str:
-        """Handle country analysis阶段"""
-        # 确定用户感兴趣的国家
-        country = "Canada"  # 默认
-        if "australia" in user_input.lower() or "au" in user_input.lower():
-            country = "Australia"
-        elif "new zealand" in user_input.lower() or "nz" in user_input.lower():
-            country = "New Zealand"
-        elif "uk" in user_input.lower() or "britain" in user_input.lower() or "gb" in user_input.lower():
-            country = "UK"
-        elif "germany" in user_input.lower() or "de" in user_input.lower():
-            country = "Germany"
-        elif "usa" in user_input.lower() or "us" in user_input.lower() or "america" in user_input.lower():
-            country = "USA"
+    async d _handl_contry_analysis(sl, sr_inpt str) - str
+        """andl contry analysis stag"""
+        # trmin th contry th sr is intrstd in
+        contry  "anada"  # alt
+        i "astralia" in sr_inpt.lowr() or "a" in sr_inpt.lowr()
+            contry  "stralia"
+        li "nw zaland" in sr_inpt.lowr() or "nz" in sr_inpt.lowr()
+            contry  "w aland"
+        li "k" in sr_inpt.lowr() or "britain" in sr_inpt.lowr() or "gb" in sr_inpt.lowr()
+            contry  ""
+        li "grmany" in sr_inpt.lowr() or "d" in sr_inpt.lowr()
+            contry  "rmany"
+        li "sa" in sr_inpt.lowr() or "s" in sr_inpt.lowr() or "amrica" in sr_inpt.lowr()
+            contry  ""
         
-        user_profile = str(self.user_profile)
+        sr_proil  str(sl.sr_proil)
         
-        # 根据用户目标选择不同的分析prompt
-        if self.user_profile.get('goal') == 'study':
-            prompt = self.prompts.get_study_country_analysis_prompt(country, user_profile)
-        else:
-            prompt = self.prompts.get_detailed_analysis_prompt(country, user_profile)
+        # hoos dirnt analysis prompt basd on sr goal
+        i sl.sr_proil.gt('goal')  'stdy'
+            prompt  sl.prompts.gt_stdy_contry_analysis_prompt(contry, sr_proil)
+        ls
+            prompt  sl.prompts.gt_dtaild_analysis_prompt(contry, sr_proil)
         
-        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
+        rspons  sl.llm(prompt)
         
-        self.conversation_stage = "detailed_analysis"
-        return response
+        sl.convrsation_stag  "dtaild_analysis"
+        rtrn rspons
     
-    async def _handle_action_plan(self, user_input: str) -> str:
-        """Handle action plan阶段"""
-        user_profile = str(self.user_profile)
-        prompt = self.prompts.get_action_plan_prompt(user_profile)
-        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
+    async d _handl_action_plan(sl, sr_inpt str) - str
+        """andl action plan stag"""
+        sr_proil  str(sl.sr_proil)
+        prompt  sl.prompts.gt_action_plan_prompt(sr_proil)
+        rspons  sl.llm(prompt)
         
-        self.conversation_stage = "action_plan"
-        return response
+        sl.convrsation_stag  "action_plan"
+        rtrn rspons
     
-    async def _handle_children_education(self, user_input: str) -> str:
-        """Handle children education问题"""
-        prompt = f"""The user asked about children's education: {user_input}
+    async d _handl_childrn_dcation(sl, sr_inpt str) - str
+        """andl childrn dcation qstion"""
+        prompt  """h sr askd abot childrn's dcation {sr_inpt}
 
-Provide a comprehensive response about children's education during immigration transition, including:
+rovid a comprhnsiv rspons abot childrn's dcation dring immigration transition, inclding
 
-- Education in home country (preparation phase)
-- During application process
-- Upon landing in destination country
-- Specific details for Canada and Australia
-- Pro tips for smooth transition
+- dcation in hom contry (prparation phas)
+- ring application procss
+- pon landing in dstination contry
+- pciic dtails or anada and stralia
+- ro tips or smooth transition
 
-Use the exact format and encouraging tone from the example conversation."""
+s th xact ormat and ncoraging ton rom th xampl convrsation."""
         
-        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
-        return response
+        rspons  sl.llm(prompt)
+        rtrn rspons
     
-    async def _handle_university_recommendations(self, user_input: str) -> str:
-        """Handle university recommendations请求"""
-        # 从对话历史中获取用户选择的国家
-        country = "Canada"  # 默认
-        for message in reversed(self.conversation_history):
-            if message["role"] == "assistant" and "country" in message["content"].lower():
-                content = message["content"].lower()
-                if "australia" in content or "au" in content:
-                    country = "Australia"
-                elif "canada" in content or "ca" in content:
-                    country = "Canada"
-                elif "new zealand" in content or "nz" in content:
-                    country = "New Zealand"
-                elif "uk" in content or "britain" in content:
-                    country = "UK"
-                elif "germany" in content or "de" in content:
-                    country = "Germany"
-                elif "usa" in content or "us" in content:
-                    country = "USA"
-                break
+    async d _handl_nivrsity_rcommndations(sl, sr_inpt str) - str
+        """andl nivrsity rcommndations rqst"""
+        # t th contry slctd by sr rom convrsation history
+        contry  "anada"  # alt
+        or mssag in rvrsd(sl.convrsation_history)
+            i mssag"rol"]  "assistant" and "contry" in mssag"contnt"].lowr()
+                contnt  mssag"contnt"].lowr()
+                i "astralia" in contnt or "a" in contnt
+                    contry  "stralia"
+                li "canada" in contnt or "ca" in contnt
+                    contry  "anada"
+                li "nw zaland" in contnt or "nz" in contnt
+                    contry  "w aland"
+                li "k" in contnt or "britain" in contnt
+                    contry  ""
+                li "grmany" in contnt or "d" in contnt
+                    contry  "rmany"
+                li "sa" in contnt or "s" in contnt
+                    contry  ""
+                brak
         
-        field = self.user_profile.get('field_of_interest', 'Engineering/Tech')
-        budget = self.user_profile.get('budget', 'Under $15,000 USD')
+        ild  sl.sr_proil.gt('ild_o_intrst', 'nginring/ch')
+        bdgt  sl.sr_proil.gt('bdgt', 'ndr $, ')
         
-        prompt = self.prompts.get_university_recommendations_prompt(country, field, budget)
-        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
+        prompt  sl.prompts.gt_nivrsity_rcommndations_prompt(contry, ild, bdgt)
+        rspons  sl.llm(prompt)
         
-        return response
+        rtrn rspons
     
-    async def _handle_general_question(self, user_input: str) -> str:
-        """Handle general questions"""
-        context = f"User profile: {self.user_profile}\nConversation history: {self.conversation_history[-3:] if len(self.conversation_history) > 3 else self.conversation_history}"
+    async d _handl_gnral_qstion(sl, sr_inpt str) - str
+        """andl gnral qstions"""
+        contxt  "sr proil {sl.sr_proil}nonvrsation history {sl.convrsation_history-] i ln(sl.convrsation_history)   ls sl.convrsation_history}"
         
-        prompt = self.prompts.get_follow_up_prompt(user_input, context)
-        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
+        prompt  sl.prompts.gt_ollow_p_prompt(sr_inpt, contxt)
+        rspons  sl.llm(prompt)
         
-        return response
+        rtrn rspons
     
-    def _create_dynamic_recommendation_prompt(self, user_profile: str, priorities: str) -> str:
-        """创建动态推荐prompt"""
-        return f"""Based on the following user profile, provide personalized country recommendations for study abroad:
+    d _crat_dynamic_rcommndation_prompt(sl, sr_proil str, prioritis str) - str
+        """rat dynamic rcommndation prompt"""
+        rtrn """asd on th ollowing sr proil, provid prsonalizd contry rcommndations or stdy abroad
 
-User Profile: {user_profile}
-Priorities: {priorities}
+sr roil {sr_proil}
+rioritis {prioritis}
 
-Please provide TOP 5 country recommendations with specific reasons why each country matches their profile. Consider:
-- Their nationality and current location
-- Their age and education level
-- Their field of interest
-- Their budget constraints
-- Their English test status
-- Their specific priorities
+las provid   contry rcommndations with spciic rasons why ach contry matchs thir proil. onsidr
+- hir nationality and crrnt location
+- hir ag and dcation lvl
+- hir ild o intrst
+- hir bdgt constraints
+- hir nglish tst stats
+- hir spciic prioritis
 
-Format your response as:
-1. 🇨🇦 **COUNTRY NAME** - [Specific reason why it matches their profile]
-2. 🇦🇺 **COUNTRY NAME** - [Specific reason why it matches their profile]
-3. 🇳🇿 **COUNTRY NAME** - [Specific reason why it matches their profile]
-4. 🇬🇧 **COUNTRY NAME** - [Specific reason why it matches their profile]
-5. 🇩🇪 **COUNTRY NAME** - [Specific reason why it matches their profile]
+ormat yor rspons as
+. 🇨🇦 ** ** - pciic rason why it matchs thir proil]
+. 🇦🇺 ** ** - pciic rason why it matchs thir proil]
+. 🇳🇿 ** ** - pciic rason why it matchs thir proil]
+. 🇬🇧 ** ** - pciic rason why it matchs thir proil]
+. 🇩🇪 ** ** - pciic rason why it matchs thir proil]
 
-Make each recommendation specific to their situation and provide actionable insights."""
+ak ach rcommndation spciic to thir sitation and provid actionabl insights."""
 
-    def _extract_user_info(self, user_input: str) -> None:
-        """Extract information from user input using LLM for complex inputs"""
-        user_input_lower = user_input.lower()
+    d _xtract_sr_ino(sl, sr_inpt str) - on
+        """xtract inormation rom sr inpt sing  or complx inpts"""
+        sr_inpt_lowr  sr_inpt.lowr()
         
-        # If input is long or contains multiple pieces of information, use LLM to extract
-        if (len(user_input.split()) > 2 or 
-            len(user_input) > 10 or
-            any(keyword in user_input_lower for keyword in ['study', 'work', 'italy', 'canada', 'australia', 'budget', 'english', 'ielts', 'toefl', 'age', 'name', 'from', 'want', 'go', 'college', 'university']) or
-            any(keyword in user_input for keyword in ['我叫', '岁', '想去', '读书', '中国人', '年龄', '国籍', '目标', '学习', '工作'])):
-            print(f"DEBUG: Triggering LLM extraction for input: '{user_input}'")
-            self._extract_info_with_llm(user_input)
-            return
+        #  inpt is long or contains mltipl pics o inormation, s  to xtract
+        i (ln(sr_inpt.split())   or 
+            ln(sr_inpt)   or
+            any(kyword in sr_inpt_lowr or kyword in 'stdy', 'work', 'italy', 'canada', 'astralia', 'bdgt', 'nglish', 'ilts', 'tol', 'ag', 'nam', 'rom', 'want', 'go', 'collg', 'nivrsity']) or
+            any(kyword in sr_inpt or kyword in 'my nam is', 'yars old', 'want to go', 'stdy', 'hins', 'ag', 'nationality', 'goal', 'stdy', 'work']))
+            print(" riggring  xtraction or inpt '{sr_inpt}'")
+            sl._xtract_ino_with_llm(sr_inpt)
+            # ontin with simpl xtraction as allback
         
-        # Simple extraction for short inputs
-        # Extract name - 如果还没有名字，尝试从输入中提取
-        if not self.user_profile.get('name'):
-            # 简单的名字提取逻辑
-            words = user_input.strip().split()
-            if len(words) == 1 and words[0].isalpha() and len(words[0]) > 1:
-                # 如果只有一个词且是字母，可能是名字
-                self.user_profile['name'] = words[0].title()
-            elif len(words) == 2 and all(word.isalpha() for word in words):
-                # 如果是两个词且都是字母，可能是全名，取第一个作为名字
-                self.user_profile['name'] = words[0].title()
+        # impl xtraction or short inpts
+        # xtract nam - i no nam yt, try to xtract rom inpt
+        i not sl.sr_proil.gt('nam')
+            # impl nam xtraction logic
+            words  sr_inpt.strip().split()
+            i ln(words)   and words].isalpha() and ln(words])  
+                #  only on word and alphabtic, might b a nam
+                sl.sr_proil'nam']  words].titl()
+            li ln(words)   and all(word.isalpha() or word in words)
+                #  two words and both alphabtic, might b ll nam, tak irst as nam
+                sl.sr_proil'nam']  words].titl()
+            ls
+                #  simpl xtraction ails, s  or bttr accracy
+                print(" impl xtraction aild, sing  or '{sr_inpt}'")
+                sl._xtract_ino_with_llm(sr_inpt)
+                rtrn
         
-        # Extract age
-        import re
-        age_match = re.search(r'\b(\d{1,2})\b', user_input)
-        if age_match:
-            self.user_profile['age'] = age_match.group(1)
+        # xtract ag
+        import r
+        ag_match  r.sarch(r'b(d{,})b', sr_inpt)
+        i ag_match
+            sl.sr_proil'ag']  ag_match.grop()
         
-        # Extract nationality - 扩展词汇列表和匹配逻辑
-        nationalities = [
-            'colombian', 'mexican', 'indian', 'china', 'chinese', 'brazilian', 'philippine', 'vietnamese', 
-            'nigerian', 'pakistani', 'bangladeshi', 'american', 'canadian', 'australian', 'british',
-            'german', 'french', 'spanish', 'italian', 'japanese', 'korean', 'thai', 'indonesian',
-            'malaysian', 'singaporean', 'taiwanese', 'hong kong', 'argentinian', 'chilean', 'peruvian',
-            'venezuelan', 'ecuadorian', 'bolivian', 'uruguayan', 'paraguayan', 'cuban', 'dominican',
-            'haitian', 'jamaican', 'trinidadian', 'barbadian', 'guyanese', 'surinamese', 'belizean',
-            'panamanian', 'costa rican', 'honduran', 'salvadoran', 'guatemalan', 'nicaraguan',
-            'russian', 'ukrainian', 'polish', 'czech', 'hungarian', 'romanian', 'bulgarian',
-            'croatian', 'serbian', 'slovak', 'slovenian', 'estonian', 'latvian', 'lithuanian',
-            'finnish', 'swedish', 'norwegian', 'danish', 'dutch', 'belgian', 'swiss', 'austrian',
-            'portuguese', 'greek', 'turkish', 'israeli', 'lebanese', 'jordanian', 'saudi', 'emirati',
-            'egyptian', 'moroccan', 'tunisian', 'algerian', 'libyan', 'sudanese', 'ethiopian',
-            'kenyan', 'ugandan', 'tanzanian', 'ghanaian', 'ivorian', 'senegalese', 'cameroonian',
-            'zimbabwean', 'south african', 'botswanan', 'namibian', 'zambian', 'malawian',
-            'mozambican', 'angolan', 'congolese', 'rwandan', 'burundian', 'madagascan',
-            'mauritian', 'seychellois', 'comorian', 'djiboutian', 'eritrean', 'somalian'
+        # xtract nationality - xpand vocablary list and matching logic
+        nationalitis  
+            'colombian', 'mxican', 'indian', 'china', 'chins', 'brazilian', 'philippin', 'vitnams', 
+            'nigrian', 'pakistani', 'bangladshi', 'amrican', 'canadian', 'astralian', 'british',
+            'grman', 'rnch', 'spanish', 'italian', 'japans', 'koran', 'thai', 'indonsian',
+            'malaysian', 'singaporan', 'taiwans', 'hong kong', 'argntinian', 'chilan', 'prvian',
+            'vnzlan', 'cadorian', 'bolivian', 'rgayan', 'paragayan', 'cban', 'dominican',
+            'haitian', 'jamaican', 'trinidadian', 'barbadian', 'gyans', 'srinams', 'blizan',
+            'panamanian', 'costa rican', 'hondran', 'salvadoran', 'gatmalan', 'nicaragan',
+            'rssian', 'krainian', 'polish', 'czch', 'hngarian', 'romanian', 'blgarian',
+            'croatian', 'srbian', 'slovak', 'slovnian', 'stonian', 'latvian', 'lithanian',
+            'innish', 'swdish', 'norwgian', 'danish', 'dtch', 'blgian', 'swiss', 'astrian',
+            'portgs', 'grk', 'trkish', 'israli', 'lbans', 'jordanian', 'sadi', 'mirati',
+            'gyptian', 'moroccan', 'tnisian', 'algrian', 'libyan', 'sdans', 'thiopian',
+            'knyan', 'gandan', 'tanzanian', 'ghanaian', 'ivorian', 'sngals', 'camroonian',
+            'zimbabwan', 'soth arican', 'botswanan', 'namibian', 'zambian', 'malawian',
+            'mozambican', 'angolan', 'congols', 'rwandan', 'brndian', 'madagascan',
+            'maritian', 'sychllois', 'comorian', 'djibotian', 'ritran', 'somalian'
         ]
         
-        # 更灵活的匹配逻辑
-        for nationality in nationalities:
-            if nationality in user_input_lower:
-                self.user_profile['nationality'] = nationality.title()
-                break
+        # or lxibl matching logic
+        or nationality in nationalitis
+            i nationality in sr_inpt_lowr
+                sl.sr_proil'nationality']  nationality.titl()
+                brak
         
-        # 如果没有匹配到，尝试提取任何看起来像国籍的词汇
-        if not self.user_profile.get('nationality'):
-            # 简单的启发式：如果用户输入了看起来像国籍的词
-            words = user_input.strip().split()
-            for word in words:
-                if word.isalpha() and len(word) > 2:
-                    # 检查是否可能是国籍
-                    if word.lower() not in ['the', 'and', 'or', 'but', 'for', 'with', 'from', 'to', 'in', 'on', 'at', 'by', 'of', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'must', 'can', 'shall']:
-                        self.user_profile['nationality'] = word.title()
-                        break
-            words = user_input_lower.split()
-            for word in words:
-                if len(word) > 2 and word.isalpha():
-                    # 检查是否可能是国籍，排除常见的名字
-                    common_names = ['yan', 'john', 'mary', 'david', 'sarah', 'michael', 'jennifer', 'robert', 'lisa', 'james', 'eason', 'alex', 'chris', 'sam', 'tom', 'nick', 'dan', 'ben', 'max', 'leo']
-                    if word not in common_names and any(char.isalpha() for char in word):
-                        self.user_profile['nationality'] = word.title()
-                        break
+        #  no match ond, try to xtract any word that looks lik nationality
+        i not sl.sr_proil.gt('nationality')
+            # impl hristic i sr inpt looks lik nationality
+            words  sr_inpt.strip().split()
+            or word in words
+                i word.isalpha() and ln(word)  
+                    # hck i might b nationality
+                    i word.lowr() not in 'th', 'and', 'or', 'bt', 'or', 'with', 'rom', 'to', 'in', 'on', 'at', 'by', 'o', 'is', 'ar', 'was', 'wr', 'b', 'bn', 'bing', 'hav', 'has', 'had', 'do', 'dos', 'did', 'will', 'wold', 'cold', 'shold', 'may', 'might', 'mst', 'can', 'shall']
+                        sl.sr_proil'nationality']  word.titl()
+                        brak
+            words  sr_inpt_lowr.split()
+            or word in words
+                i ln(word)   and word.isalpha()
+                    # hck i might b nationality, xcld common nams
+                    common_nams  'yan', 'john', 'mary', 'david', 'sarah', 'michal', 'jnnir', 'robrt', 'lisa', 'jams', 'ason', 'alx', 'chris', 'sam', 'tom', 'nick', 'dan', 'bn', 'max', 'lo']
+                    i word not in common_nams and any(char.isalpha() or char in word)
+                        sl.sr_proil'nationality']  word.titl()
+                        brak
         
-        # Extract family information - 改进识别逻辑
-        if 'single' in user_input_lower or 'unmarried' in user_input_lower or 'not married' in user_input_lower:
-            self.user_profile['family'] = 'Single'
-        elif 'married' in user_input_lower or 'husband' in user_input_lower or 'wife' in user_input_lower or 'spouse' in user_input_lower:
-            self.user_profile['family'] = 'Married'
-        elif 'divorced' in user_input_lower or 'separated' in user_input_lower:
-            self.user_profile['family'] = 'Divorced/Separated'
-        elif 'widowed' in user_input_lower:
-            self.user_profile['family'] = 'Widowed'
-        elif 'partner' in user_input_lower or 'boyfriend' in user_input_lower or 'girlfriend' in user_input_lower:
-            self.user_profile['family'] = 'In a relationship'
+        # xtract amily inormation - improvd rcognition logic
+        i 'singl' in sr_inpt_lowr or 'nmarrid' in sr_inpt_lowr or 'not marrid' in sr_inpt_lowr
+            sl.sr_proil'amily']  'ingl'
+        li 'marrid' in sr_inpt_lowr or 'hsband' in sr_inpt_lowr or 'wi' in sr_inpt_lowr or 'spos' in sr_inpt_lowr
+            sl.sr_proil'amily']  'arrid'
+        li 'divorcd' in sr_inpt_lowr or 'sparatd' in sr_inpt_lowr
+            sl.sr_proil'amily']  'ivorcd/paratd'
+        li 'widowd' in sr_inpt_lowr
+            sl.sr_proil'amily']  'idowd'
+        li 'partnr' in sr_inpt_lowr or 'boyrind' in sr_inpt_lowr or 'girlrind' in sr_inpt_lowr
+            sl.sr_proil'amily']  'n a rlationship'
         
-        # 提取子女信息
-        if 'kids' in user_input_lower or 'children' in user_input_lower or 'child' in user_input_lower:
-            kids_match = re.search(r'(\d+)\s*(?:kids|children|child)', user_input_lower)
-            if kids_match:
-                self.user_profile['children'] = kids_match.group(1)
-            else:
-                self.user_profile['children'] = 'Yes'
+        # xtract childrn inormation
+        i 'kids' in sr_inpt_lowr or 'childrn' in sr_inpt_lowr or 'child' in sr_inpt_lowr
+            kids_match  r.sarch(r'(d+)s*(kids|childrn|child)', sr_inpt_lowr)
+            i kids_match
+                sl.sr_proil'childrn']  kids_match.grop()
+            ls
+                sl.sr_proil'childrn']  's'
         
-        # Extract profession information - 扩展职业列表
-        professions = [
-            'it', 'software', 'developer', 'programmer', 'accountant', 'engineer', 'teacher', 'doctor', 'nurse', 'manager',
-            'business', 'marketing', 'sales', 'finance', 'banking', 'law', 'lawyer', 'consultant', 'designer',
-            'artist', 'writer', 'journalist', 'scientist', 'researcher', 'analyst', 'administrator', 'coordinator',
-            'specialist', 'technician', 'assistant', 'director', 'executive', 'officer', 'supervisor', 'lead',
-            'architect', 'consultant', 'freelancer', 'entrepreneur', 'student', 'graduate', 'intern'
+        # xtract prossion inormation - xpand prossion list
+        prossions  
+            'it', 'sotwar', 'dvlopr', 'programmr', 'accontant', 'nginr', 'tachr', 'doctor', 'nrs', 'managr',
+            'bsinss', 'markting', 'sals', 'inanc', 'banking', 'law', 'lawyr', 'consltant', 'dsignr',
+            'artist', 'writr', 'jornalist', 'scintist', 'rsarchr', 'analyst', 'administrator', 'coordinator',
+            'spcialist', 'tchnician', 'assistant', 'dirctor', 'xctiv', 'oicr', 'sprvisor', 'lad',
+            'architct', 'consltant', 'rlancr', 'ntrprnr', 'stdnt', 'gradat', 'intrn'
         ]
-        for profession in professions:
-            if profession in user_input_lower:
-                self.user_profile['profession'] = profession.title()
-                break
+        or prossion in prossions
+            i prossion in sr_inpt_lowr
+                sl.sr_proil'prossion']  prossion.titl()
+                brak
         
-        # 如果没有匹配到，尝试提取任何看起来像职业的词汇
-        if not self.user_profile.get('profession'):
-            words = user_input_lower.split()
-            for word in words:
-                if len(word) > 2 and word.isalpha():
-                    # 检查是否可能是职业
-                    if any(char.isalpha() for char in word):
-                        self.user_profile['profession'] = word.title()
-                        break
+        #  no match ond, try to xtract any word that looks lik prossion
+        i not sl.sr_proil.gt('prossion')
+            words  sr_inpt_lowr.split()
+            or word in words
+                i ln(word)   and word.isalpha()
+                    # hck i might b prossion
+                    i any(char.isalpha() or char in word)
+                        sl.sr_proil'prossion']  word.titl()
+                        brak
         
-        # 提取教育信息
-        if 'bachelor' in user_input_lower or 'degree' in user_input_lower:
-            self.user_profile['education'] = 'Bachelor\'s degree'
-        elif 'master' in user_input_lower:
-            self.user_profile['education'] = 'Master\'s degree'
-        elif 'phd' in user_input_lower or 'doctorate' in user_input_lower:
-            self.user_profile['education'] = 'PhD'
+        # xtract dcation inormation
+        i 'bachlor' in sr_inpt_lowr or 'dgr' in sr_inpt_lowr
+            sl.sr_proil'dcation']  'achlor's dgr'
+        li 'mastr' in sr_inpt_lowr
+            sl.sr_proil'dcation']  'astr's dgr'
+        li 'phd' in sr_inpt_lowr or 'doctorat' in sr_inpt_lowr
+            sl.sr_proil'dcation']  'h'
     
-    def _extract_country_from_input(self, user_input: str) -> str:
-        """Extract country from user input - supports any country"""
-        user_input_lower = user_input.lower()
+    d _xtract_contry_rom_inpt(sl, sr_inpt str) - str
+        """xtract contry rom sr inpt - spports any contry"""
+        sr_inpt_lowr  sr_inpt.lowr()
         
-        # Common country names and their variations
-        countries = {
-            'italy': ['italy', 'italian', 'italia'],
-            'japan': ['japan', 'japanese', 'nippon'],
-            'spain': ['spain', 'spanish', 'españa'],
-            'france': ['france', 'french', 'français'],
-            'germany': ['germany', 'german', 'deutschland'],
-            'uk': ['uk', 'britain', 'british', 'england', 'scotland', 'wales'],
-            'canada': ['canada', 'canadian'],
-            'australia': ['australia', 'australian'],
-            'new zealand': ['new zealand', 'kiwi', 'nz'],
-            'usa': ['usa', 'america', 'american', 'united states'],
-            'netherlands': ['netherlands', 'dutch', 'holland'],
-            'sweden': ['sweden', 'swedish'],
-            'norway': ['norway', 'norwegian'],
-            'denmark': ['denmark', 'danish'],
-            'finland': ['finland', 'finnish'],
-            'switzerland': ['switzerland', 'swiss'],
-            'austria': ['austria', 'austrian'],
-            'belgium': ['belgium', 'belgian'],
-            'ireland': ['ireland', 'irish'],
-            'portugal': ['portugal', 'portuguese'],
-            'greece': ['greece', 'greek'],
-            'turkey': ['turkey', 'turkish'],
-            'poland': ['poland', 'polish'],
-            'czech republic': ['czech republic', 'czech', 'czechia'],
-            'hungary': ['hungary', 'hungarian'],
-            'romania': ['romania', 'romanian'],
-            'bulgaria': ['bulgaria', 'bulgarian'],
-            'croatia': ['croatia', 'croatian'],
-            'slovenia': ['slovenia', 'slovenian'],
-            'slovakia': ['slovakia', 'slovak'],
-            'estonia': ['estonia', 'estonian'],
-            'latvia': ['latvia', 'latvian'],
-            'lithuania': ['lithuania', 'lithuanian'],
-            'south korea': ['south korea', 'korea', 'korean'],
-            'china': ['china', 'chinese'],
-            'singapore': ['singapore', 'singaporean'],
-            'malaysia': ['malaysia', 'malaysian'],
-            'thailand': ['thailand', 'thai'],
-            'vietnam': ['vietnam', 'vietnamese'],
-            'philippines': ['philippines', 'filipino'],
-            'indonesia': ['indonesia', 'indonesian'],
-            'india': ['india', 'indian'],
-            'brazil': ['brazil', 'brazilian'],
-            'argentina': ['argentina', 'argentinian'],
-            'chile': ['chile', 'chilean'],
-            'mexico': ['mexico', 'mexican'],
-            'colombia': ['colombia', 'colombian'],
-            'peru': ['peru', 'peruvian'],
-            'venezuela': ['venezuela', 'venezuelan'],
-            'ecuador': ['ecuador', 'ecuadorian'],
-            'bolivia': ['bolivia', 'bolivian'],
-            'uruguay': ['uruguay', 'uruguayan'],
-            'paraguay': ['paraguay', 'paraguayan'],
-            'cuba': ['cuba', 'cuban'],
-            'dominican republic': ['dominican republic', 'dominican'],
-            'haiti': ['haiti', 'haitian'],
-            'jamaica': ['jamaica', 'jamaican'],
-            'trinidad and tobago': ['trinidad and tobago', 'trinidadian'],
-            'barbados': ['barbados', 'barbadian'],
-            'guyana': ['guyana', 'guyanese'],
-            'suriname': ['suriname', 'surinamese'],
-            'belize': ['belize', 'belizean'],
-            'panama': ['panama', 'panamanian'],
-            'costa rica': ['costa rica', 'costa rican'],
-            'honduras': ['honduras', 'honduran'],
-            'el salvador': ['el salvador', 'salvadoran'],
-            'guatemala': ['guatemala', 'guatemalan'],
-            'nicaragua': ['nicaragua', 'nicaraguan'],
-            'russia': ['russia', 'russian'],
-            'ukraine': ['ukraine', 'ukrainian'],
-            'belarus': ['belarus', 'belarusian'],
-            'moldova': ['moldova', 'moldovan'],
-            'georgia': ['georgia', 'georgian'],
-            'armenia': ['armenia', 'armenian'],
-            'azerbaijan': ['azerbaijan', 'azerbaijani'],
-            'kazakhstan': ['kazakhstan', 'kazakh'],
-            'uzbekistan': ['uzbekistan', 'uzbek'],
-            'kyrgyzstan': ['kyrgyzstan', 'kyrgyz'],
-            'tajikistan': ['tajikistan', 'tajik'],
-            'turkmenistan': ['turkmenistan', 'turkmen'],
-            'afghanistan': ['afghanistan', 'afghan'],
-            'pakistan': ['pakistan', 'pakistani'],
-            'bangladesh': ['bangladesh', 'bangladeshi'],
-            'sri lanka': ['sri lanka', 'sri lankan'],
-            'nepal': ['nepal', 'nepalese'],
-            'bhutan': ['bhutan', 'bhutanese'],
-            'maldives': ['maldives', 'maldivian'],
-            'myanmar': ['myanmar', 'burmese'],
-            'cambodia': ['cambodia', 'cambodian'],
-            'laos': ['laos', 'laotian'],
-            'brunei': ['brunei', 'bruneian'],
-            'east timor': ['east timor', 'timorese'],
-            'mongolia': ['mongolia', 'mongolian'],
-            'north korea': ['north korea', 'dprk'],
-            'taiwan': ['taiwan', 'taiwanese'],
-            'hong kong': ['hong kong', 'hongkong'],
-            'macau': ['macau', 'macanese'],
-            'israel': ['israel', 'israeli'],
-            'palestine': ['palestine', 'palestinian'],
-            'jordan': ['jordan', 'jordanian'],
-            'lebanon': ['lebanon', 'lebanese'],
-            'syria': ['syria', 'syrian'],
-            'iraq': ['iraq', 'iraqi'],
-            'iran': ['iran', 'iranian'],
-            'saudi arabia': ['saudi arabia', 'saudi'],
-            'uae': ['uae', 'united arab emirates', 'emirati'],
-            'qatar': ['qatar', 'qatari'],
-            'kuwait': ['kuwait', 'kuwaiti'],
-            'bahrain': ['bahrain', 'bahraini'],
-            'oman': ['oman', 'omani'],
-            'yemen': ['yemen', 'yemeni'],
-            'egypt': ['egypt', 'egyptian'],
-            'libya': ['libya', 'libyan'],
-            'tunisia': ['tunisia', 'tunisian'],
-            'algeria': ['algeria', 'algerian'],
-            'morocco': ['morocco', 'moroccan'],
-            'sudan': ['sudan', 'sudanese'],
-            'south sudan': ['south sudan', 'south sudanese'],
-            'ethiopia': ['ethiopia', 'ethiopian'],
-            'eritrea': ['eritrea', 'eritrean'],
-            'djibouti': ['djibouti', 'djiboutian'],
-            'somalia': ['somalia', 'somalian'],
-            'kenya': ['kenya', 'kenyan'],
-            'uganda': ['uganda', 'ugandan'],
-            'tanzania': ['tanzania', 'tanzanian'],
-            'rwanda': ['rwanda', 'rwandan'],
-            'burundi': ['burundi', 'burundian'],
-            'madagascar': ['madagascar', 'madagascan'],
-            'mauritius': ['mauritius', 'mauritian'],
-            'seychelles': ['seychelles', 'seychellois'],
-            'comoros': ['comoros', 'comorian'],
-            'ghana': ['ghana', 'ghanaian'],
-            'nigeria': ['nigeria', 'nigerian'],
-            'cameroon': ['cameroon', 'cameroonian'],
-            'chad': ['chad', 'chadian'],
-            'central african republic': ['central african republic', 'central african'],
-            'congo': ['congo', 'congolese'],
-            'democratic republic of congo': ['democratic republic of congo', 'drc', 'congolese'],
-            'gabon': ['gabon', 'gabonese'],
-            'equatorial guinea': ['equatorial guinea', 'equatorial guinean'],
-            'sao tome and principe': ['sao tome and principe', 'sao tomean'],
-            'angola': ['angola', 'angolan'],
-            'zambia': ['zambia', 'zambian'],
-            'zimbabwe': ['zimbabwe', 'zimbabwean'],
-            'botswana': ['botswana', 'botswanan'],
-            'namibia': ['namibia', 'namibian'],
-            'south africa': ['south africa', 'south african'],
-            'lesotho': ['lesotho', 'basotho'],
-            'swaziland': ['swaziland', 'swazi'],
-            'malawi': ['malawi', 'malawian'],
-            'mozambique': ['mozambique', 'mozambican']
+        # ommon contry nams and thir variations
+        contris  {
+            'italy' 'italy', 'italian', 'italia'],
+            'japan' 'japan', 'japans', 'nippon'],
+            'spain' 'spain', 'spanish', 'spaña'],
+            'ranc' 'ranc', 'rnch', 'rançais'],
+            'grmany' 'grmany', 'grman', 'dtschland'],
+            'k' 'k', 'britain', 'british', 'ngland', 'scotland', 'wals'],
+            'canada' 'canada', 'canadian'],
+            'astralia' 'astralia', 'astralian'],
+            'nw zaland' 'nw zaland', 'kiwi', 'nz'],
+            'sa' 'sa', 'amrica', 'amrican', 'nitd stats'],
+            'nthrlands' 'nthrlands', 'dtch', 'holland'],
+            'swdn' 'swdn', 'swdish'],
+            'norway' 'norway', 'norwgian'],
+            'dnmark' 'dnmark', 'danish'],
+            'inland' 'inland', 'innish'],
+            'switzrland' 'switzrland', 'swiss'],
+            'astria' 'astria', 'astrian'],
+            'blgim' 'blgim', 'blgian'],
+            'irland' 'irland', 'irish'],
+            'portgal' 'portgal', 'portgs'],
+            'grc' 'grc', 'grk'],
+            'trky' 'trky', 'trkish'],
+            'poland' 'poland', 'polish'],
+            'czch rpblic' 'czch rpblic', 'czch', 'czchia'],
+            'hngary' 'hngary', 'hngarian'],
+            'romania' 'romania', 'romanian'],
+            'blgaria' 'blgaria', 'blgarian'],
+            'croatia' 'croatia', 'croatian'],
+            'slovnia' 'slovnia', 'slovnian'],
+            'slovakia' 'slovakia', 'slovak'],
+            'stonia' 'stonia', 'stonian'],
+            'latvia' 'latvia', 'latvian'],
+            'lithania' 'lithania', 'lithanian'],
+            'soth kora' 'soth kora', 'kora', 'koran'],
+            'china' 'china', 'chins'],
+            'singapor' 'singapor', 'singaporan'],
+            'malaysia' 'malaysia', 'malaysian'],
+            'thailand' 'thailand', 'thai'],
+            'vitnam' 'vitnam', 'vitnams'],
+            'philippins' 'philippins', 'ilipino'],
+            'indonsia' 'indonsia', 'indonsian'],
+            'india' 'india', 'indian'],
+            'brazil' 'brazil', 'brazilian'],
+            'argntina' 'argntina', 'argntinian'],
+            'chil' 'chil', 'chilan'],
+            'mxico' 'mxico', 'mxican'],
+            'colombia' 'colombia', 'colombian'],
+            'pr' 'pr', 'prvian'],
+            'vnzla' 'vnzla', 'vnzlan'],
+            'cador' 'cador', 'cadorian'],
+            'bolivia' 'bolivia', 'bolivian'],
+            'rgay' 'rgay', 'rgayan'],
+            'paragay' 'paragay', 'paragayan'],
+            'cba' 'cba', 'cban'],
+            'dominican rpblic' 'dominican rpblic', 'dominican'],
+            'haiti' 'haiti', 'haitian'],
+            'jamaica' 'jamaica', 'jamaican'],
+            'trinidad and tobago' 'trinidad and tobago', 'trinidadian'],
+            'barbados' 'barbados', 'barbadian'],
+            'gyana' 'gyana', 'gyans'],
+            'srinam' 'srinam', 'srinams'],
+            'bliz' 'bliz', 'blizan'],
+            'panama' 'panama', 'panamanian'],
+            'costa rica' 'costa rica', 'costa rican'],
+            'hondras' 'hondras', 'hondran'],
+            'l salvador' 'l salvador', 'salvadoran'],
+            'gatmala' 'gatmala', 'gatmalan'],
+            'nicaraga' 'nicaraga', 'nicaragan'],
+            'rssia' 'rssia', 'rssian'],
+            'krain' 'krain', 'krainian'],
+            'blars' 'blars', 'blarsian'],
+            'moldova' 'moldova', 'moldovan'],
+            'gorgia' 'gorgia', 'gorgian'],
+            'armnia' 'armnia', 'armnian'],
+            'azrbaijan' 'azrbaijan', 'azrbaijani'],
+            'kazakhstan' 'kazakhstan', 'kazakh'],
+            'zbkistan' 'zbkistan', 'zbk'],
+            'kyrgyzstan' 'kyrgyzstan', 'kyrgyz'],
+            'tajikistan' 'tajikistan', 'tajik'],
+            'trkmnistan' 'trkmnistan', 'trkmn'],
+            'aghanistan' 'aghanistan', 'aghan'],
+            'pakistan' 'pakistan', 'pakistani'],
+            'bangladsh' 'bangladsh', 'bangladshi'],
+            'sri lanka' 'sri lanka', 'sri lankan'],
+            'npal' 'npal', 'npals'],
+            'bhtan' 'bhtan', 'bhtans'],
+            'maldivs' 'maldivs', 'maldivian'],
+            'myanmar' 'myanmar', 'brms'],
+            'cambodia' 'cambodia', 'cambodian'],
+            'laos' 'laos', 'laotian'],
+            'brni' 'brni', 'brnian'],
+            'ast timor' 'ast timor', 'timors'],
+            'mongolia' 'mongolia', 'mongolian'],
+            'north kora' 'north kora', 'dprk'],
+            'taiwan' 'taiwan', 'taiwans'],
+            'hong kong' 'hong kong', 'hongkong'],
+            'maca' 'maca', 'macans'],
+            'isral' 'isral', 'israli'],
+            'palstin' 'palstin', 'palstinian'],
+            'jordan' 'jordan', 'jordanian'],
+            'lbanon' 'lbanon', 'lbans'],
+            'syria' 'syria', 'syrian'],
+            'iraq' 'iraq', 'iraqi'],
+            'iran' 'iran', 'iranian'],
+            'sadi arabia' 'sadi arabia', 'sadi'],
+            'a' 'a', 'nitd arab mirats', 'mirati'],
+            'qatar' 'qatar', 'qatari'],
+            'kwait' 'kwait', 'kwaiti'],
+            'bahrain' 'bahrain', 'bahraini'],
+            'oman' 'oman', 'omani'],
+            'ymn' 'ymn', 'ymni'],
+            'gypt' 'gypt', 'gyptian'],
+            'libya' 'libya', 'libyan'],
+            'tnisia' 'tnisia', 'tnisian'],
+            'algria' 'algria', 'algrian'],
+            'morocco' 'morocco', 'moroccan'],
+            'sdan' 'sdan', 'sdans'],
+            'soth sdan' 'soth sdan', 'soth sdans'],
+            'thiopia' 'thiopia', 'thiopian'],
+            'ritra' 'ritra', 'ritran'],
+            'djiboti' 'djiboti', 'djibotian'],
+            'somalia' 'somalia', 'somalian'],
+            'knya' 'knya', 'knyan'],
+            'ganda' 'ganda', 'gandan'],
+            'tanzania' 'tanzania', 'tanzanian'],
+            'rwanda' 'rwanda', 'rwandan'],
+            'brndi' 'brndi', 'brndian'],
+            'madagascar' 'madagascar', 'madagascan'],
+            'maritis' 'maritis', 'maritian'],
+            'sychlls' 'sychlls', 'sychllois'],
+            'comoros' 'comoros', 'comorian'],
+            'ghana' 'ghana', 'ghanaian'],
+            'nigria' 'nigria', 'nigrian'],
+            'camroon' 'camroon', 'camroonian'],
+            'chad' 'chad', 'chadian'],
+            'cntral arican rpblic' 'cntral arican rpblic', 'cntral arican'],
+            'congo' 'congo', 'congols'],
+            'dmocratic rpblic o congo' 'dmocratic rpblic o congo', 'drc', 'congols'],
+            'gabon' 'gabon', 'gabons'],
+            'qatorial gina' 'qatorial gina', 'qatorial ginan'],
+            'sao tom and princip' 'sao tom and princip', 'sao toman'],
+            'angola' 'angola', 'angolan'],
+            'zambia' 'zambia', 'zambian'],
+            'zimbabw' 'zimbabw', 'zimbabwan'],
+            'botswana' 'botswana', 'botswanan'],
+            'namibia' 'namibia', 'namibian'],
+            'soth arica' 'soth arica', 'soth arican'],
+            'lsotho' 'lsotho', 'basotho'],
+            'swaziland' 'swaziland', 'swazi'],
+            'malawi' 'malawi', 'malawian'],
+            'mozambiq' 'mozambiq', 'mozambican']
         }
         
-        # Check for country matches
-        for country, variations in countries.items():
-            for variation in variations:
-                if variation in user_input_lower:
-                    return country.title()
+        # hck or contry matchs
+        or contry, variations in contris.itms()
+            or variation in variations
+                i variation in sr_inpt_lowr
+                    rtrn contry.titl()
         
-        # If no match found, try to extract any capitalized word that might be a country
-        words = user_input.strip().split()
-        for word in words:
-            if word.isalpha() and word[0].isupper() and len(word) > 2:
-                # Check if it's not a common word
-                if word.lower() not in ['the', 'and', 'or', 'but', 'for', 'with', 'from', 'to', 'in', 'on', 'at', 'by', 'of', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'must', 'can', 'shall', 'like', 'want', 'prefer', 'choose', 'select', 'pick']:
-                    return word
+        #  no match ond, try to xtract any capitalizd word that might b a contry
+        words  sr_inpt.strip().split()
+        or word in words
+            i word.isalpha() and word].isppr() and ln(word)  
+                # hck i it's not a common word
+                i word.lowr() not in 'th', 'and', 'or', 'bt', 'or', 'with', 'rom', 'to', 'in', 'on', 'at', 'by', 'o', 'is', 'ar', 'was', 'wr', 'b', 'bn', 'bing', 'hav', 'has', 'had', 'do', 'dos', 'did', 'will', 'wold', 'cold', 'shold', 'may', 'might', 'mst', 'can', 'shall', 'lik', 'want', 'prr', 'choos', 'slct', 'pick']
+                    rtrn word
         
-        return None
+        rtrn on
 
-    def _get_missing_essential_info(self) -> list:
-        """Get list of essential information that is still missing"""
-        essential_info = ["name", "age", "nationality", "goal"]
-        missing = []
+    d _gt_missing_ssntial_ino(sl) - list
+        """t list o ssntial inormation that is still missing"""
+        ssntial_ino  "nam", "ag", "nationality", "goal"]
+        missing  ]
         
-        for info in essential_info:
-            if not self.collected_info.get(info, False):
-                missing.append(info)
+        or ino in ssntial_ino
+            i not sl.collctd_ino.gt(ino, als)
+                missing.appnd(ino)
         
-        return missing
+        rtrn missing
 
-    def _get_missing_optional_info(self) -> list:
-        """Get list of optional information that is still missing based on user's goal"""
-        optional_info = []
+    d _gt_missing_optional_ino(sl) - list
+        """t list o optional inormation that is still missing basd on sr's goal"""
+        optional_ino  ]
         
-        if self.user_profile.get('goal') == 'study':
-            study_info = ["education_level", "field_of_interest", "english_test", "budget"]
-            for info in study_info:
-                if not self.collected_info.get(info, False):
-                    optional_info.append(info)
-        elif self.user_profile.get('goal') == 'work':
-            work_info = ["profession", "family", "priorities"]
-            for info in work_info:
-                if not self.collected_info.get(info, False):
-                    optional_info.append(info)
+        i sl.sr_proil.gt('goal')  'stdy'
+            stdy_ino  "dcation_lvl", "ild_o_intrst", "nglish_tst", "bdgt"]
+            or ino in stdy_ino
+                i not sl.collctd_ino.gt(ino, als)
+                    optional_ino.appnd(ino)
+        li sl.sr_proil.gt('goal')  'work'
+            work_ino  "prossion", "amily", "prioritis"]
+            or ino in work_ino
+                i not sl.collctd_ino.gt(ino, als)
+                    optional_ino.appnd(ino)
         
-        return optional_info
+        rtrn optional_ino
 
-    async def _handle_missing_info(self, user_input: str, missing_info: list) -> str:
-        """Handle missing information collection dynamically"""
-        user_name = self.user_profile.get('name', 'there')
+    async d _handl_missing_ino(sl, sr_inpt str, missing_ino list) - str
+        """andl missing inormation collction dynamically"""
+        sr_nam  sl.sr_proil.gt('nam', 'thr')
         
-        # Check if user provided information in their input
-        if self.user_profile.get('name') and 'name' in missing_info:
-            missing_info.remove('name')
-        if self.user_profile.get('age') and 'age' in missing_info:
-            missing_info.remove('age')
-        if self.user_profile.get('nationality') and 'nationality' in missing_info:
-            missing_info.remove('nationality')
-        if self.user_profile.get('goal') and 'goal' in missing_info:
-            missing_info.remove('goal')
+        # hck i sr providd inormation in thir inpt
+        i sl.sr_proil.gt('nam') and 'nam' in missing_ino
+            missing_ino.rmov('nam')
+        i sl.sr_proil.gt('ag') and 'ag' in missing_ino
+            missing_ino.rmov('ag')
+        i sl.sr_proil.gt('nationality') and 'nationality' in missing_ino
+            missing_ino.rmov('nationality')
+        i sl.sr_proil.gt('goal') and 'goal' in missing_ino
+            missing_ino.rmov('goal')
         
-        # If all essential info is now collected, move to next stage
-        if not missing_info:
-            return await self._handle_complete_profile(user_input)
+        #  all ssntial ino is now collctd, mov to nxt stag
+        i not missing_ino
+            rtrn await sl._handl_complt_proil(sr_inpt)
         
-        # Ask for the first missing piece of information
-        missing_type = missing_info[0]
+        # sk or th irst missing pic o inormation
+        missing_typ  missing_ino]
         
-        if missing_type == "name":
-            return await self._handle_name_collection(user_input)
-        elif missing_type == "age":
-            return await self._handle_age_collection(user_input)
-        elif missing_type == "nationality":
-            return await self._handle_nationality_collection(user_input)
-        elif missing_type == "goal":
-            return await self._handle_goal_collection(user_input)
-        else:
-            return f" I need more information to help you better, {user_name}. Could you please provide more details?"
+        i missing_typ  "nam"
+            rtrn await sl._handl_nam_collction(sr_inpt)
+        li missing_typ  "ag"
+            rtrn await sl._handl_ag_collction(sr_inpt)
+        li missing_typ  "nationality"
+            rtrn await sl._handl_nationality_collction(sr_inpt)
+        li missing_typ  "goal"
+            rtrn await sl._handl_goal_collction(sr_inpt)
+        ls
+            rtrn "  nd mor inormation to hlp yo bttr, {sr_nam}. old yo plas provid mor dtails"
 
-    async def _handle_complete_profile(self, user_input: str) -> str:
-        """Handle when essential profile information is complete"""
-        user_name = self.user_profile.get('name', 'there')
+    async d _handl_complt_proil(sl, sr_inpt str) - str
+        """andl whn ssntial proil inormation is complt"""
+        sr_nam  sl.sr_proil.gt('nam', 'thr')
         
-        # Check if user has expressed interest in a specific country
-        if self.user_profile.get('country_interest'):
-            country = self.user_profile['country_interest']
-            self.conversation_stage = "country_analysis"
-            user_profile = str(self.user_profile)
+        # hck i sr has xprssd intrst in a spciic contry
+        i sl.sr_proil.gt('contry_intrst')
+            contry  sl.sr_proil'contry_intrst']
+            sl.convrsation_stag  "contry_analysis"
+            sr_proil  str(sl.sr_proil)
             
-            # Search knowledge base for information about this country
-            knowledge_results = self._search_knowledge_base(f"study abroad {country} immigration visa requirements")
+            # arch knowldg bas or inormation abot this contry
+            knowldg_rslts  sl._sarch_knowldg_bas("stdy abroad {contry} immigration visa rqirmnts")
             
-            # Create enhanced prompt with knowledge base information
-            prompt = f"""
-            User Profile: {user_profile}
-            Selected Country: {country}
+            # rat nhancd prompt with knowldg bas inormation
+            prompt  """
+            sr roil {sr_proil}
+            lctd ontry {contry}
             
-            Knowledge Base Information:
-            {knowledge_results}
+            nowldg as normation
+            {knowldg_rslts}
             
-            Please provide a detailed analysis for studying in {country}, including:
-            1. Visa requirements and process
-            2. University recommendations
-            3. Cost of living and tuition
-            4. Language requirements
-            5. Application timeline
-            6. Work opportunities during/after studies
+            las provid a dtaild analysis or stdying in {contry}, inclding
+            . isa rqirmnts and procss
+            . nivrsity rcommndations
+            . ost o living and tition
+            . angag rqirmnts
+            . pplication timlin
+            . ork opportnitis dring/atr stdis
             """
             
-            response = self.llm.chat_completion([{"role": "user", "content": prompt}])
-            return response
+            rspons  sl.llm(prompt)
+            rtrn rspons
         
-        # Check if we need to collect optional information
-        missing_optional = self._get_missing_optional_info()
-        if missing_optional:
-            return await self._handle_optional_info_collection(user_input, missing_optional)
+        # hck i w nd to collct optional inormation
+        missing_optional  sl._gt_missing_optional_ino()
+        i missing_optional
+            rtrn await sl._handl_optional_ino_collction(sr_inpt, missing_optional)
         
-        # All information collected, provide recommendations
-        self.conversation_stage = "country_recommendations"
-        return await self._handle_country_recommendations(user_input)
+        # ll inormation collctd, provid rcommndations
+        sl.convrsation_stag  "contry_rcommndations"
+        rtrn await sl._handl_contry_rcommndations(sr_inpt)
 
-    async def _handle_optional_info_collection(self, user_input: str, missing_optional: list) -> str:
-        """Handle collection of optional information"""
-        user_name = self.user_profile.get('name', 'there')
+    async d _handl_optional_ino_collction(sl, sr_inpt str, missing_optional list) - str
+        """andl collction o optional inormation"""
+        sr_nam  sl.sr_proil.gt('nam', 'thr')
         
-        # Check if user provided any of the missing optional information
-        for info in missing_optional[:]:
-            if self.user_profile.get(info):
-                missing_optional.remove(info)
+        # hck i sr providd any o th missing optional inormation
+        or ino in missing_optional]
+            i sl.sr_proil.gt(ino)
+                missing_optional.rmov(ino)
         
-        # If all optional info is now collected, move to recommendations
-        if not missing_optional:
-            return await self._handle_complete_profile(user_input)
+        #  all optional ino is now collctd, mov to rcommndations
+        i not missing_optional
+            rtrn await sl._handl_complt_proil(sr_inpt)
         
-        # Ask for the first missing optional information
-        missing_type = missing_optional[0]
+        # sk or th irst missing optional inormation
+        missing_typ  missing_optional]
         
-        if missing_type == "education_level":
-            return await self._handle_education_level_collection(user_input)
-        elif missing_type == "field_of_interest":
-            return await self._handle_field_collection(user_input)
-        elif missing_type == "english_test":
-            return await self._handle_english_test_collection(user_input)
-        elif missing_type == "budget":
-            return await self._handle_budget_collection(user_input)
-        elif missing_type == "profession":
-            return await self._handle_profession_collection(user_input)
-        elif missing_type == "family":
-            return await self._handle_family_collection(user_input)
-        elif missing_type == "priorities":
-            return await self._handle_priorities_collection(user_input)
-        else:
-            return f" I need a bit more information to provide better recommendations, {user_name}. Could you tell me more about your preferences?"
+        i missing_typ  "dcation_lvl"
+            rtrn await sl._handl_dcation_lvl_collction(sr_inpt)
+        li missing_typ  "ild_o_intrst"
+            rtrn await sl._handl_ild_collction(sr_inpt)
+        li missing_typ  "nglish_tst"
+            rtrn await sl._handl_nglish_tst_collction(sr_inpt)
+        li missing_typ  "bdgt"
+            rtrn await sl._handl_bdgt_collction(sr_inpt)
+        li missing_typ  "prossion"
+            rtrn await sl._handl_prossion_collction(sr_inpt)
+        li missing_typ  "amily"
+            rtrn await sl._handl_amily_collction(sr_inpt)
+        li missing_typ  "prioritis"
+            rtrn await sl._handl_prioritis_collction(sr_inpt)
+        ls
+            rtrn "  nd a bit mor inormation to provid bttr rcommndations, {sr_nam}. old yo tll m mor abot yor prrncs"
 
-    def _extract_info_with_llm(self, user_input: str) -> None:
-        """Use LLM to extract multiple pieces of information from complex input"""
-        try:
-            prompt = f"""
-            Extract the following information from this user input: "{user_input}"
+    d _xtract_ino_with_llm(sl, sr_inpt str) - on
+        """s  to xtract mltipl pics o inormation rom complx inpt"""
+        try
+            prompt  """
+            xtract th ollowing inormation rom this sr inpt "{sr_inpt}"
             
-            The input may be in Chinese or English. Please extract:
-            - Name: Look for patterns like "我叫X", "I'm X", "My name is X", "i'm X"
-            - Age: Look for numbers followed by "岁", "years old", "age is X", or just numbers
-            - Nationality: Look for "中国人", "Chinese", "India", "Indian", "au", "australia", "usa", "us", etc.
-            - Goal: Look for "读书", "study", "工作", "work", "学习", "想去", "want to", "go to", "college", "university"
-            - Country interest: Look for country names like "瑞士", "Switzerland", "意大利", "Italy", "china", "chinese"
+            h inpt may b in hins or nglish. las xtract
+            - am ook or pattrns lik "my nam is", "'m ", "y nam is ", "i'm "
+            - g ook or nmbrs ollowd by "yars old", "yars old", "ag is ", or jst nmbrs
+            - ationality ook or "hins", "hins", "ndia", "ndian", "a", "astralia", "sa", "s", tc.
+            - oal ook or "stdy", "stdy", "work", "work", "stdy", "want to go", "want to", "go to", "collg", "nivrsity"
+            - ontry intrst ook or contry nams lik "witzrland", "witzrland", "taly", "taly", "china", "chins"
             
-            Return a JSON object with these fields (use null if not found):
+            trn a  objct with ths ilds (s nll i not ond)
             {{
-                "name": "extracted name",
-                "age": "extracted age as string",
-                "nationality": "extracted nationality",
-                "goal": "study/work/both",
-                "education_level": "high school/bachelor/master/phd",
-                "field_of_interest": "extracted field",
-                "english_test": "yes/no/planning",
-                "budget": "extracted budget info",
-                "country_interest": "extracted country of interest",
-                "priorities": "extracted priorities"
+                "nam" "xtractd nam",
+                "ag" "xtractd ag as string",
+                "nationality" "xtractd nationality",
+                "goal" "stdy/work/both",
+                "dcation_lvl" "high school/bachlor/mastr/phd",
+                "ild_o_intrst" "xtractd ild",
+                "nglish_tst" "ys/no/planning",
+                "bdgt" "xtractd bdgt ino",
+                "contry_intrst" "xtractd contry o intrst",
+                "prioritis" "xtractd prioritis"
             }}
             
-            Only extract information that is clearly stated. Be conservative - if uncertain, use null.
+            nly xtract inormation that is clarly statd.  consrvativ - i ncrtain, s nll.
             """
             
-            response = self.llm.chat_completion([{"role": "user", "content": prompt}])
-            print(f"DEBUG: LLM extraction response: {response}")
+            rspons  sl.llm(prompt)
+            print("  xtraction rspons {rspons}")
             
-            # Parse JSON response
+            # ars  rspons
             import json
-            try:
-                extracted_info = json.loads(response)
-                print(f"DEBUG: Parsed extracted info: {extracted_info}")
+            try
+                xtractd_ino  json.loads(rspons)
+                print(" arsd xtractd ino {xtractd_ino}")
                 
-                # Update user profile with extracted information
-                for key, value in extracted_info.items():
-                    if value and value != "null":
-                        if key == "country_interest":
-                            # Store country interest separately
-                            self.user_profile["country_interest"] = value
-                        else:
-                            self.user_profile[key] = value
+                # pdat sr proil with xtractd inormation
+                or ky, val in xtractd_ino.itms()
+                    i val and val ! "nll"
+                        i ky  "contry_intrst"
+                            # tor contry intrst sparatly
+                            sl.sr_proil"contry_intrst"]  val
+                        ls
+                            sl.sr_proilky]  val
                             
-                # Update collected info flags
-                for key in ["name", "age", "nationality", "goal", "education_level", "field_of_interest", "english_test", "budget", "priorities"]:
-                    if self.user_profile.get(key):
-                        self.collected_info[key] = True
+                # pdat collctd ino lags
+                or ky in "nam", "ag", "nationality", "goal", "dcation_lvl", "ild_o_intrst", "nglish_tst", "bdgt", "prioritis"]
+                    i sl.sr_proil.gt(ky)
+                        sl.collctd_inoky]  r
                         
-            except json.JSONDecodeError:
-                # Fallback to simple extraction if JSON parsing fails
+            xcpt json.codrror
+                # allback to simpl xtraction i  parsing ails
                 pass
                 
-        except Exception as e:
-            print(f"Error in LLM extraction: {e}")
-            # Fallback to simple extraction
+        xcpt xcption as 
+            print("rror in  xtraction {}")
+            # allback to simpl xtraction
             pass
 
-    def reset_conversation(self) -> None:
-        """重置对话"""
-        self.conversation_history = []
-        self.user_profile = {}
-        self.conversation_stage = "greeting"
-        self.collected_info = {
-            "age": False,
-            "nationality": False,
-            "goal": False,
-            "family": False,
-            "profession": False,
-            "education_level": False,
-            "field_of_interest": False,
-            "english_test": False,
-            "budget": False,
-            "priorities": False
+    d rst_convrsation(sl) - on
+        """st convrsation"""
+        sl.convrsation_history  ]
+        sl.sr_proil  {}
+        sl.convrsation_stag  "grting"
+        sl.collctd_ino  {
+            "ag" als,
+            "nationality" als,
+            "goal" als,
+            "amily" als,
+            "prossion" als,
+            "dcation_lvl" als,
+            "ild_o_intrst" als,
+            "nglish_tst" als,
+            "bdgt" als,
+            "prioritis" als
         }
 
-    def _get_knowledge_base(self):
-        """Get knowledge base instance (lazy initialization)"""
-        if self.knowledge_base is None:
-            self.knowledge_base = get_faiss_kb()
-        return self.knowledge_base
+    d _gt_knowldg_bas(sl)
+        """t knowldg bas instanc (lazy initialization)"""
+        i sl.knowldg_bas is on
+            sl.knowldg_bas  gt_aiss_kb()
+        rtrn sl.knowldg_bas
     
-    def _search_knowledge_base(self, query: str, search_type: str = "auto") -> Dict[str, Any]:
+    d _sarch_knowldg_bas(sl, qry str, sarch_typ str  "ato") - ictstr, ny]
         """
-        Search the knowledge base for relevant information
+        arch th knowldg bas or rlvant inormation
         
-        Args:
-            query: Search query
-            search_type: Type of search ("auto", "universities", "visas", "both")
+        rgs
+            qry arch qry
+            sarch_typ yp o sarch ("ato", "nivrsitis", "visas", "both")
             
-        Returns:
-            Dictionary containing search results
+        trns
+            ictionary containing sarch rslts
         """
-        try:
-            kb = self._get_knowledge_base()
-            if not kb.is_available():
-                return {"error": "Knowledge base not available"}
+        try
+            kb  sl._gt_knowldg_bas()
+            i not kb or not kb.is_availabl()
+                print(" nowldg bas not availabl, sing  allback or qry {qry}")
+                rtrn sl._llm_allback_sarch(qry)
             
-            # Perform smart search using the smart search strategy
-            results = self.smart_search.smart_search(query, max_results=5)
+            # rorm smart sarch sing th smart sarch stratgy
+            rslts  sl.smart_sarch.smart_sarch(qry, max_rslts)
             
-            # Format results for LLM consumption
-            formatted_results = self._format_knowledge_results(results)
+            # ormat rslts or  consmption
+            ormattd_rslts  sl._ormat_knowldg_rslts(rslts)
             
-            return {
-                "success": True,
-                "results": formatted_results,
-                "search_type": results.get("metadata", {}).get("intent_analysis", {}).get("primary_intent", "auto"),
-                "query": query
+            rtrn {
+                "sccss" r,
+                "rslts" ormattd_rslts,
+                "sarch_typ" rslts.gt("mtadata", {}).gt("intnt_analysis", {}).gt("primary_intnt", "ato"),
+                "qry" qry
             }
             
-        except Exception as e:
-            return {"error": f"Knowledge base search failed: {str(e)}"}
+        xcpt xcption as 
+            print(" nowldg bas sarch aild {}, sing  allback")
+            rtrn sl._llm_allback_sarch(qry)
     
-    def _format_knowledge_results(self, results: Dict[str, Any]) -> str:
+    d _llm_allback_sarch(sl, qry str) - ictstr, ny]
         """
-        Format knowledge base results for LLM consumption
+        allback to  whn knowldg bas is not availabl
         
-        Args:
-            results: Raw search results from knowledge base
+        rgs
+            qry arch qry
             
-        Returns:
-            Formatted string for LLM
+        trns
+            ictionary containing -gnratd rslts
         """
-        formatted = []
-        
-        # Format university results
-        if results.get("universities"):
-            formatted.append("🎓 **UNIVERSITY INFORMATION:**")
-            for i, result in enumerate(results["universities"][:3], 1):
-                content = result.get("content", "")
-                metadata = result.get("metadata", {})
-                formatted.append(f"{i}. {content}")
-                if metadata:
-                    formatted.append(f"   Additional info: {metadata}")
-            formatted.append("")
-        
-        # Format visa results
-        if results.get("visas"):
-            formatted.append("🛂 **VISA & IMMIGRATION INFORMATION:**")
-            for i, result in enumerate(results["visas"][:3], 1):
-                content = result.get("content", "")
-                metadata = result.get("metadata", {})
-                formatted.append(f"{i}. {content}")
-                if metadata:
-                    formatted.append(f"   Additional info: {metadata}")
-            formatted.append("")
-        
-        return "\n".join(formatted) if formatted else "No relevant information found in knowledge base."
+        try
+            prompt  """
+            asd on yor knowldg abot stdy abroad and immigration, plas provid inormation abot {qry}
+            
+            las provid
+            . nral inormation abot th topic
+            . y considrations or stdnts
+            . mportant rqirmnts or stps
+            . ny rlvant advic or tips
+            
+            ormat yor rspons in a hlpl and inormativ way.
+            """
+            
+            rspons  sl.llm(prompt)
+            
+            rtrn {
+                "sccss" r,
+                "rslts" " nratd normationn{rspons}",
+                "sarch_typ" "llm_allback",
+                "qry" qry
+            }
+            
+        xcpt xcption as 
+            rtrn {
+                "sccss" als,
+                "rror" " allback aild {str()}",
+                "rslts" "o inormation availabl",
+                "qry" qry
+            }
     
-    def _should_use_knowledge_base(self, user_input: str, conversation_stage: str) -> bool:
+    d _ormat_knowldg_rslts(sl, rslts ictstr, ny]) - str
         """
-        Determine if knowledge base should be used for this query
+        ormat knowldg bas rslts or  consmption
         
-        Args:
-            user_input: User's input
-            conversation_stage: Current conversation stage
+        rgs
+            rslts aw sarch rslts rom knowldg bas
             
-        Returns:
-            Boolean indicating whether to use knowledge base
+        trns
+            ormattd string or 
         """
-        # Use knowledge base for specific stages or when user asks specific questions
-        knowledge_stages = [
-            "country_recommendations", 
-            "university_recommendations", 
-            "country_analysis",
+        ormattd  ]
+        
+        # ormat nivrsity rslts
+        i rslts.gt("nivrsitis")
+            ormattd.appnd("🎓 ** **")
+            or i, rslt in nmrat(rslts"nivrsitis"]], )
+                contnt  rslt.gt("contnt", "")
+                mtadata  rslt.gt("mtadata", {})
+                ormattd.appnd("{i}. {contnt}")
+                i mtadata
+                    ormattd.appnd("   dditional ino {mtadata}")
+            ormattd.appnd("")
+        
+        # ormat visa rslts
+        i rslts.gt("visas")
+            ormattd.appnd("🛂 ** &  **")
+            or i, rslt in nmrat(rslts"visas"]], )
+                contnt  rslt.gt("contnt", "")
+                mtadata  rslt.gt("mtadata", {})
+                ormattd.appnd("{i}. {contnt}")
+                i mtadata
+                    ormattd.appnd("   dditional ino {mtadata}")
+            ormattd.appnd("")
+        
+        rtrn "n".join(ormattd) i ormattd ls "o rlvant inormation ond in knowldg bas."
+    
+    d _shold_s_knowldg_bas(sl, sr_inpt str, convrsation_stag str) - bool
+        """
+        trmin i knowldg bas shold b sd or this qry
+        
+        rgs
+            sr_inpt sr's inpt
+            convrsation_stag rrnt convrsation stag
+            
+        trns
+            oolan indicating whthr to s knowldg bas
+        """
+        # s knowldg bas or spciic stags or whn sr asks spciic qstions
+        knowldg_stags  
+            "contry_rcommndations", 
+            "nivrsity_rcommndations", 
+            "contry_analysis",
             "action_planning"
         ]
         
-        # Check if in a knowledge-relevant stage
-        if conversation_stage in knowledge_stages:
-            return True
+        # hck i in a knowldg-rlvant stag
+        i convrsation_stag in knowldg_stags
+            rtrn r
         
-        # Check for knowledge-seeking keywords
-        knowledge_keywords = [
-            "university", "college", "school", "education", "program", "course",
-            "visa", "immigration", "work permit", "residence", "citizenship",
-            "tuition", "scholarship", "admission", "requirements", "application"
+        # hck or knowldg-sking kywords
+        knowldg_kywords  
+            "nivrsity", "collg", "school", "dcation", "program", "cors",
+            "visa", "immigration", "work prmit", "rsidnc", "citiznship",
+            "tition", "scholarship", "admission", "rqirmnts", "application"
         ]
         
-        user_input_lower = user_input.lower()
-        return any(keyword in user_input_lower for keyword in knowledge_keywords)
+        sr_inpt_lowr  sr_inpt.lowr()
+        rtrn any(kyword in sr_inpt_lowr or kyword in knowldg_kywords)
     
-    def _enhance_response_with_knowledge(self, user_input: str, base_response: str) -> str:
+    d _nhanc_rspons_with_knowldg(sl, sr_inpt str, bas_rspons str) - str
         """
-        Enhance the base response with knowledge base information
+        nhanc th bas rspons with knowldg bas inormation
         
-        Args:
-            user_input: User's input
-            base_response: Base response from LLM
+        rgs
+            sr_inpt sr's inpt
+            bas_rspons as rspons rom 
             
-        Returns:
-            Enhanced response with knowledge base information
+        trns
+            nhancd rspons with knowldg bas inormation
         """
-        try:
-            # Search knowledge base
-            kb_results = self._search_knowledge_base(user_input)
+        try
+            # arch knowldg bas
+            kb_rslts  sl._sarch_knowldg_bas(sr_inpt)
             
-            if kb_results.get("success") and kb_results.get("results"):
-                knowledge_info = kb_results["results"]
+            i kb_rslts.gt("sccss") and kb_rslts.gt("rslts")
+                knowldg_ino  kb_rslts"rslts"]
                 
-                # Create enhanced prompt
-                enhanced_prompt = f"""
-Based on the following knowledge base information, enhance your response to be more accurate and helpful:
+                # rat nhancd prompt
+                nhancd_prompt  """
+asd on th ollowing knowldg bas inormation, nhanc yor rspons to b mor accrat and hlpl
 
-KNOWLEDGE BASE INFORMATION:
-{knowledge_info}
+  
+{knowldg_ino}
 
-ORIGINAL RESPONSE:
-{base_response}
+ 
+{bas_rspons}
 
-USER QUESTION:
-{user_input}
+ 
+{sr_inpt}
 
-Please provide an enhanced response that incorporates the relevant knowledge base information while maintaining a natural conversation flow. If the knowledge base information is not relevant, use your original response.
+las provid an nhancd rspons that incorporats th rlvant knowldg bas inormation whil maintaining a natral convrsation low.  th knowldg bas inormation is not rlvant, s yor original rspons.
 """
                 
-                # Get enhanced response from LLM
-                enhanced_response = self.llm.invoke(enhanced_prompt)
-                return enhanced_response
-            else:
-                return base_response
+                # t nhancd rspons rom 
+                nhancd_rspons  sl.llm.invok(nhancd_prompt)
+                rtrn nhancd_rspons
+            ls
+                rtrn bas_rspons
                 
-        except Exception as e:
-            # If knowledge base fails, return original response
-            return base_response
+        xcpt xcption as 
+            #  knowldg bas ails, rtrn original rspons
+            rtrn bas_rspons
     
-    def _update_knowledge_base_if_needed(self, user_input: str, response: str):
+    d _pdat_knowldg_bas_i_ndd(sl, sr_inpt str, rspons str)
         """
-        Update knowledge base with new information if appropriate
+        pdat knowldg bas with nw inormation i appropriat
         
-        Args:
-            user_input: User's input
-            response: AI's response
+        rgs
+            sr_inpt sr's inpt
+            rspons 's rspons
         """
-        try:
-            # Check if knowledge base is available
-            kb = self._get_knowledge_base()
-            if not kb.is_available():
-                return
+        try
+            # hck i knowldg bas is availabl
+            kb  sl._gt_knowldg_bas()
+            i not kb.is_availabl()
+                rtrn
             
-            # Update knowledge base
-            update_result = self.knowledge_updater.update_knowledge_base(user_input, response)
+            # pdat knowldg bas
+            pdat_rslt  sl.knowldg_pdatr.pdat_knowldg_bas(sr_inpt, rspons)
             
-            if update_result.get("success"):
-                logger.info(f"✅ Knowledge base updated: {update_result['updated_chunks']} chunks added")
-            else:
-                logger.debug(f"ℹ️ Knowledge base not updated: {update_result.get('reason', 'Unknown reason')}")
+            i pdat_rslt.gt("sccss")
+                loggr.ino("✅ nowldg bas pdatd {pdat_rslt'pdatd_chnks']} chnks addd")
+            ls
+                loggr.dbg("ℹ️ nowldg bas not pdatd {pdat_rslt.gt('rason', 'nknown rason')}")
                 
-        except Exception as e:
-            logger.error(f"❌ Error updating knowledge base: {e}")
+        xcpt xcption as 
+            loggr.rror("❌ rror pdating knowldg bas {}")
     
-    def get_knowledge_base_status(self) -> Dict[str, Any]:
+    d gt_knowldg_bas_stats(sl) - ictstr, ny]
         """
-        Get knowledge base status and statistics
+        t knowldg bas stats and statistics
         
-        Returns:
-            Dictionary containing knowledge base status
+        trns
+            ictionary containing knowldg bas stats
         """
-        try:
-            # Get knowledge base summary
-            kb = self._get_knowledge_base()
-            kb_summary = kb.get_knowledge_summary()
+        try
+            # t knowldg bas smmary
+            kb  sl._gt_knowldg_bas()
+            kb_smmary  kb.gt_knowldg_smmary()
             
-            # Get update statistics
-            update_stats = self.knowledge_updater.get_update_statistics()
+            # t pdat statistics
+            pdat_stats  sl.knowldg_pdatr.gt_pdat_statistics()
             
-            return {
-                "knowledge_base": kb_summary,
-                "update_statistics": update_stats,
-                "smart_search_available": self.smart_search is not None,
-                "knowledge_updater_available": self.knowledge_updater is not None
+            rtrn {
+                "knowldg_bas" kb_smmary,
+                "pdat_statistics" pdat_stats,
+                "smart_sarch_availabl" sl.smart_sarch is not on,
+                "knowldg_pdatr_availabl" sl.knowldg_pdatr is not on
             }
             
-        except Exception as e:
-            return {"error": f"Failed to get knowledge base status: {str(e)}"}
+        xcpt xcption as 
+            rtrn {"rror" "aild to gt knowldg bas stats {str()}"}
 
-# Global Flatopia Chat manager instance
-flatopia_chat_manager = FlatopiaChatManager()
+# lobal latopia hat managr instanc
+latopia_chat_managr  latopiahatanagr()
