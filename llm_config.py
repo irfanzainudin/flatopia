@@ -12,6 +12,9 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "your-openai-api-key-here")
 PRIMARY_API = "groq"  # Options: "groq" or "openai"
 
 # Model Configuration
+MODEL_NAME = "openai/gpt-oss-120b"  # Default model name
+MAX_TOKENS = 2000  # Maximum tokens to generate
+TEMPERATURE = 0.7  # Temperature for generation
 GROQ_MODELS = {
     "default": "openai/gpt-oss-120b",
     "fast": "llama-3.1-8b-instant",

@@ -61,7 +61,7 @@ Always end with encouragement and clear next steps."""
     @staticmethod
     def get_greeting_prompt() -> str:
         """Get greeting prompt"""
-        return """**Flatopia AI**: 👋 Hello! I'm Flatopia, your AI immigration and study abroad advisor. I'll help you explore amazing opportunities for work migration or studying abroad!
+        return """ 👋 Hello! I'm Flatopia, your AI immigration and study abroad advisor. I'll help you explore amazing opportunities for work migration or studying abroad!
 
 I'd love to get to know you better. What's your name?"""
 
@@ -77,7 +77,7 @@ Current conversation flow:
 2. Next: Ask for nationality
 
 Respond with:
-**Flatopia AI**: Great! Thank you for sharing your age. 
+ Great! Thank you for sharing your age. 
 
 What is your nationality? (e.g., Colombian, Mexican, Indian, Chinese, etc.)
 
@@ -176,21 +176,21 @@ Be warm, professional, and encouraging. Provide concrete advice and next steps."
     @staticmethod
     def get_nationality_prompt() -> str:
         """Get nationality prompt"""
-        return """**Flatopia AI**: Perfect! Thanks for sharing that with me. 
+        return """ Perfect! Thanks for sharing that with me. 
 
 Now, I'd love to know about your family situation. Are you currently single, married, or in a relationship? This helps me understand your migration goals better."""
 
     @staticmethod
     def get_profession_prompt() -> str:
         """Get profession prompt"""
-        return """**Flatopia AI**: Awesome! That's really helpful to know.
+        return """ Awesome! That's really helpful to know.
 
 What do you do for work? Are you in IT, healthcare, education, business, or something else? This will help me find countries with great opportunities in your field! 💼"""
 
     @staticmethod
     def get_priorities_prompt() -> str:
         """Get priorities prompt"""
-        return """**Flatopia AI**: Fantastic! Now, here's the fun part - what matters most to you in a new country? 
+        return """ Fantastic! Now, here's the fun part - what matters most to you in a new country? 
 
 Pick your TOP 3 from these options:
 - 🏛️ Strong democracy and political stability
@@ -208,7 +208,7 @@ Just tell me your top 3, and I'll find the perfect countries for you! 🎯"""
     @staticmethod
     def get_goal_prompt() -> str:
         """Get goal prompt"""
-        return """**Flatopia AI**: Perfect! Thanks for sharing that with me.
+        return """ Perfect! Thanks for sharing that with me.
 
 What's your main goal? Are you looking to:
 - 🎓 **Study abroad** (university, college, or language courses)
@@ -220,7 +220,7 @@ This helps me tailor my recommendations to your specific needs!"""
     @staticmethod
     def get_education_level_prompt() -> str:
         """Get education level prompt"""
-        return """**Flatopia AI**: Great! As a student, you have many exciting options.
+        return """ Great! As a student, you have many exciting options.
 
 What's your current education level?
 1) Completing 10th grade
@@ -234,7 +234,7 @@ Please let me know which option describes you best!"""
     @staticmethod
     def get_field_of_interest_prompt() -> str:
         """获取专业兴趣询问提示词"""
-        return """**Flatopia AI**: Excellent! What field interests you for university?
+        return """ Excellent! What field interests you for university?
 
 1) Engineering/Tech
 2) Business/Management
@@ -248,7 +248,7 @@ This will help me find the best programs and universities for you!"""
     @staticmethod
     def get_english_test_prompt() -> str:
         """Get English test prompt"""
-        return """**Flatopia AI**: Smart choice! Do you have any English test scores (IELTS/TOEFL) or plan to take them?
+        return """ Smart choice! Do you have any English test scores (IELTS/TOEFL) or plan to take them?
 
 - Already have IELTS/TOEFL scores
 - Planning to take IELTS
@@ -261,7 +261,7 @@ Let me know your situation!"""
     @staticmethod
     def get_budget_prompt() -> str:
         """Get budget prompt"""
-        return """**Flatopia AI**: Perfect! What's most important for your destination country?
+        return """ Perfect! What's most important for your destination country?
 
 1) Low tuition fees
 2) Work opportunities during study
@@ -283,7 +283,7 @@ And their priorities: {priorities}
 
 Provide TOP 5 country recommendations following this EXACT format:
 
-**Flatopia AI**: 🔍 **Perfect! I've analyzed your profile and found 5 excellent matches for your family:**
+ 🔍 **Perfect! I've analyzed your profile and found 5 excellent matches for your family:**
 
 1. 🇨🇦 **CANADA** - [Brief reason why it matches their priorities - 1-2 sentences]
 2. 🇦🇺 **AUSTRALIA** - [Brief reason why it matches their priorities - 1-2 sentences]

@@ -2,10 +2,16 @@
 Flatopia AI Immigration Advisor Chat Manager
 """
 import asyncio
+import logging
 from datetime import datetime
 from typing import Dict, Any, Optional
 from .simple_langchain_config import simple_langchain_config
 from prompts.flatopia_prompts import FlatopiaPrompts
+from .faiss_knowledge_base import get_faiss_kb
+from .smart_search import smart_search
+from .knowledge_updater import knowledge_updater
+
+logger = logging.getLogger(__name__)
 
 class FlatopiaChatManager:
     """Flatopia AI Immigration Advisor Chat Manager"""
@@ -29,6 +35,11 @@ class FlatopiaChatManager:
             "budget": False,
             "priorities": False
         }
+        
+        # Initialize knowledge base, smart search, and knowledge updater
+        self.knowledge_base = None  # Lazy initialization
+        self.smart_search = smart_search
+        self.knowledge_updater = knowledge_updater
     
     async def chat(self, user_input: str, chat_type: str = "general") -> Dict[str, Any]:
         """Process chat conversation"""
@@ -40,8 +51,15 @@ class FlatopiaChatManager:
                 "timestamp": datetime.now().strftime("%H:%M:%S")
             })
             
-            # Intelligent conversation processing - 检查用户是否在回答之前的问题
+            # Intelligent conversation processing - Check if user is answering previous questions
             response = await self._smart_conversation_handler(user_input)
+            
+            # Enhance response with knowledge base if appropriate
+            if self._should_use_knowledge_base(user_input, self.conversation_stage):
+                response = self._enhance_response_with_knowledge(user_input, response)
+            
+            # Update knowledge base with new information if appropriate
+            self._update_knowledge_base_if_needed(user_input, response)
             
             # Record AI response
             self.conversation_history.append({
@@ -66,7 +84,7 @@ class FlatopiaChatManager:
             }
     
     async def _smart_conversation_handler(self, user_input: str) -> str:
-        """Intelligent conversation processing - 严格按照顺序Processing"""
+        """Dynamic conversation processing based on collected information"""
         user_input_lower = user_input.lower()
         
         # Debug information
@@ -74,99 +92,20 @@ class FlatopiaChatManager:
         print(f"DEBUG: Collected info: {self.collected_info}")
         print(f"DEBUG: Conversation stage: {self.conversation_stage}")
         
-        # Strictly check in order，不跳过任何步骤
+        # Handle greeting
         if self.conversation_stage == "greeting":
-            # Greeting stage - 显示问候语并进入Name collection stage
             print("DEBUG: Processing greeting")
-            self.conversation_stage = "name_collection"
             return await self._handle_greeting(user_input)
         
-        elif not self.collected_info["name"]:
-            # Name collection stage
-            print("DEBUG: Processing name collection")
-            return await self._handle_name_collection(user_input)
+        # Dynamic flow control - check what information is still needed
+        missing_info = self._get_missing_essential_info()
         
-        elif not self.collected_info["age"]:
-            # Age collection stage
-            print("DEBUG: Processing age collection")
-            return await self._handle_age_collection(user_input)
-        
-        elif not self.collected_info["nationality"]:
-            # Nationality collection stage 
-            user_input_lower = user_input.lower()
-            if 'study' in user_input_lower or 'work' in user_input_lower or 'both' in user_input_lower:
-                # 用户已经回答了目标问题，跳过国籍收集直接进入目标收集
-                self.collected_info["nationality"] = True
-                self.conversation_stage = "goal_collection"
-                return await self._handle_goal_collection(user_input)
-            else:
-                return await self._handle_nationality_collection(user_input)
-        
-        elif not self.collected_info["goal"]:
-            # Goal collection stage
-            user_input_lower = user_input.lower()
-            if 'study' in user_input_lower or 'work' in user_input_lower or 'both' in user_input_lower:
-                return await self._handle_goal_collection(user_input)
-            else:
-                return await self._handle_goal_collection(user_input)
-        
-        elif self.user_profile.get('goal') == 'study':
-            # Study-related process
-            if not self.collected_info["education_level"]:
-                if self._is_education_level_response(user_input):
-                    return await self._handle_education_level_collection(user_input)
-                else:
-                    return await self._handle_education_level_collection(user_input)
-            elif not self.collected_info["field_of_interest"]:
-                if self._is_field_response(user_input):
-                    return await self._handle_field_collection(user_input)
-                else:
-                    return await self._handle_field_collection(user_input)
-            elif not self.collected_info["english_test"]:
-                if self._is_english_test_response(user_input):
-                    return await self._handle_english_test_collection(user_input)
-                else:
-                    return await self._handle_english_test_collection(user_input)
-            elif not self.collected_info["budget"]:
-                if self._is_budget_response(user_input):
-                    return await self._handle_budget_collection(user_input)
-                else:
-                    return await self._handle_budget_collection(user_input)
-        
-        elif not self.collected_info["family"]:
-            # Work-related process - Family info
-            if self._is_family_response(user_input):
-                return await self._handle_family_collection(user_input)
-            else:
-                return await self._handle_family_collection(user_input)
-        
-        elif not self.collected_info["profession"]:
-            # Work-related process - profession info
-            if self._is_profession_response(user_input):
-                return await self._handle_profession_collection(user_input)
-            else:
-                return await self._handle_profession_collection(user_input)
-        
-        elif not self.collected_info["priorities"]:
-            # 优先级收集阶段
-            if self._is_priorities_response(user_input):
-                return await self._handle_priorities_collection(user_input)
-            else:
-                return await self._handle_priorities_collection(user_input)
-        
-        # 后续阶段Processi
-        if self.conversation_stage == "country_recommendations":
-            return await self._handle_country_recommendations(user_input)
-        elif self.conversation_stage == "country_analysis":
-            return await self._handle_country_analysis(user_input)
-        elif "plan" in user_input_lower or "timeline" in user_input_lower or "step" in user_input_lower:
-            return await self._handle_action_plan(user_input)
-        elif "children" in user_input_lower or "education" in user_input_lower or "kids" in user_input_lower:
-            return await self._handle_children_education(user_input)
-        elif "university" in user_input_lower or "universities" in user_input_lower or "yes" in user_input_lower:
-            return await self._handle_university_recommendations(user_input)
+        if missing_info:
+            # Still need to collect essential information
+            return await self._handle_missing_info(user_input, missing_info)
         else:
-            return await self._handle_general_question(user_input)
+            # All essential information collected, proceed to recommendations/analysis
+            return await self._handle_complete_profile(user_input)
     
     def _is_nationality_response(self, user_input: str) -> bool:
         """Check if it is a nationality response"""
@@ -225,8 +164,52 @@ class FlatopiaChatManager:
 
     async def _handle_greeting(self, user_input: str) -> str:
         """ProcessingGreeting stage"""
-        # 不立即改变对话阶段，让用户看到问候语后再进入下一阶段
-        return self.prompts.get_greeting_prompt()
+        # First try to extract information from the greeting input
+        self._extract_user_info(user_input)
+        
+        # Check if we got any essential information
+        if self.user_profile.get('name') and self.user_profile.get('age') and self.user_profile.get('nationality') and self.user_profile.get('goal'):
+            # User provided complete information, skip to analysis
+            self.collected_info["name"] = True
+            self.collected_info["age"] = True
+            self.collected_info["nationality"] = True
+            self.collected_info["goal"] = True
+            
+            # Check if user specified a country interest
+            if self.user_profile.get('country_interest'):
+                self.conversation_stage = "country_analysis"
+                country = self.user_profile['country_interest']
+                user_profile = str(self.user_profile)
+                
+                # Search knowledge base for information about this country
+                knowledge_results = self._search_knowledge_base(f"study abroad {country} immigration visa requirements")
+                
+                # Create enhanced prompt with knowledge base information
+                prompt = f"""
+                User Profile: {user_profile}
+                Selected Country: {country}
+                
+                Knowledge Base Information:
+                {knowledge_results}
+                
+                Please provide a detailed analysis for studying in {country}, including:
+                1. Visa requirements and process
+                2. University recommendations
+                3. Cost of living and tuition
+                4. Language requirements
+                5. Application timeline
+                6. Work opportunities during/after studies
+                """
+                
+                response = self.llm.chat_completion([{"role": "user", "content": prompt}])
+                return response
+            else:
+                # Complete profile but no specific country, provide recommendations
+                self.conversation_stage = "country_recommendations"
+                return await self._handle_country_recommendations(user_input)
+        else:
+            # Incomplete information, proceed with normal flow
+            return self.prompts.get_greeting_prompt()
     
     async def _handle_name_collection(self, user_input: str) -> str:
         """Handle name collection"""
@@ -234,9 +217,9 @@ class FlatopiaChatManager:
         if self.user_profile.get('name'):
             self.collected_info["name"] = True
             self.conversation_stage = "age_collection"
-            return f"**Flatopia AI**: Nice to meet you, {self.user_profile['name']}! 😊 Now, could you tell me your age? This helps me provide more personalized recommendations."
+            return f"Nice to meet you, {self.user_profile['name']}! 😊 Now, could you tell me your age? This helps me provide more personalized recommendations."
         else:
-            return "**Flatopia AI**: I'd love to know your name! What should I call you?"
+            return "I'd love to know your name! What should I call you?"
     
     async def _handle_age_collection(self, user_input: str) -> str:
         """Handle age collection"""
@@ -248,15 +231,15 @@ class FlatopiaChatManager:
             age = int(self.user_profile['age'])
             
             if age < 20:
-                return f"**Flatopia AI**: Thank you, {user_name}! Since you're {age}, I'd love to know - are you primarily looking for study opportunities abroad, or are you also interested in work opportunities? This helps me tailor my recommendations perfectly for you! 🎓💼"
+                return f" Thank you, {user_name}! Since you're {age}, I'd love to know - are you primarily looking for study opportunities abroad, or are you also interested in work opportunities? This helps me tailor my recommendations perfectly for you! 🎓💼"
             else:
-                return f"**Flatopia AI**: Perfect, {user_name}! Now, what country are you from? (e.g., India, China, Brazil, Colombia, etc.) This helps me understand your background better."
+                return f" Perfect, {user_name}! Now, what country are you from? (e.g., India, China, Brazil, Colombia, etc.) This helps me understand your background better. Also, what are your main priorities when choosing a destination country? (e.g., job opportunities, education quality, cost of living, language, etc.)"
         else:
             user_name = self.user_profile.get('name', 'there')
-            return f"**Flatopia AI**: I need to know your age to help you better, {user_name}. Could you please tell me your age?"
+            return f" I need to know your age to help you better, {user_name}. Could you please tell me your age?"
     
     async def _handle_nationality_collection(self, user_input: str) -> str:
-        """Handle nationality collection"""
+        """Handle nationality collection and destination priorities"""
         self._extract_user_info(user_input)
         
         # Debug information
@@ -268,12 +251,13 @@ class FlatopiaChatManager:
         
         if self.user_profile.get('nationality'):
             self.collected_info["nationality"] = True
+            self.collected_info["priorities"] = True  # Assume they mentioned priorities
             self.conversation_stage = "goal_collection"
             age = int(self.user_profile.get('age', 0))
             
             if age < 20:
                 # 对于20岁以下的用户，直接询问学习目标
-                return f"""**Flatopia AI**: Wonderful, {user_name}! I see you're from {self.user_profile['nationality']}. 
+                return f""" Wonderful, {user_name}! I see you're from {self.user_profile['nationality']}. 
 
 Since you're {age}, let me ask - what's your main goal? Are you looking to:
 - 🎓 **Study abroad** (university, college, or language courses)
@@ -283,7 +267,7 @@ Since you're {age}, let me ask - what's your main goal? Are you looking to:
 This helps me tailor my recommendations perfectly for you!"""
             else:
                 # 对于20岁以上的用户，询问工作目标
-                return f"""**Flatopia AI**: Great, {user_name}! I see you're from {self.user_profile['nationality']}. 
+                return f""" Great, {user_name}! I see you're from {self.user_profile['nationality']}. 
 
 What's your main goal? Are you looking to:
 - 🎓 **Study abroad** (university, college, or language courses)
@@ -293,7 +277,7 @@ What's your main goal? Are you looking to:
 This helps me tailor my recommendations to your specific needs!"""
         else:
             # 更友好的提示，接受任何国籍
-            return f"**Flatopia AI**: I didn't catch your nationality, {user_name}. Could you please tell me what country you're from? (e.g., India, China, Brazil, Colombia, etc.)"
+            return f" I didn't catch your nationality, {user_name}. Could you please tell me what country you're from? (e.g., India, China, Brazil, Colombia, etc.)"
     
     async def _handle_goal_collection(self, user_input: str) -> str:
         """Handle goal collection"""
@@ -326,18 +310,18 @@ This helps me tailor my recommendations to your specific needs!"""
         # 根据目标进入不同流程
         if self.user_profile['goal'] == 'study':
             self.conversation_stage = "education_level_collection"
-            return f"**Flatopia AI**: Excellent choice, {user_name}! Let's explore study opportunities for you. What's your current education level?"
+            return f" Excellent choice, {user_name}! Let's explore study opportunities for you. What's your current education level?"
         elif self.user_profile['goal'] == 'work':
             # 对于工作目标，如果年龄超过20岁，询问家庭情况
             if age >= 20:
                 self.conversation_stage = "family_collection"
-                return f"**Flatopia AI**: Great, {user_name}! Since you're interested in work migration, I'd like to know about your family situation. Are you single, married, or in a relationship? This helps me understand your priorities better."
+                return f" Great, {user_name}! Since you're interested in work migration, I'd like to know about your family situation. Are you single, married, or in a relationship? This helps me understand your priorities better."
             else:
                 self.conversation_stage = "profession_collection"
-                return f"**Flatopia AI**: Perfect, {user_name}! What's your profession or field of work? (e.g., IT, Engineering, Healthcare, Education, Business, etc.)"
+                return f" Perfect, {user_name}! What's your profession or field of work? (e.g., IT, Engineering, Healthcare, Education, Business, etc.)"
         else:  # both
             self.conversation_stage = "education_level_collection"
-            return f"**Flatopia AI**: Wonderful, {user_name}! Since you're interested in both study and work, let's start with your education background. What's your current education level?"
+            return f" Wonderful, {user_name}! Since you're interested in both study and work, let's start with your education background. What's your current education level?"
     
     async def _handle_education_level_collection(self, user_input: str) -> str:
         """Handle education level collection"""
@@ -361,13 +345,13 @@ This helps me tailor my recommendations to your specific needs!"""
             self.user_profile['education_level'] = 'Master\'s degree'
         elif 'what' in user_input_lower or '?' in user_input:
             # 用户可能不理解问题，提供更清晰的选项
-            return f"**Flatopia AI**: No worries, {user_name}! Let me clarify - what's your current education level? Please choose:\n\n1. 10th grade (or equivalent)\n2. 12th grade (or equivalent) \n3. Bachelor's degree\n4. Master's degree\n\nOr just tell me what level you're at!"
+            return f" No worries, {user_name}! Let me clarify - what's your current education level? Please choose:\n\n1. 10th grade (or equivalent)\n2. 12th grade (or equivalent) \n3. Bachelor's degree\n4. Master's degree\n\nOr just tell me what level you're at!"
         else:
             self.user_profile['education_level'] = user_input
         
         self.collected_info["education_level"] = True
         self.conversation_stage = "field_collection"
-        return f"**Flatopia AI**: Great, {user_name}! What field of study are you most interested in?"
+        return f" Great, {user_name}! What field of study are you most interested in?"
     
     async def _handle_field_collection(self, user_input: str) -> str:
         """Handle field collection"""
@@ -396,7 +380,7 @@ This helps me tailor my recommendations to your specific needs!"""
         
         self.collected_info["field_of_interest"] = True
         self.conversation_stage = "english_test_collection"
-        return f"**Flatopia AI**: Excellent choice, {user_name}! Do you already have English test scores (IELTS/TOEFL), or are you planning to take them?"
+        return f" Excellent choice, {user_name}! Do you already have English test scores (IELTS/TOEFL), or are you planning to take them?"
     
     async def _handle_english_test_collection(self, user_input: str) -> str:
         """Handle English test collection"""
@@ -423,7 +407,7 @@ This helps me tailor my recommendations to your specific needs!"""
         
         self.collected_info["english_test"] = True
         self.conversation_stage = "budget_collection"
-        return f"**Flatopia AI**: Perfect, {user_name}! Now, what's your budget range for studying abroad? This helps me recommend the most suitable options for you."
+        return f" Perfect, {user_name}! Now, what's your budget range for studying abroad? This helps me recommend the most suitable options for you."
     
     async def _handle_budget_collection(self, user_input: str) -> str:
         """Handle budget collection"""
@@ -461,10 +445,10 @@ This helps me tailor my recommendations to your specific needs!"""
         user_profile = str(self.user_profile)
         priorities = self.user_profile.get('priorities', '')
         prompt = self._create_dynamic_recommendation_prompt(user_profile, priorities)
-        response = self.llm(prompt)
+        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
         
         # 在推荐前添加个性化称呼
-        personalized_response = f"**Flatopia AI**: Based on your preferences, {user_name}, here are my recommendations:\n\n{response}"
+        personalized_response = f" Based on your preferences, {user_name}, here are my recommendations:\n\n{response}"
         return personalized_response
     
     async def _handle_family_collection(self, user_input: str) -> str:
@@ -482,9 +466,9 @@ This helps me tailor my recommendations to your specific needs!"""
         if self.user_profile.get('family'):
             self.collected_info["family"] = True
             self.conversation_stage = "profession_collection"
-            return f"**Flatopia AI**: Thank you for sharing that, {user_name}! Now, what's your profession or field of work? (e.g., IT, Engineering, Healthcare, Education, Business, etc.) This helps me understand your job opportunities in different countries."
+            return f" Thank you for sharing that, {user_name}! Now, what's your profession or field of work? (e.g., IT, Engineering, Healthcare, Education, Business, etc.) This helps me understand your job opportunities in different countries."
         else:
-            return f"**Flatopia AI**: I didn't catch your family status, {user_name}. Are you single, married, or in a relationship?"
+            return f" I didn't catch your family status, {user_name}. Are you single, married, or in a relationship?"
     
     async def _handle_profession_collection(self, user_input: str) -> str:
         """Handle profession information collection"""
@@ -501,40 +485,91 @@ This helps me tailor my recommendations to your specific needs!"""
         if self.user_profile.get('profession'):
             self.collected_info["profession"] = True
             self.conversation_stage = "priorities_collection"
-            return f"**Flatopia AI**: Perfect, {user_name}! Now, what are your main priorities when choosing a country? Please select the most important factors for you:"
+            return f" Perfect, {user_name}! Now, what are your main priorities when choosing a country? Please select the most important factors for you:"
         else:
-            return f"**Flatopia AI**: I didn't catch your profession, {user_name}. What field do you work in? (e.g., IT, Engineering, Healthcare, Education, Business, etc.)"
+            return f" I didn't catch your profession, {user_name}. What field do you work in? (e.g., IT, Engineering, Healthcare, Education, Business, etc.)"
     
     async def _handle_priorities_collection(self, user_input: str) -> str:
         """Handle priorities collection"""
         self.user_profile['priorities'] = user_input
         self.collected_info["priorities"] = True
-        self.conversation_stage = "country_recommendations"
         
         user_name = self.user_profile.get('name', 'there')
         
-        # 生成国家推荐
-        user_profile = str(self.user_profile)
-        priorities = user_input
-        prompt = self.prompts.get_country_recommendations_prompt(user_profile, priorities)
-        response = self.llm(prompt)
-        
-        # 在推荐前添加个性化称呼
-        personalized_response = f"**Flatopia AI**: Based on your preferences, {user_name}, here are my recommendations:\n\n{response}"
-        return personalized_response
+        # Check if user has already expressed interest in a specific country
+        if self.user_profile.get('country_interest'):
+            country = self.user_profile['country_interest']
+            self.conversation_stage = "country_analysis"
+            user_profile = str(self.user_profile)
+            
+            # Search knowledge base for information about this country
+            knowledge_results = self._search_knowledge_base(f"study abroad {country} immigration visa requirements")
+            
+            # Create enhanced prompt with knowledge base information
+            prompt = f"""
+            User Profile: {user_profile}
+            Selected Country: {country}
+            
+            Knowledge Base Information:
+            {knowledge_results}
+            
+            Please provide a detailed analysis for studying in {country}, including:
+            1. Visa requirements and process
+            2. University recommendations
+            3. Cost of living and tuition
+            4. Language requirements
+            5. Application timeline
+            6. Work opportunities during/after studies
+            """
+            
+            response = self.llm.chat_completion([{"role": "user", "content": prompt}])
+            return response
+        else:
+            # No specific country interest, provide recommendations
+            self.conversation_stage = "country_recommendations"
+            
+            # 生成国家推荐
+            user_profile = str(self.user_profile)
+            priorities = user_input
+            prompt = self.prompts.get_country_recommendations_prompt(user_profile, priorities)
+            response = self.llm.chat_completion([{"role": "user", "content": prompt}])
+            
+            # 在推荐前添加个性化称呼
+            personalized_response = f" Based on your preferences, {user_name}, here are my recommendations:\n\n{response}"
+            return personalized_response
     
     async def _handle_country_recommendations(self, user_input: str) -> str:
         """Handle country recommendation selection"""
-        # Determine user selected country
-        country = self._detect_country_choice(user_input)
+        # Extract any country mentioned by user
+        country = self._extract_country_from_input(user_input)
         if country:
             self.conversation_stage = "country_analysis"
             user_profile = str(self.user_profile)
-            prompt = self.prompts.get_detailed_analysis_prompt(country, user_profile)
-            response = self.llm(prompt)
+            
+            # Search knowledge base for information about this country
+            knowledge_results = self._search_knowledge_base(f"study abroad {country} immigration visa requirements")
+            
+            # Create enhanced prompt with knowledge base information
+            prompt = f"""
+            User Profile: {user_profile}
+            Selected Country: {country}
+            
+            Knowledge Base Information:
+            {knowledge_results}
+            
+            Please provide a detailed analysis for studying in {country}, including:
+            1. Visa requirements and process
+            2. University recommendations
+            3. Cost of living and tuition
+            4. Language requirements
+            5. Application timeline
+            6. Work opportunities during/after studies
+            """
+            
+            response = self.llm.chat_completion([{"role": "user", "content": prompt}])
             return response
         else:
-            return "**Flatopia AI**: I didn't catch which country you're interested in. Please tell me which country from the list interests you most (e.g., Canada, Australia, New Zealand, UK, or Germany)."
+            return " I didn't catch which country you're interested in. Please tell me which country you'd like to learn more about (e.g., Italy, Japan, Spain, etc.)."
     
     async def _handle_profile_collection(self, user_input: str) -> str:
         """Processing档案收集阶段"""
@@ -545,7 +580,7 @@ This helps me tailor my recommendations to your specific needs!"""
         user_info = f"Age: {self.user_profile.get('age', 'Not specified')}, Nationality: {self.user_profile.get('nationality', 'Not specified')}, Family: {self.user_profile.get('family', 'Not specified')}, Profession: {self.user_profile.get('profession', 'Not specified')}"
         
         prompt = self.prompts.get_analysis_prompt(user_info)
-        response = self.llm(prompt)
+        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
         
         self.conversation_stage = "priorities"
         return response
@@ -563,7 +598,7 @@ User profile: {user_profile}
 
 Provide country recommendations following this format:
 
-**Flatopia AI**: 🔍 **Analysing your family profile...**
+ 🔍 **Analysing your family profile...**
 
 Based on your background, I've found **X excellent matches** for your family, ranked by your chances:
 
@@ -576,7 +611,7 @@ Which country would you like to explore first?
 
 Be encouraging and explain why each country matches their specific priorities."""
         
-        response = self.llm(prompt)
+        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
         self.conversation_stage = "country_analysis"
         return response
     
@@ -603,7 +638,7 @@ Be encouraging and explain why each country matches their specific priorities.""
         else:
             prompt = self.prompts.get_detailed_analysis_prompt(country, user_profile)
         
-        response = self.llm(prompt)
+        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
         
         self.conversation_stage = "detailed_analysis"
         return response
@@ -612,7 +647,7 @@ Be encouraging and explain why each country matches their specific priorities.""
         """Handle action plan阶段"""
         user_profile = str(self.user_profile)
         prompt = self.prompts.get_action_plan_prompt(user_profile)
-        response = self.llm(prompt)
+        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
         
         self.conversation_stage = "action_plan"
         return response
@@ -631,7 +666,7 @@ Provide a comprehensive response about children's education during immigration t
 
 Use the exact format and encouraging tone from the example conversation."""
         
-        response = self.llm(prompt)
+        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
         return response
     
     async def _handle_university_recommendations(self, user_input: str) -> str:
@@ -659,7 +694,7 @@ Use the exact format and encouraging tone from the example conversation."""
         budget = self.user_profile.get('budget', 'Under $15,000 USD')
         
         prompt = self.prompts.get_university_recommendations_prompt(country, field, budget)
-        response = self.llm(prompt)
+        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
         
         return response
     
@@ -668,7 +703,7 @@ Use the exact format and encouraging tone from the example conversation."""
         context = f"User profile: {self.user_profile}\nConversation history: {self.conversation_history[-3:] if len(self.conversation_history) > 3 else self.conversation_history}"
         
         prompt = self.prompts.get_follow_up_prompt(user_input, context)
-        response = self.llm(prompt)
+        response = self.llm.chat_completion([{"role": "user", "content": prompt}])
         
         return response
     
@@ -697,9 +732,19 @@ Format your response as:
 Make each recommendation specific to their situation and provide actionable insights."""
 
     def _extract_user_info(self, user_input: str) -> None:
-        """Extract information from user input"""
+        """Extract information from user input using LLM for complex inputs"""
         user_input_lower = user_input.lower()
         
+        # If input is long or contains multiple pieces of information, use LLM to extract
+        if (len(user_input.split()) > 2 or 
+            len(user_input) > 10 or
+            any(keyword in user_input_lower for keyword in ['study', 'work', 'italy', 'canada', 'australia', 'budget', 'english', 'ielts', 'toefl', 'age', 'name', 'from', 'want', 'go', 'college', 'university']) or
+            any(keyword in user_input for keyword in ['我叫', '岁', '想去', '读书', '中国人', '年龄', '国籍', '目标', '学习', '工作'])):
+            print(f"DEBUG: Triggering LLM extraction for input: '{user_input}'")
+            self._extract_info_with_llm(user_input)
+            return
+        
+        # Simple extraction for short inputs
         # Extract name - 如果还没有名字，尝试从输入中提取
         if not self.user_profile.get('name'):
             # 简单的名字提取逻辑
@@ -746,6 +791,13 @@ Make each recommendation specific to their situation and provide actionable insi
         # 如果没有匹配到，尝试提取任何看起来像国籍的词汇
         if not self.user_profile.get('nationality'):
             # 简单的启发式：如果用户输入了看起来像国籍的词
+            words = user_input.strip().split()
+            for word in words:
+                if word.isalpha() and len(word) > 2:
+                    # 检查是否可能是国籍
+                    if word.lower() not in ['the', 'and', 'or', 'but', 'for', 'with', 'from', 'to', 'in', 'on', 'at', 'by', 'of', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'must', 'can', 'shall']:
+                        self.user_profile['nationality'] = word.title()
+                        break
             words = user_input_lower.split()
             for word in words:
                 if len(word) > 2 and word.isalpha():
@@ -806,32 +858,377 @@ Make each recommendation specific to their situation and provide actionable insi
         elif 'phd' in user_input_lower or 'doctorate' in user_input_lower:
             self.user_profile['education'] = 'PhD'
     
-    def _detect_country_choice(self, user_input: str) -> str:
-        """检测用户选择的国家"""
+    def _extract_country_from_input(self, user_input: str) -> str:
+        """Extract country from user input - supports any country"""
         user_input_lower = user_input.lower()
         
-        if "canada" in user_input_lower or "canadian" in user_input_lower:
-            return "Canada"
-        elif "australia" in user_input_lower or "australian" in user_input_lower:
-            return "Australia"
-        elif "new zealand" in user_input_lower or "kiwi" in user_input_lower:
-            return "New Zealand"
-        elif "uk" in user_input_lower or "britain" in user_input_lower or "british" in user_input_lower:
-            return "UK"
-        elif "germany" in user_input_lower or "german" in user_input_lower:
-            return "Germany"
-        elif "1" in user_input_lower or "first" in user_input_lower:
-            return "Canada"
-        elif "2" in user_input_lower or "second" in user_input_lower:
-            return "Australia"
-        elif "3" in user_input_lower or "third" in user_input_lower:
-            return "New Zealand"
-        elif "4" in user_input_lower or "fourth" in user_input_lower:
-            return "UK"
-        elif "5" in user_input_lower or "fifth" in user_input_lower:
-            return "Germany"
+        # Common country names and their variations
+        countries = {
+            'italy': ['italy', 'italian', 'italia'],
+            'japan': ['japan', 'japanese', 'nippon'],
+            'spain': ['spain', 'spanish', 'españa'],
+            'france': ['france', 'french', 'français'],
+            'germany': ['germany', 'german', 'deutschland'],
+            'uk': ['uk', 'britain', 'british', 'england', 'scotland', 'wales'],
+            'canada': ['canada', 'canadian'],
+            'australia': ['australia', 'australian'],
+            'new zealand': ['new zealand', 'kiwi', 'nz'],
+            'usa': ['usa', 'america', 'american', 'united states'],
+            'netherlands': ['netherlands', 'dutch', 'holland'],
+            'sweden': ['sweden', 'swedish'],
+            'norway': ['norway', 'norwegian'],
+            'denmark': ['denmark', 'danish'],
+            'finland': ['finland', 'finnish'],
+            'switzerland': ['switzerland', 'swiss'],
+            'austria': ['austria', 'austrian'],
+            'belgium': ['belgium', 'belgian'],
+            'ireland': ['ireland', 'irish'],
+            'portugal': ['portugal', 'portuguese'],
+            'greece': ['greece', 'greek'],
+            'turkey': ['turkey', 'turkish'],
+            'poland': ['poland', 'polish'],
+            'czech republic': ['czech republic', 'czech', 'czechia'],
+            'hungary': ['hungary', 'hungarian'],
+            'romania': ['romania', 'romanian'],
+            'bulgaria': ['bulgaria', 'bulgarian'],
+            'croatia': ['croatia', 'croatian'],
+            'slovenia': ['slovenia', 'slovenian'],
+            'slovakia': ['slovakia', 'slovak'],
+            'estonia': ['estonia', 'estonian'],
+            'latvia': ['latvia', 'latvian'],
+            'lithuania': ['lithuania', 'lithuanian'],
+            'south korea': ['south korea', 'korea', 'korean'],
+            'china': ['china', 'chinese'],
+            'singapore': ['singapore', 'singaporean'],
+            'malaysia': ['malaysia', 'malaysian'],
+            'thailand': ['thailand', 'thai'],
+            'vietnam': ['vietnam', 'vietnamese'],
+            'philippines': ['philippines', 'filipino'],
+            'indonesia': ['indonesia', 'indonesian'],
+            'india': ['india', 'indian'],
+            'brazil': ['brazil', 'brazilian'],
+            'argentina': ['argentina', 'argentinian'],
+            'chile': ['chile', 'chilean'],
+            'mexico': ['mexico', 'mexican'],
+            'colombia': ['colombia', 'colombian'],
+            'peru': ['peru', 'peruvian'],
+            'venezuela': ['venezuela', 'venezuelan'],
+            'ecuador': ['ecuador', 'ecuadorian'],
+            'bolivia': ['bolivia', 'bolivian'],
+            'uruguay': ['uruguay', 'uruguayan'],
+            'paraguay': ['paraguay', 'paraguayan'],
+            'cuba': ['cuba', 'cuban'],
+            'dominican republic': ['dominican republic', 'dominican'],
+            'haiti': ['haiti', 'haitian'],
+            'jamaica': ['jamaica', 'jamaican'],
+            'trinidad and tobago': ['trinidad and tobago', 'trinidadian'],
+            'barbados': ['barbados', 'barbadian'],
+            'guyana': ['guyana', 'guyanese'],
+            'suriname': ['suriname', 'surinamese'],
+            'belize': ['belize', 'belizean'],
+            'panama': ['panama', 'panamanian'],
+            'costa rica': ['costa rica', 'costa rican'],
+            'honduras': ['honduras', 'honduran'],
+            'el salvador': ['el salvador', 'salvadoran'],
+            'guatemala': ['guatemala', 'guatemalan'],
+            'nicaragua': ['nicaragua', 'nicaraguan'],
+            'russia': ['russia', 'russian'],
+            'ukraine': ['ukraine', 'ukrainian'],
+            'belarus': ['belarus', 'belarusian'],
+            'moldova': ['moldova', 'moldovan'],
+            'georgia': ['georgia', 'georgian'],
+            'armenia': ['armenia', 'armenian'],
+            'azerbaijan': ['azerbaijan', 'azerbaijani'],
+            'kazakhstan': ['kazakhstan', 'kazakh'],
+            'uzbekistan': ['uzbekistan', 'uzbek'],
+            'kyrgyzstan': ['kyrgyzstan', 'kyrgyz'],
+            'tajikistan': ['tajikistan', 'tajik'],
+            'turkmenistan': ['turkmenistan', 'turkmen'],
+            'afghanistan': ['afghanistan', 'afghan'],
+            'pakistan': ['pakistan', 'pakistani'],
+            'bangladesh': ['bangladesh', 'bangladeshi'],
+            'sri lanka': ['sri lanka', 'sri lankan'],
+            'nepal': ['nepal', 'nepalese'],
+            'bhutan': ['bhutan', 'bhutanese'],
+            'maldives': ['maldives', 'maldivian'],
+            'myanmar': ['myanmar', 'burmese'],
+            'cambodia': ['cambodia', 'cambodian'],
+            'laos': ['laos', 'laotian'],
+            'brunei': ['brunei', 'bruneian'],
+            'east timor': ['east timor', 'timorese'],
+            'mongolia': ['mongolia', 'mongolian'],
+            'north korea': ['north korea', 'dprk'],
+            'taiwan': ['taiwan', 'taiwanese'],
+            'hong kong': ['hong kong', 'hongkong'],
+            'macau': ['macau', 'macanese'],
+            'israel': ['israel', 'israeli'],
+            'palestine': ['palestine', 'palestinian'],
+            'jordan': ['jordan', 'jordanian'],
+            'lebanon': ['lebanon', 'lebanese'],
+            'syria': ['syria', 'syrian'],
+            'iraq': ['iraq', 'iraqi'],
+            'iran': ['iran', 'iranian'],
+            'saudi arabia': ['saudi arabia', 'saudi'],
+            'uae': ['uae', 'united arab emirates', 'emirati'],
+            'qatar': ['qatar', 'qatari'],
+            'kuwait': ['kuwait', 'kuwaiti'],
+            'bahrain': ['bahrain', 'bahraini'],
+            'oman': ['oman', 'omani'],
+            'yemen': ['yemen', 'yemeni'],
+            'egypt': ['egypt', 'egyptian'],
+            'libya': ['libya', 'libyan'],
+            'tunisia': ['tunisia', 'tunisian'],
+            'algeria': ['algeria', 'algerian'],
+            'morocco': ['morocco', 'moroccan'],
+            'sudan': ['sudan', 'sudanese'],
+            'south sudan': ['south sudan', 'south sudanese'],
+            'ethiopia': ['ethiopia', 'ethiopian'],
+            'eritrea': ['eritrea', 'eritrean'],
+            'djibouti': ['djibouti', 'djiboutian'],
+            'somalia': ['somalia', 'somalian'],
+            'kenya': ['kenya', 'kenyan'],
+            'uganda': ['uganda', 'ugandan'],
+            'tanzania': ['tanzania', 'tanzanian'],
+            'rwanda': ['rwanda', 'rwandan'],
+            'burundi': ['burundi', 'burundian'],
+            'madagascar': ['madagascar', 'madagascan'],
+            'mauritius': ['mauritius', 'mauritian'],
+            'seychelles': ['seychelles', 'seychellois'],
+            'comoros': ['comoros', 'comorian'],
+            'ghana': ['ghana', 'ghanaian'],
+            'nigeria': ['nigeria', 'nigerian'],
+            'cameroon': ['cameroon', 'cameroonian'],
+            'chad': ['chad', 'chadian'],
+            'central african republic': ['central african republic', 'central african'],
+            'congo': ['congo', 'congolese'],
+            'democratic republic of congo': ['democratic republic of congo', 'drc', 'congolese'],
+            'gabon': ['gabon', 'gabonese'],
+            'equatorial guinea': ['equatorial guinea', 'equatorial guinean'],
+            'sao tome and principe': ['sao tome and principe', 'sao tomean'],
+            'angola': ['angola', 'angolan'],
+            'zambia': ['zambia', 'zambian'],
+            'zimbabwe': ['zimbabwe', 'zimbabwean'],
+            'botswana': ['botswana', 'botswanan'],
+            'namibia': ['namibia', 'namibian'],
+            'south africa': ['south africa', 'south african'],
+            'lesotho': ['lesotho', 'basotho'],
+            'swaziland': ['swaziland', 'swazi'],
+            'malawi': ['malawi', 'malawian'],
+            'mozambique': ['mozambique', 'mozambican']
+        }
+        
+        # Check for country matches
+        for country, variations in countries.items():
+            for variation in variations:
+                if variation in user_input_lower:
+                    return country.title()
+        
+        # If no match found, try to extract any capitalized word that might be a country
+        words = user_input.strip().split()
+        for word in words:
+            if word.isalpha() and word[0].isupper() and len(word) > 2:
+                # Check if it's not a common word
+                if word.lower() not in ['the', 'and', 'or', 'but', 'for', 'with', 'from', 'to', 'in', 'on', 'at', 'by', 'of', 'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could', 'should', 'may', 'might', 'must', 'can', 'shall', 'like', 'want', 'prefer', 'choose', 'select', 'pick']:
+                    return word
         
         return None
+
+    def _get_missing_essential_info(self) -> list:
+        """Get list of essential information that is still missing"""
+        essential_info = ["name", "age", "nationality", "goal"]
+        missing = []
+        
+        for info in essential_info:
+            if not self.collected_info.get(info, False):
+                missing.append(info)
+        
+        return missing
+
+    def _get_missing_optional_info(self) -> list:
+        """Get list of optional information that is still missing based on user's goal"""
+        optional_info = []
+        
+        if self.user_profile.get('goal') == 'study':
+            study_info = ["education_level", "field_of_interest", "english_test", "budget"]
+            for info in study_info:
+                if not self.collected_info.get(info, False):
+                    optional_info.append(info)
+        elif self.user_profile.get('goal') == 'work':
+            work_info = ["profession", "family", "priorities"]
+            for info in work_info:
+                if not self.collected_info.get(info, False):
+                    optional_info.append(info)
+        
+        return optional_info
+
+    async def _handle_missing_info(self, user_input: str, missing_info: list) -> str:
+        """Handle missing information collection dynamically"""
+        user_name = self.user_profile.get('name', 'there')
+        
+        # Check if user provided information in their input
+        if self.user_profile.get('name') and 'name' in missing_info:
+            missing_info.remove('name')
+        if self.user_profile.get('age') and 'age' in missing_info:
+            missing_info.remove('age')
+        if self.user_profile.get('nationality') and 'nationality' in missing_info:
+            missing_info.remove('nationality')
+        if self.user_profile.get('goal') and 'goal' in missing_info:
+            missing_info.remove('goal')
+        
+        # If all essential info is now collected, move to next stage
+        if not missing_info:
+            return await self._handle_complete_profile(user_input)
+        
+        # Ask for the first missing piece of information
+        missing_type = missing_info[0]
+        
+        if missing_type == "name":
+            return await self._handle_name_collection(user_input)
+        elif missing_type == "age":
+            return await self._handle_age_collection(user_input)
+        elif missing_type == "nationality":
+            return await self._handle_nationality_collection(user_input)
+        elif missing_type == "goal":
+            return await self._handle_goal_collection(user_input)
+        else:
+            return f" I need more information to help you better, {user_name}. Could you please provide more details?"
+
+    async def _handle_complete_profile(self, user_input: str) -> str:
+        """Handle when essential profile information is complete"""
+        user_name = self.user_profile.get('name', 'there')
+        
+        # Check if user has expressed interest in a specific country
+        if self.user_profile.get('country_interest'):
+            country = self.user_profile['country_interest']
+            self.conversation_stage = "country_analysis"
+            user_profile = str(self.user_profile)
+            
+            # Search knowledge base for information about this country
+            knowledge_results = self._search_knowledge_base(f"study abroad {country} immigration visa requirements")
+            
+            # Create enhanced prompt with knowledge base information
+            prompt = f"""
+            User Profile: {user_profile}
+            Selected Country: {country}
+            
+            Knowledge Base Information:
+            {knowledge_results}
+            
+            Please provide a detailed analysis for studying in {country}, including:
+            1. Visa requirements and process
+            2. University recommendations
+            3. Cost of living and tuition
+            4. Language requirements
+            5. Application timeline
+            6. Work opportunities during/after studies
+            """
+            
+            response = self.llm.chat_completion([{"role": "user", "content": prompt}])
+            return response
+        
+        # Check if we need to collect optional information
+        missing_optional = self._get_missing_optional_info()
+        if missing_optional:
+            return await self._handle_optional_info_collection(user_input, missing_optional)
+        
+        # All information collected, provide recommendations
+        self.conversation_stage = "country_recommendations"
+        return await self._handle_country_recommendations(user_input)
+
+    async def _handle_optional_info_collection(self, user_input: str, missing_optional: list) -> str:
+        """Handle collection of optional information"""
+        user_name = self.user_profile.get('name', 'there')
+        
+        # Check if user provided any of the missing optional information
+        for info in missing_optional[:]:
+            if self.user_profile.get(info):
+                missing_optional.remove(info)
+        
+        # If all optional info is now collected, move to recommendations
+        if not missing_optional:
+            return await self._handle_complete_profile(user_input)
+        
+        # Ask for the first missing optional information
+        missing_type = missing_optional[0]
+        
+        if missing_type == "education_level":
+            return await self._handle_education_level_collection(user_input)
+        elif missing_type == "field_of_interest":
+            return await self._handle_field_collection(user_input)
+        elif missing_type == "english_test":
+            return await self._handle_english_test_collection(user_input)
+        elif missing_type == "budget":
+            return await self._handle_budget_collection(user_input)
+        elif missing_type == "profession":
+            return await self._handle_profession_collection(user_input)
+        elif missing_type == "family":
+            return await self._handle_family_collection(user_input)
+        elif missing_type == "priorities":
+            return await self._handle_priorities_collection(user_input)
+        else:
+            return f" I need a bit more information to provide better recommendations, {user_name}. Could you tell me more about your preferences?"
+
+    def _extract_info_with_llm(self, user_input: str) -> None:
+        """Use LLM to extract multiple pieces of information from complex input"""
+        try:
+            prompt = f"""
+            Extract the following information from this user input: "{user_input}"
+            
+            The input may be in Chinese or English. Please extract:
+            - Name: Look for patterns like "我叫X", "I'm X", "My name is X", "i'm X"
+            - Age: Look for numbers followed by "岁", "years old", "age is X", or just numbers
+            - Nationality: Look for "中国人", "Chinese", "India", "Indian", "au", "australia", "usa", "us", etc.
+            - Goal: Look for "读书", "study", "工作", "work", "学习", "想去", "want to", "go to", "college", "university"
+            - Country interest: Look for country names like "瑞士", "Switzerland", "意大利", "Italy", "china", "chinese"
+            
+            Return a JSON object with these fields (use null if not found):
+            {{
+                "name": "extracted name",
+                "age": "extracted age as string",
+                "nationality": "extracted nationality",
+                "goal": "study/work/both",
+                "education_level": "high school/bachelor/master/phd",
+                "field_of_interest": "extracted field",
+                "english_test": "yes/no/planning",
+                "budget": "extracted budget info",
+                "country_interest": "extracted country of interest",
+                "priorities": "extracted priorities"
+            }}
+            
+            Only extract information that is clearly stated. Be conservative - if uncertain, use null.
+            """
+            
+            response = self.llm.chat_completion([{"role": "user", "content": prompt}])
+            print(f"DEBUG: LLM extraction response: {response}")
+            
+            # Parse JSON response
+            import json
+            try:
+                extracted_info = json.loads(response)
+                print(f"DEBUG: Parsed extracted info: {extracted_info}")
+                
+                # Update user profile with extracted information
+                for key, value in extracted_info.items():
+                    if value and value != "null":
+                        if key == "country_interest":
+                            # Store country interest separately
+                            self.user_profile["country_interest"] = value
+                        else:
+                            self.user_profile[key] = value
+                            
+                # Update collected info flags
+                for key in ["name", "age", "nationality", "goal", "education_level", "field_of_interest", "english_test", "budget", "priorities"]:
+                    if self.user_profile.get(key):
+                        self.collected_info[key] = True
+                        
+            except json.JSONDecodeError:
+                # Fallback to simple extraction if JSON parsing fails
+                pass
+                
+        except Exception as e:
+            print(f"Error in LLM extraction: {e}")
+            # Fallback to simple extraction
+            pass
 
     def reset_conversation(self) -> None:
         """重置对话"""
@@ -850,6 +1247,207 @@ Make each recommendation specific to their situation and provide actionable insi
             "budget": False,
             "priorities": False
         }
+
+    def _get_knowledge_base(self):
+        """Get knowledge base instance (lazy initialization)"""
+        if self.knowledge_base is None:
+            self.knowledge_base = get_faiss_kb()
+        return self.knowledge_base
+    
+    def _search_knowledge_base(self, query: str, search_type: str = "auto") -> Dict[str, Any]:
+        """
+        Search the knowledge base for relevant information
+        
+        Args:
+            query: Search query
+            search_type: Type of search ("auto", "universities", "visas", "both")
+            
+        Returns:
+            Dictionary containing search results
+        """
+        try:
+            kb = self._get_knowledge_base()
+            if not kb.is_available():
+                return {"error": "Knowledge base not available"}
+            
+            # Perform smart search using the smart search strategy
+            results = self.smart_search.smart_search(query, max_results=5)
+            
+            # Format results for LLM consumption
+            formatted_results = self._format_knowledge_results(results)
+            
+            return {
+                "success": True,
+                "results": formatted_results,
+                "search_type": results.get("metadata", {}).get("intent_analysis", {}).get("primary_intent", "auto"),
+                "query": query
+            }
+            
+        except Exception as e:
+            return {"error": f"Knowledge base search failed: {str(e)}"}
+    
+    def _format_knowledge_results(self, results: Dict[str, Any]) -> str:
+        """
+        Format knowledge base results for LLM consumption
+        
+        Args:
+            results: Raw search results from knowledge base
+            
+        Returns:
+            Formatted string for LLM
+        """
+        formatted = []
+        
+        # Format university results
+        if results.get("universities"):
+            formatted.append("🎓 **UNIVERSITY INFORMATION:**")
+            for i, result in enumerate(results["universities"][:3], 1):
+                content = result.get("content", "")
+                metadata = result.get("metadata", {})
+                formatted.append(f"{i}. {content}")
+                if metadata:
+                    formatted.append(f"   Additional info: {metadata}")
+            formatted.append("")
+        
+        # Format visa results
+        if results.get("visas"):
+            formatted.append("🛂 **VISA & IMMIGRATION INFORMATION:**")
+            for i, result in enumerate(results["visas"][:3], 1):
+                content = result.get("content", "")
+                metadata = result.get("metadata", {})
+                formatted.append(f"{i}. {content}")
+                if metadata:
+                    formatted.append(f"   Additional info: {metadata}")
+            formatted.append("")
+        
+        return "\n".join(formatted) if formatted else "No relevant information found in knowledge base."
+    
+    def _should_use_knowledge_base(self, user_input: str, conversation_stage: str) -> bool:
+        """
+        Determine if knowledge base should be used for this query
+        
+        Args:
+            user_input: User's input
+            conversation_stage: Current conversation stage
+            
+        Returns:
+            Boolean indicating whether to use knowledge base
+        """
+        # Use knowledge base for specific stages or when user asks specific questions
+        knowledge_stages = [
+            "country_recommendations", 
+            "university_recommendations", 
+            "country_analysis",
+            "action_planning"
+        ]
+        
+        # Check if in a knowledge-relevant stage
+        if conversation_stage in knowledge_stages:
+            return True
+        
+        # Check for knowledge-seeking keywords
+        knowledge_keywords = [
+            "university", "college", "school", "education", "program", "course",
+            "visa", "immigration", "work permit", "residence", "citizenship",
+            "tuition", "scholarship", "admission", "requirements", "application"
+        ]
+        
+        user_input_lower = user_input.lower()
+        return any(keyword in user_input_lower for keyword in knowledge_keywords)
+    
+    def _enhance_response_with_knowledge(self, user_input: str, base_response: str) -> str:
+        """
+        Enhance the base response with knowledge base information
+        
+        Args:
+            user_input: User's input
+            base_response: Base response from LLM
+            
+        Returns:
+            Enhanced response with knowledge base information
+        """
+        try:
+            # Search knowledge base
+            kb_results = self._search_knowledge_base(user_input)
+            
+            if kb_results.get("success") and kb_results.get("results"):
+                knowledge_info = kb_results["results"]
+                
+                # Create enhanced prompt
+                enhanced_prompt = f"""
+Based on the following knowledge base information, enhance your response to be more accurate and helpful:
+
+KNOWLEDGE BASE INFORMATION:
+{knowledge_info}
+
+ORIGINAL RESPONSE:
+{base_response}
+
+USER QUESTION:
+{user_input}
+
+Please provide an enhanced response that incorporates the relevant knowledge base information while maintaining a natural conversation flow. If the knowledge base information is not relevant, use your original response.
+"""
+                
+                # Get enhanced response from LLM
+                enhanced_response = self.llm.invoke(enhanced_prompt)
+                return enhanced_response
+            else:
+                return base_response
+                
+        except Exception as e:
+            # If knowledge base fails, return original response
+            return base_response
+    
+    def _update_knowledge_base_if_needed(self, user_input: str, response: str):
+        """
+        Update knowledge base with new information if appropriate
+        
+        Args:
+            user_input: User's input
+            response: AI's response
+        """
+        try:
+            # Check if knowledge base is available
+            kb = self._get_knowledge_base()
+            if not kb.is_available():
+                return
+            
+            # Update knowledge base
+            update_result = self.knowledge_updater.update_knowledge_base(user_input, response)
+            
+            if update_result.get("success"):
+                logger.info(f"✅ Knowledge base updated: {update_result['updated_chunks']} chunks added")
+            else:
+                logger.debug(f"ℹ️ Knowledge base not updated: {update_result.get('reason', 'Unknown reason')}")
+                
+        except Exception as e:
+            logger.error(f"❌ Error updating knowledge base: {e}")
+    
+    def get_knowledge_base_status(self) -> Dict[str, Any]:
+        """
+        Get knowledge base status and statistics
+        
+        Returns:
+            Dictionary containing knowledge base status
+        """
+        try:
+            # Get knowledge base summary
+            kb = self._get_knowledge_base()
+            kb_summary = kb.get_knowledge_summary()
+            
+            # Get update statistics
+            update_stats = self.knowledge_updater.get_update_statistics()
+            
+            return {
+                "knowledge_base": kb_summary,
+                "update_statistics": update_stats,
+                "smart_search_available": self.smart_search is not None,
+                "knowledge_updater_available": self.knowledge_updater is not None
+            }
+            
+        except Exception as e:
+            return {"error": f"Failed to get knowledge base status: {str(e)}"}
 
 # Global Flatopia Chat manager instance
 flatopia_chat_manager = FlatopiaChatManager()

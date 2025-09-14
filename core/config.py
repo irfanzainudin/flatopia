@@ -21,6 +21,8 @@ class Settings(BaseSettings):
     # Database Configuration
     vector_db_path: str = "data/vector_db"
     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
+    chunk_size: int = 1000
+    chunk_overlap: int = 200
     
     # Chat Configuration
     max_conversation_turns: int = 10
@@ -29,6 +31,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = False
+        extra = "ignore"  # Ignore extra fields
 
 # Global configuration instance
 settings = Settings()
