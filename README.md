@@ -1,17 +1,21 @@
-# Flatopia Q问答A机器人
+# Flatopia
 
-基于Groq API和RAG技术的智能Q问答A机器人，提供准确、快速的Q问答AService。
+We're building Flatopia to help migrant workers find better opportunities overseas.
 
-## 功能特性
+## About
 
-- 🤖 基于Groq API的智能对话
-- 📚 RAG（检索增强生成）技术
-- 🔍 向量数据库支持
-- 💬 多轮对话记忆
-- 🌐 Web界面和APIInterface
-- ⚡ 高性能和低延迟
+Flatopia is an AI-powered immigration and study abroad advisor that helps people explore migration opportunities and study abroad options for themselves and their families.
 
-## 快速开始
+## Features
+
+- 🤖 Intelligent conversation based on Groq API
+- 📚 RAG (Retrieval Augmented Generation) technology
+- 🔍 Vector database support
+- 💬 Multi-turn conversation memory
+- 🌐 Web interface and API
+- ⚡ High performance and low latency
+
+## Quick Start
 
 ### 1. Install dependencies
 
@@ -19,44 +23,53 @@
 pip install -r requirements.txt
 ```
 
-### 2. Configuration环境变量
+### 2. Environment Configuration
 
 ```bash
 cp env.example .env
-# 编辑 .env File，添加您的Groq API密钥
+# Edit .env file and add your Groq API key
 ```
 
-### 3. 运行Application
+### 3. Run Application
 
 ```bash
-# 启动Web界面
+# Start Web Interface
 streamlit run app.py
 
-# 或启动APIService
+# Or start API Service
 uvicorn api.main:app --reload
 ```
 
-## 项目结构
+## Project Structure
 
 ```
 Flatopia/
-├── api/                 # FastAPI后端
-├── core/               # 核心功能模块
-├── data/               # 数据存储
-├── prompts/            # Prompt模板
-├── utils/              # 工具函数
-├── app.py             # Streamlit前端
-└── requirements.txt   # 依赖Management
+├── api/                 # FastAPI backend
+├── core/               # Core functionality modules
+├── data/               # Data storage  
+├── prompts/            # Prompt templates
+├── utils/              # Utility functions
+├── app.py             # Streamlit frontend
+└── requirements.txt   # Dependency management
 ```
 
-## 技术栈
+## Tech Stack
 
-- **后端**: FastAPI, Groq API
-- **前端**: Streamlit
-- **向量数据库**: ChromaDB
-- **嵌入Model**: sentence-transformers
+- **Backend**: FastAPI, Groq API
+- **Frontend**: Streamlit
+- **Vector Database**: ChromaDB
+- **Embedding Model**: sentence-transformers
 - **LLM**: Groq (Llama 3)
 
-## 许可证
+## License
 
 MIT License
+
+## Team Members
+
+- Daniel
+- Bhargava  
+- Owen
+- Francisco
+- Klein
+- Irfan
