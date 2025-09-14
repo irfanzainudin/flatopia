@@ -141,7 +141,7 @@ class FlatopiaChatManager:
                 return await self._handle_family_collection(user_input)
         
         elif not self.collected_info["profession"]:
-            # Work-related process - profess
+            # Work-related process - profession info
             if self._is_profession_response(user_input):
                 return await self._handle_profession_collection(user_input)
             else:
@@ -154,7 +154,7 @@ class FlatopiaChatManager:
             else:
                 return await self._handle_priorities_collection(user_input)
         
-        # 后续阶段Processing
+        # 后续阶段Processi
         if self.conversation_stage == "country_recommendations":
             return await self._handle_country_recommendations(user_input)
         elif self.conversation_stage == "country_analysis":
