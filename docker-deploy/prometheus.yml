@@ -1,0 +1,15 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ["prometheus:9090"]
+  # - job_name: flower
+  #   static_configs:
+  #     - targets: ["flower:5555"]
+  - job_name: "langflow_backend"
+    metrics_path: "/metrics"  # 确保后端服务暴露了 /metrics 端点
+    static_configs:
+      - targets: ["backend:7860"]
