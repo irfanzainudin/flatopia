@@ -11,19 +11,16 @@ export default function App() {
   const canvasRef = useRef(null);
   const bottomRef = useRef(null);
 
-  // Update recommendations when language changes
   useEffect(() => {
     setRecommendations(langData[currentLang].recommendations);
   }, [currentLang]);
 
-  // Handle sending message
   const handleSend = () => {
     if (!message.trim()) return;
     setChatHistory(prev => [...prev, { role: "user", text: message }]);
     const userMessage = message;
     setMessage("");
 
-    // Simulate AI response
     setTimeout(() => {
       const aiReply = currentLang === "en"
         ? `🤖 Flatopia says: Here's a fun response to: ${userMessage}`
@@ -35,6 +32,7 @@ export default function App() {
   const hasMessages = chatHistory.length > 0;
 
   // Auto-scroll whenever messages change or when the layout switches to chat view
+  // Floating bubbles canvas (no text)
   useEffect(() => {
     // Use rAF so it runs after DOM paints
     requestAnimationFrame(() => {
@@ -130,8 +128,8 @@ export default function App() {
           </button> */}
           <input
             type="text"
-            placeholder="Message Wolfram"
-            className="flex-1 border-none focus:ring-0 text-sm"
+            placeholder={langData[currentLang].placeholder || "Message Flatopia"}
+            className="flex-1 border-none focus:ring-0 text-sm bg-white rounded-lg px-3 py-2"
             value={message}
             onChange={(e) => setMessage(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}

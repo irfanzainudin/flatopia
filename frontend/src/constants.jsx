@@ -30,7 +30,7 @@ export const langData = {
         confirmYesNo: "⚠️ 请输入“是”或“否”。",
         registered: "🎉 注册成功！开始与Flatopia聊天。",
         mockReply: "🤖 Flatopia说: ",
-        recommendations: ["你会做什么？", "讲个笑话", "给我建议", "趣味知识"],
+        recommendations: ["中等职业人士可以通过哪些途径获得英国签证？", "芝加哥和悉尼哪里更安全？", "告诉我加拿大最近的经济新闻.", "奥克兰的生活质量如何？"],
         placeholder: "输入您的消息..."
     }
 };
