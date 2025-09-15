@@ -1,157 +1,157 @@
 """
-hat managr
+Chat manager
 """
 import asyncio
-rom typing import ist, ict, ny, ptional
-rom dattim import dattim
-rom .groq_clint import groq_clint
-rom .rag_systm import rag_systm
-rom ..prompts.chat_prompts import hatrompts
+from typing import List, Dict, Any, Optional
+from datetime import datetime
+from .groq_client import groq_client
+from .rag_system import rag_system
+from ..prompts.chat_prompts import ChatPrompts
 
 
-class hatanagr
-    """hat managr"""
+class ChatManager:
+    """Chat manager"""
     
-    d __init__(sl)
-        sl.convrsation_history istictstr, ny]]  ]
-        sl.max_history    # 最大历史记录数
+    def __init__(self):
+        self.conversation_history: List[Dict[str, Any]] = []
+        self.max_history = 20  # 最大历史记录数
         
-    async d chat(
-        sl, 
-        sr_inpt str, 
-        s_rag bool  r,
-        modl ptionalstr]  on
-    ) - ictstr, ny]
+    async def chat(
+        self, 
+        user_input: str, 
+        use_rag: bool = True,
+        model: Optional[str] = None
+    ) -> Dict[str, Any]:
         """
-        rocss sr inpt并生成回复
+        Process user input并生成回复
         
-        rgs
-            sr_inpt 用户输入
-            s_rag 是否s
-            modl 指定odl
+        Args:
+            user_input: 用户输入
+            use_rag: 是否UseRAG
+            model: 指定Model
             
-        trns
+        Returns:
             包含回复和相关信息的字典
         """
-        try
+        try:
             # 添加用户消息到历史
-            sl._add_mssag("sr", sr_inpt)
+            self._add_message("user", user_input)
             
             # 构建消息列表
-            mssags  sl._bild_mssags(sr_inpt, s_rag)
+            messages = self._build_messages(user_input, use_rag)
             
-            # 调用roq 
-            rspons  await groq_clint.chat_compltion(
-                mssagsmssags,
-                modlmodl
+            # 调用Groq API
+            response = await groq_client.chat_completion(
+                messages=messages,
+                model=model
             )
             
             # 添加助手回复到历史
-            sl._add_mssag("assistant", rspons)
+            self._add_message("assistant", response)
             
-            rtrn {
-                "rspons" rspons,
-                "timstamp" dattim.now().isoormat(),
-                "modl" modl or groq_clint.modl,
-                "sd_rag" s_rag,
-                "sccss" r
+            return {
+                "response": response,
+                "timestamp": datetime.now().isoformat(),
+                "model": model or groq_client.model,
+                "used_rag": use_rag,
+                "success": True
             }
             
-        xcpt xcption as 
-            rror_msg  "rocssing消息时出错 {str()}"
-            sl._add_mssag("assistant", rror_msg)
+        except Exception as e:
+            error_msg = f"Processing消息时出错: {str(e)}"
+            self._add_message("assistant", error_msg)
             
-            rtrn {
-                "rspons" rror_msg,
-                "timstamp" dattim.now().isoormat(),
-                "modl" modl or groq_clint.modl,
-                "sd_rag" s_rag,
-                "sccss" als,
-                "rror" str()
+            return {
+                "response": error_msg,
+                "timestamp": datetime.now().isoformat(),
+                "model": model or groq_client.model,
+                "used_rag": use_rag,
+                "success": False,
+                "error": str(e)
             }
     
-    d _add_mssag(sl, rol str, contnt str)
+    def _add_message(self, role: str, content: str):
         """添加消息到历史记录"""
-        mssag  {
-            "rol" rol,
-            "contnt" contnt,
-            "timstamp" dattim.now().isoormat()
+        message = {
+            "role": role,
+            "content": content,
+            "timestamp": datetime.now().isoformat()
         }
         
-        sl.convrsation_history.appnd(mssag)
+        self.conversation_history.append(message)
         
         # 保持历史记录在限制范围内
-        i ln(sl.convrsation_history)  sl.max_history
-            sl.convrsation_history  sl.convrsation_history-sl.max_history]
+        if len(self.conversation_history) > self.max_history:
+            self.conversation_history = self.conversation_history[-self.max_history:]
     
-    d _bild_mssags(sl, sr_inpt str, s_rag bool) - istictstr, str]]
+    def _build_messages(self, user_input: str, use_rag: bool) -> List[Dict[str, str]]:
         """构建消息列表"""
-        mssags  ]
+        messages = []
         
-        # 添加ystm提示词
-        systm_prompt  hatrompts.gt_systm_prompt()
-        mssags.appnd({"rol" "systm", "contnt" systm_prompt})
+        # 添加System提示词
+        system_prompt = ChatPrompts.get_system_prompt()
+        messages.append({"role": "system", "content": system_prompt})
         
-        # 如果s，添加上下文
-        i s_rag
-            contxt  rag_systm.gt_contxt(sr_inpt)
-            i contxt
-                rag_prompt  hatrompts.gt_rag_prompt(sr_inpt, contxt)
-                mssags.appnd({"rol" "sr", "contnt" rag_prompt})
-            ls
-                mssags.appnd({"rol" "sr", "contnt" sr_inpt})
-        ls
-            mssags.appnd({"rol" "sr", "contnt" sr_inpt})
+        # 如果UseRAG，添加上下文
+        if use_rag:
+            context = rag_system.get_context(user_input)
+            if context:
+                rag_prompt = ChatPrompts.get_rag_prompt(user_input, context)
+                messages.append({"role": "user", "content": rag_prompt})
+            else:
+                messages.append({"role": "user", "content": user_input})
+        else:
+            messages.append({"role": "user", "content": user_input})
         
-        rtrn mssags
+        return messages
     
-    d gt_convrsation_history(sl) - istictstr, ny]]
+    def get_conversation_history(self) -> List[Dict[str, Any]]:
         """获取对话历史"""
-        rtrn sl.convrsation_history.copy()
+        return self.conversation_history.copy()
     
-    d clar_history(sl)
+    def clear_history(self):
         """清空对话历史"""
-        sl.convrsation_history  ]
+        self.conversation_history = []
     
-    d gt_history_smmary(sl) - ictstr, ny]
+    def get_history_summary(self) -> Dict[str, Any]:
         """获取对话历史摘要"""
-        i not sl.convrsation_history
-            rtrn {"mssag_cont" , "last_mssag" on}
+        if not self.conversation_history:
+            return {"message_count": 0, "last_message": None}
         
-        sr_mssags  msg or msg in sl.convrsation_history i msg"rol"]  "sr"]
-        assistant_mssags  msg or msg in sl.convrsation_history i msg"rol"]  "assistant"]
+        user_messages = [msg for msg in self.conversation_history if msg["role"] == "user"]
+        assistant_messages = [msg for msg in self.conversation_history if msg["role"] == "assistant"]
         
-        rtrn {
-            "total_mssags" ln(sl.convrsation_history),
-            "sr_mssags" ln(sr_mssags),
-            "assistant_mssags" ln(assistant_mssags),
-            "last_mssag" sl.convrsation_history-] i sl.convrsation_history ls on
+        return {
+            "total_messages": len(self.conversation_history),
+            "user_messages": len(user_messages),
+            "assistant_messages": len(assistant_messages),
+            "last_message": self.conversation_history[-1] if self.conversation_history else None
         }
     
-    async d analyz_qry(sl, qry str) - str
+    async def analyze_query(self, query: str) -> str:
         """分析用户查询"""
-        analysis_prompt  hatrompts.gt_analysis_prompt(qry)
+        analysis_prompt = ChatPrompts.get_analysis_prompt(query)
         
-        mssags  
-            {"rol" "systm", "contnt" "你是一个专业的查询分析助手。"},
-            {"rol" "sr", "contnt" analysis_prompt}
+        messages = [
+            {"role": "system", "content": "你是一个专业的查询分析助手。"},
+            {"role": "user", "content": analysis_prompt}
         ]
         
-        rspons  await groq_clint.chat_compltion(mssags)
-        rtrn rspons
+        response = await groq_client.chat_completion(messages)
+        return response
     
-    async d gt_crativ_rspons(sl, topic str) - str
+    async def get_creative_response(self, topic: str) -> str:
         """获取创意回复"""
-        crativ_prompt  hatrompts.gt_crativ_prompt(topic)
+        creative_prompt = ChatPrompts.get_creative_prompt(topic)
         
-        mssags  
-            {"rol" "systm", "contnt" "你是一个创意助手，善于提供有趣和实用的内容。"},
-            {"rol" "sr", "contnt" crativ_prompt}
+        messages = [
+            {"role": "system", "content": "你是一个创意助手，善于提供有趣和实用的内容。"},
+            {"role": "user", "content": creative_prompt}
         ]
         
-        rspons  await groq_clint.chat_compltion(mssags)
-        rtrn rspons
+        response = await groq_client.chat_completion(messages)
+        return response
 
 
-# 全局hat managr实例
-chat_managr  hatanagr()
+# 全局Chat manager实例
+chat_manager = ChatManager()

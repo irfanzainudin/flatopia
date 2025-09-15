@@ -1,37 +1,37 @@
 """
-pplication onigration
+Application Configuration
 """
 import os
-rom typing import ptional
+from typing import Optional
 
-try
-    rom pydantic_sttings import asttings
-xcpt mportrror
-    rom pydantic import asttings
+try:
+    from pydantic_settings import BaseSettings
+except ImportError:
+    from pydantic import BaseSettings
 
-class ttings(asttings)
-    """pplication onigration"""
+class Settings(BaseSettings):
+    """Application Configuration"""
     
-    # roq  onigration
-    groq_api_ky str  os.gtnv("__", "yor-groq-api-ky-hr")
-    dalt_modl str  "opnai/gpt-oss-b"
-    max_tokns int  
-    tmpratr loat  .
+    # Groq API Configuration
+    groq_api_key: str = os.getenv("GROQ_API_KEY", "your-groq-api-key-here")
+    default_model: str = "openai/gpt-oss-120b"
+    max_tokens: int = 1024
+    temperature: float = 0.7
     
-    # atabas onigration
-    vctor_db_path str  "data/vctor_db"
-    mbdding_modl str  "sntnc-transormrs/all-ini--v"
-    chnk_siz int  
-    chnk_ovrlap int  
+    # Database Configuration
+    vector_db_path: str = "data/vector_db"
+    embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
+    chunk_size: int = 1000
+    chunk_overlap: int = 200
     
-    # hat onigration
-    max_convrsation_trns int  
-    convrsation_mmory_window int  
+    # Chat Configuration
+    max_conversation_turns: int = 10
+    conversation_memory_window: int = 5
     
-    class onig
-        nv_il  ".nv"
-        cas_snsitiv  als
-        xtra  "ignor"  # gnor xtra ilds
+    class Config:
+        env_file = ".env"
+        case_sensitive = False
+        extra = "ignore"  # Ignore extra fields
 
-# lobal conigration instanc
-sttings  ttings()
+# Global configuration instance
+settings = Settings()

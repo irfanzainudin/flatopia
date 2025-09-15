@@ -1,317 +1,317 @@
 """
-anghainonigration和nitializ
+LangChainConfiguration和Initialize
 """
 import os
-rom typing import ptional, ict, ny
-rom groq import roq as roqlint
-rom langchain.llms.bas import 
-rom typing import ny, ist, ptional
-rom langchain_commnity.mbddings import ggingacmbddings
-rom langchain_commnity.vctorstors import hroma
-rom langchain.txt_splittr import crsivharactrxtplittr
-rom langchain.mmory import onvrsationrindowmory, onvrsationmmarymory
-rom langchain.schma import asssag
-rom langchain.prompts import romptmplat, hatromptmplat
-rom langchain.chains import trival, onvrsationaltrivalhain
-rom langchain.agnts import initializ_agnt, gntyp, ool
-rom langchain_commnity.tools import ikipdiaryn
-rom langchain_commnity.tilitis import ikipdiarappr
-rom .conig import sttings
+from typing import Optional, Dict, Any
+from groq import Groq as GroqClient
+from langchain.llms.base import LLM
+from typing import Any, List, Optional
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import Chroma
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.memory import ConversationBufferWindowMemory, ConversationSummaryMemory
+from langchain.schema import BaseMessage
+from langchain.prompts import PromptTemplate, ChatPromptTemplate
+from langchain.chains import RetrievalQA, ConversationalRetrievalChain
+from langchain.agents import initialize_agent, AgentType, Tool
+from langchain_community.tools import WikipediaQueryRun
+from langchain_community.utilities import WikipediaAPIWrapper
+from .config import settings
 
 
-class roq()
-    """roq 包装器"""
+class GroqLLM(LLM):
+    """Groq LLM包装器"""
     
-    d __init__(sl, groq_api_ky str, modl_nam str  "opnai/gpt-oss-b", **kwargs)
-        spr().__init__(**kwargs)
-        sl.clint  roqlint(api_kygroq_api_ky)
-        sl.modl_nam  modl_nam
+    def __init__(self, groq_api_key: str, model_name: str = "openai/gpt-oss-120b", **kwargs):
+        super().__init__(**kwargs)
+        self.client = GroqClient(api_key=groq_api_key)
+        self.model_name = model_name
     
-    proprty
-    d _llm_typ(sl) - str
-        rtrn "groq"
+    @property
+    def _llm_type(self) -> str:
+        return "groq"
     
-    d _call(sl, prompt str, stop ptionaliststr]]  on) - str
-        try
-            rspons  sl.clint.chat.compltions.crat(
-                modlsl.modl_nam,
-                mssags{"rol" "sr", "contnt" prompt}],
-                max_tokns,
-                tmpratr.
+    def _call(self, prompt: str, stop: Optional[List[str]] = None) -> str:
+        try:
+            response = self.client.chat.completions.create(
+                model=self.model_name,
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1024,
+                temperature=0.7
             )
-            rtrn rspons.choics].mssag.contnt
-        xcpt xcption as 
-            rtrn "rror {str()}"
+            return response.choices[0].message.content
+        except Exception as e:
+            return f"Error: {str(e)}"
     
-    proprty
-    d _idntiying_params(sl) - ictstr, ny]
-        rtrn {"modl_nam" sl.modl_nam}
+    @property
+    def _identifying_params(self) -> Dict[str, Any]:
+        return {"model_name": self.model_name}
 
 
-class anghainonig
-    """anghainonigrationanagmnt"""
+class LangChainConfig:
+    """LangChainConfigurationManagement"""
     
-    d __init__(sl)
-        sl.llm  on
-        sl.mbddings  on
-        sl.vctorstor  on
-        sl.txt_splittr  on
-        sl.mmory  on
-        sl.rtrival_chain  on
-        sl.convrsation_chain  on
-        sl.agnt  on
-        sl.tools  ]
+    def __init__(self):
+        self.llm = None
+        self.embeddings = None
+        self.vectorstore = None
+        self.text_splitter = None
+        self.memory = None
+        self.retrieval_chain = None
+        self.conversation_chain = None
+        self.agent = None
+        self.tools = []
         
-        sl._initializ_componnts()
+        self._initialize_components()
     
-    d _initializ_componnts(sl)
-        """nitializ所有组件"""
-        # nitializ
-        sl._init_llm()
+    def _initialize_components(self):
+        """Initialize所有组件"""
+        # InitializeLLM
+        self._init_llm()
         
-        # nitializ嵌入odl
-        sl._init_mbddings()
+        # Initialize嵌入Model
+        self._init_embeddings()
         
-        # nitializxt splittr
-        sl._init_txt_splittr()
+        # InitializeText splitter
+        self._init_text_splitter()
         
-        # nitializctor storag
-        sl._init_vctorstor()
+        # InitializeVector storage
+        self._init_vectorstore()
         
-        # nitializ内存
-        sl._init_mmory()
+        # Initialize内存
+        self._init_memory()
         
-        # nitializ工具
-        sl._init_tools()
+        # Initialize工具
+        self._init_tools()
         
-        # nitializ链
-        sl._init_chains()
+        # Initialize链
+        self._init_chains()
         
-        # nitializ代理
-        sl._init_agnt()
+        # Initialize代理
+        self._init_agent()
     
-    d _init_llm(sl)
-        """nitializ"""
-        sl.llm  roq(
-            groq_api_kysttings.groq_api_ky,
-            modl_namsttings.dalt_modl
+    def _init_llm(self):
+        """InitializeLLM"""
+        self.llm = GroqLLM(
+            groq_api_key=settings.groq_api_key,
+            model_name=settings.default_model
         )
     
-    d _init_mbddings(sl)
-        """nitializ嵌入odl"""
-        sl.mbddings  ggingacmbddings(
-            modl_nam"sntnc-transormrs/all-ini--v",
-            modl_kwargs{'dvic' 'cp'}
+    def _init_embeddings(self):
+        """Initialize嵌入Model"""
+        self.embeddings = HuggingFaceEmbeddings(
+            model_name="sentence-transformers/all-MiniLM-L6-v2",
+            model_kwargs={'device': 'cpu'}
         )
     
-    d _init_txt_splittr(sl)
-        """nitializxt splittr"""
-        sl.txt_splittr  crsivharactrxtplittr(
-            chnk_sizsttings.chnk_siz,
-            chnk_ovrlapsttings.chnk_ovrlap,
-            lngth_nctionln,
-            sparators"nn", "n", " ", ""]
+    def _init_text_splitter(self):
+        """InitializeText splitter"""
+        self.text_splitter = RecursiveCharacterTextSplitter(
+            chunk_size=settings.chunk_size,
+            chunk_overlap=settings.chunk_overlap,
+            length_function=len,
+            separators=["\n\n", "\n", " ", ""]
         )
     
-    d _init_vctorstor(sl)
-        """nitializctor storag"""
-        sl.vctorstor  hroma(
-            prsist_dirctorysttings.vctor_db_path,
-            mbdding_nctionsl.mbddings,
-            collction_nam"knowldg_bas"
+    def _init_vectorstore(self):
+        """InitializeVector storage"""
+        self.vectorstore = Chroma(
+            persist_directory=settings.vector_db_path,
+            embedding_function=self.embeddings,
+            collection_name="knowledge_base"
         )
     
-    d _init_mmory(sl)
-        """nitializmory managmnt"""
+    def _init_memory(self):
+        """InitializeMemory management"""
         # 对话窗口内存
-        sl.mmory  onvrsationrindowmory(
-            k,  # 保留最近轮对话
-            mmory_ky"chat_history",
-            rtrn_mssagsr,
-            otpt_ky"answr"
+        self.memory = ConversationBufferWindowMemory(
+            k=10,  # 保留最近10轮对话
+            memory_key="chat_history",
+            return_messages=True,
+            output_key="answer"
         )
         
         # 可选：摘要内存（用于长对话）
-        sl.smmary_mmory  onvrsationmmarymory(
-            llmsl.llm,
-            mmory_ky"chat_history",
-            rtrn_mssagsr,
-            otpt_ky"answr"
+        self.summary_memory = ConversationSummaryMemory(
+            llm=self.llm,
+            memory_key="chat_history",
+            return_messages=True,
+            output_key="answer"
         )
     
-    d _init_tools(sl)
-        """nitializ工具"""
-        # ikipdia工具
-        wikipdia  ikipdiaryn(api_wrapprikipdiarappr())
+    def _init_tools(self):
+        """Initialize工具"""
+        # Wikipedia工具
+        wikipedia = WikipediaQueryRun(api_wrapper=WikipediaAPIWrapper())
         
         # 向量搜索工具
-        vctor_sarch_tool  ool(
-            nam"vctor_sarch",
-            dscription"在知识库中搜索相关信息",
-            ncsl._vctor_sarch
+        vector_search_tool = Tool(
+            name="vector_search",
+            description="在知识库中搜索相关信息",
+            func=self._vector_search
         )
         
         # 文档摘要工具
-        docmnt_smmary_tool  ool(
-            nam"docmnt_smmary",
-            dscription"对文档进行摘要",
-            ncsl._docmnt_smmary
+        document_summary_tool = Tool(
+            name="document_summary",
+            description="对文档进行摘要",
+            func=self._document_summary
         )
         
-        sl.tools  
-            wikipdia,
-            vctor_sarch_tool,
-            docmnt_smmary_tool
+        self.tools = [
+            wikipedia,
+            vector_search_tool,
+            document_summary_tool
         ]
     
-    d _init_chains(sl)
-        """nitializ链"""
-        # 检索链
-        sl.rtrival_chain  trival.rom_chain_typ(
-            llmsl.llm,
-            chain_typ"st",
-            rtrivrsl.vctorstor.as_rtrivr(
-                sarch_typ"similarity",
-                sarch_kwargs{"k" sttings.top_k}
+    def _init_chains(self):
+        """Initialize链"""
+        # 检索QA链
+        self.retrieval_chain = RetrievalQA.from_chain_type(
+            llm=self.llm,
+            chain_type="stuff",
+            retriever=self.vectorstore.as_retriever(
+                search_type="similarity",
+                search_kwargs={"k": settings.top_k}
             ),
-            rtrn_sorc_docmntsr
+            return_source_documents=True
         )
         
         # 对话检索链
-        sl.convrsation_chain  onvrsationaltrivalhain.rom_llm(
-            llmsl.llm,
-            rtrivrsl.vctorstor.as_rtrivr(
-                sarch_typ"similarity",
-                sarch_kwargs{"k" sttings.top_k}
+        self.conversation_chain = ConversationalRetrievalChain.from_llm(
+            llm=self.llm,
+            retriever=self.vectorstore.as_retriever(
+                search_type="similarity",
+                search_kwargs={"k": settings.top_k}
             ),
-            mmorysl.mmory,
-            rtrn_sorc_docmntsr,
-            vrbosr
+            memory=self.memory,
+            return_source_documents=True,
+            verbose=True
         )
     
-    d _init_agnt(sl)
-        """nitializ代理"""
-        sl.agnt  initializ_agnt(
-            toolssl.tools,
-            llmsl.llm,
-            agntgntyp.__,
-            mmorysl.mmory,
-            vrbosr,
-            handl_parsing_rrorsr,
-            max_itrations
+    def _init_agent(self):
+        """Initialize代理"""
+        self.agent = initialize_agent(
+            tools=self.tools,
+            llm=self.llm,
+            agent=AgentType.CONVERSATIONAL_REACT_DESCRIPTION,
+            memory=self.memory,
+            verbose=True,
+            handle_parsing_errors=True,
+            max_iterations=3
         )
     
-    d _vctor_sarch(sl, qry str) - str
+    def _vector_search(self, query: str) -> str:
         """向量搜索工具"""
-        try
-            docs  sl.vctorstor.similarity_sarch(qry, k)
-            i docs
-                rtrn "n".join(doc.pag_contnt or doc in docs])
-            rtrn "未找到相关信息"
-        xcpt xcption as 
-            rtrn "搜索出错 {str()}"
+        try:
+            docs = self.vectorstore.similarity_search(query, k=3)
+            if docs:
+                return "\n".join([doc.page_content for doc in docs])
+            return "未找到相关信息"
+        except Exception as e:
+            return f"搜索出错: {str(e)}"
     
-    d _docmnt_smmary(sl, txt str) - str
+    def _document_summary(self, text: str) -> str:
         """文档摘要工具"""
-        try
+        try:
             # 简单的摘要实现
-            sntncs  txt.split('.')
-            smmary  '. '.join(sntncs]) + '.'
-            rtrn smmary
-        xcpt xcption as 
-            rtrn "摘要生成出错 {str()}"
+            sentences = text.split('.')
+            summary = '. '.join(sentences[:3]) + '.'
+            return summary
+        except Exception as e:
+            return f"摘要生成出错: {str(e)}"
     
-    d add_docmnts(sl, docmnts list, mtadatas ptionallist]  on)
-        """添加文档到ctor storag"""
-        try
+    def add_documents(self, documents: list, metadatas: Optional[list] = None):
+        """添加文档到Vector storage"""
+        try:
             # 分割文档
-            txts  sl.txt_splittr.split_docmnts(docmnts)
+            texts = self.text_splitter.split_documents(documents)
             
-            # 添加到ctor storag
-            sl.vctorstor.add_docmnts(txts, mtadatas)
+            # 添加到Vector storage
+            self.vectorstore.add_documents(texts, metadatas)
             
             # 持久化
-            sl.vctorstor.prsist()
+            self.vectorstore.persist()
             
-            rtrn r
-        xcpt xcption as 
-            print("添加文档aild {}")
-            rtrn als
+            return True
+        except Exception as e:
+            print(f"添加文档Failed: {e}")
+            return False
     
-    d sarch_docmnts(sl, qry str, k int  ) - list
+    def search_documents(self, query: str, k: int = 5) -> list:
         """搜索文档"""
-        try
-            docs  sl.vctorstor.similarity_sarch(qry, kk)
-            rtrn docs
-        xcpt xcption as 
-            print("搜索文档aild {}")
-            rtrn ]
+        try:
+            docs = self.vectorstore.similarity_search(query, k=k)
+            return docs
+        except Exception as e:
+            print(f"搜索文档Failed: {e}")
+            return []
     
-    d gt_rtrival_qa_rspons(sl, qry str) - ictstr, ny]
-        """获取检索回答"""
-        try
-            rslt  sl.rtrival_chain({"qry" qry})
-            rtrn {
-                "answr" rslt"rslt"],
-                "sorc_docmnts" rslt"sorc_docmnts"],
-                "sccss" r
+    def get_retrieval_qa_response(self, query: str) -> Dict[str, Any]:
+        """获取检索QA回答"""
+        try:
+            result = self.retrieval_chain({"query": query})
+            return {
+                "answer": result["result"],
+                "source_documents": result["source_documents"],
+                "success": True
             }
-        xcpt xcption as 
-            rtrn {
-                "answr" "回答生成aild {str()}",
-                "sorc_docmnts" ],
-                "sccss" als
+        except Exception as e:
+            return {
+                "answer": f"回答生成Failed: {str(e)}",
+                "source_documents": [],
+                "success": False
             }
     
-    d gt_convrsation_rspons(sl, qry str) - ictstr, ny]
+    def get_conversation_response(self, query: str) -> Dict[str, Any]:
         """获取对话回答"""
-        try
-            rslt  sl.convrsation_chain({"qstion" qry})
-            rtrn {
-                "answr" rslt"answr"],
-                "sorc_docmnts" rslt.gt("sorc_docmnts", ]),
-                "chat_history" rslt.gt("chat_history", ]),
-                "sccss" r
+        try:
+            result = self.conversation_chain({"question": query})
+            return {
+                "answer": result["answer"],
+                "source_documents": result.get("source_documents", []),
+                "chat_history": result.get("chat_history", []),
+                "success": True
             }
-        xcpt xcption as 
-            rtrn {
-                "answr" "对话生成aild {str()}",
-                "sorc_docmnts" ],
-                "chat_history" ],
-                "sccss" als
+        except Exception as e:
+            return {
+                "answer": f"对话生成Failed: {str(e)}",
+                "source_documents": [],
+                "chat_history": [],
+                "success": False
             }
     
-    d gt_agnt_rspons(sl, qry str) - ictstr, ny]
+    def get_agent_response(self, query: str) -> Dict[str, Any]:
         """获取代理回答"""
-        try
-            rslt  sl.agnt.rn(inptqry)
-            rtrn {
-                "answr" rslt,
-                "sccss" r
+        try:
+            result = self.agent.run(input=query)
+            return {
+                "answer": result,
+                "success": True
             }
-        xcpt xcption as 
-            rtrn {
-                "answr" "代理执行aild {str()}",
-                "sccss" als
+        except Exception as e:
+            return {
+                "answer": f"代理执行Failed: {str(e)}",
+                "success": False
             }
     
-    d clar_mmory(sl)
+    def clear_memory(self):
         """清空内存"""
-        sl.mmory.clar()
-        i hasattr(sl, 'smmary_mmory')
-            sl.smmary_mmory.clar()
+        self.memory.clear()
+        if hasattr(self, 'summary_memory'):
+            self.summary_memory.clear()
     
-    d gt_mmory_smmary(sl) - ictstr, ny]
+    def get_memory_summary(self) -> Dict[str, Any]:
         """获取内存摘要"""
-        try
-            rtrn {
-                "mmory_typ" typ(sl.mmory).__nam__,
-                "mmory_variabls" sl.mmory.mmory_variabls,
-                "chat_history_lngth" ln(sl.mmory.chat_mmory.mssags) i hasattr(sl.mmory, 'chat_mmory') ls 
+        try:
+            return {
+                "memory_type": type(self.memory).__name__,
+                "memory_variables": self.memory.memory_variables,
+                "chat_history_length": len(self.memory.chat_memory.messages) if hasattr(self.memory, 'chat_memory') else 0
             }
-        xcpt xcption as 
-            rtrn {"rror" str()}
+        except Exception as e:
+            return {"error": str(e)}
 
 
-# 全局anghainonigration实例
-langchain_conig  anghainonig()
+# 全局LangChainConfiguration实例
+langchain_config = LangChainConfig()

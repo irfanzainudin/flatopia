@@ -1,239 +1,239 @@
 """
-asd on anghain的文档rocssing器
+Based on LangChain的文档Processing器
 """
 import os
-rom typing import ist, ict, ny, ptional
-rom pathlib import ath
-rom langchain_commnity.docmnt_loadrs import (
-    xtoadr, 
-    yoadr, 
-    ocxtxtoadr,
-    basoadr,
-    irctoryoadr
+from typing import List, Dict, Any, Optional
+from pathlib import Path
+from langchain_community.document_loaders import (
+    TextLoader, 
+    PyPDFLoader, 
+    Docx2txtLoader,
+    WebBaseLoader,
+    DirectoryLoader
 )
-rom langchain.txt_splittr import crsivharactrxtplittr
-rom langchain.schma import ocmnt
-rom .langchain_conig import langchain_conig
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.schema import Document
+from .langchain_config import langchain_config
 
 
-class ocmntrocssor
-    """文档rocssing器"""
+class DocumentProcessor:
+    """文档Processing器"""
     
-    d __init__(sl)
-        sl.txt_splittr  langchain_conig.txt_splittr
-        sl.spportd_ormats  {
-            '.txt' xtoadr,
-            '.pd' yoadr,
-            '.docx' ocxtxtoadr,
-            '.html' basoadr,
-            '.htm' basoadr
+    def __init__(self):
+        self.text_splitter = langchain_config.text_splitter
+        self.supported_formats = {
+            '.txt': TextLoader,
+            '.pdf': PyPDFLoader,
+            '.docx': Docx2txtLoader,
+            '.html': WebBaseLoader,
+            '.htm': WebBaseLoader
         }
     
-    d load_docmnt(sl, il_path str) - istocmnt]
-        """oading单个文档"""
-        try
-            il_path  ath(il_path)
-            il_xtnsion  il_path.six.lowr()
+    def load_document(self, file_path: str) -> List[Document]:
+        """Loading单个文档"""
+        try:
+            file_path = Path(file_path)
+            file_extension = file_path.suffix.lower()
             
-            i il_xtnsion not in sl.spportd_ormats
-                rais alrror("不支持的il格式 {il_xtnsion}")
+            if file_extension not in self.supported_formats:
+                raise ValueError(f"不支持的File格式: {file_extension}")
             
-            loadr_class  sl.spportd_ormatsil_xtnsion]
+            loader_class = self.supported_formats[file_extension]
             
-            i il_xtnsion in '.html', '.htm']
-                loadr  loadr_class(str(il_path)])
-            ls
-                loadr  loadr_class(str(il_path))
+            if file_extension in ['.html', '.htm']:
+                loader = loader_class([str(file_path)])
+            else:
+                loader = loader_class(str(file_path))
             
-            docmnts  loadr.load()
-            rtrn docmnts
+            documents = loader.load()
+            return documents
             
-        xcpt xcption as 
-            print("oading文档aild {il_path} {}")
-            rtrn ]
+        except Exception as e:
+            print(f"Loading文档Failed {file_path}: {e}")
+            return []
     
-    d load_dirctory(sl, dirctory_path str, glob_pattrn str  "**/*") - istocmnt]
-        """oading目录中的所有文档"""
-        try
-            loadr  irctoryoadr(
-                dirctory_path,
-                globglob_pattrn,
-                loadr_clssl._gt_loadr_or_glob,
-                show_progrssr
+    def load_directory(self, directory_path: str, glob_pattern: str = "**/*") -> List[Document]:
+        """Loading目录中的所有文档"""
+        try:
+            loader = DirectoryLoader(
+                directory_path,
+                glob=glob_pattern,
+                loader_cls=self._get_loader_for_glob,
+                show_progress=True
             )
-            docmnts  loadr.load()
-            rtrn docmnts
+            documents = loader.load()
+            return documents
             
-        xcpt xcption as 
-            print("oading目录aild {dirctory_path} {}")
-            rtrn ]
+        except Exception as e:
+            print(f"Loading目录Failed {directory_path}: {e}")
+            return []
     
-    d _gt_loadr_or_glob(sl, il_path str)
-        """根据il扩展名获取对应的oading器"""
-        il_xtnsion  ath(il_path).six.lowr()
+    def _get_loader_for_glob(self, file_path: str):
+        """根据File扩展名获取对应的Loading器"""
+        file_extension = Path(file_path).suffix.lower()
         
-        i il_xtnsion in sl.spportd_ormats
-            rtrn sl.spportd_ormatsil_xtnsion]
-        ls
-            rtrn xtoadr  # 默认s文本oading器
+        if file_extension in self.supported_formats:
+            return self.supported_formats[file_extension]
+        else:
+            return TextLoader  # 默认Use文本Loading器
     
-    d load_wb_contnt(sl, rls iststr]) - istocmnt]
-        """oading网页内容"""
-        try
-            loadr  basoadr(rls)
-            docmnts  loadr.load()
-            rtrn docmnts
+    def load_web_content(self, urls: List[str]) -> List[Document]:
+        """Loading网页内容"""
+        try:
+            loader = WebBaseLoader(urls)
+            documents = loader.load()
+            return documents
             
-        xcpt xcption as 
-            print("oading网页内容aild {}")
-            rtrn ]
+        except Exception as e:
+            print(f"Loading网页内容Failed: {e}")
+            return []
     
-    d split_docmnts(sl, docmnts istocmnt]) - istocmnt]
+    def split_documents(self, documents: List[Document]) -> List[Document]:
         """分割文档"""
-        try
-            split_docs  sl.txt_splittr.split_docmnts(docmnts)
-            rtrn split_docs
+        try:
+            split_docs = self.text_splitter.split_documents(documents)
+            return split_docs
             
-        xcpt xcption as 
-            print("分割文档aild {}")
-            rtrn docmnts
+        except Exception as e:
+            print(f"分割文档Failed: {e}")
+            return documents
     
-    d procss_docmnts(sl, 
-                         docmnts istocmnt], 
-                         add_mtadata bool  r) - istocmnt]
-        """rocssing文档（添加元数据、清理等）"""
-        procssd_docs  ]
+    def process_documents(self, 
+                         documents: List[Document], 
+                         add_metadata: bool = True) -> List[Document]:
+        """Processing文档（添加元数据、清理等）"""
+        processed_docs = []
         
-        or i, doc in nmrat(docmnts)
-            try
+        for i, doc in enumerate(documents):
+            try:
                 # 清理文档内容
-                cland_contnt  sl._clan_docmnt_contnt(doc.pag_contnt)
+                cleaned_content = self._clean_document_content(doc.page_content)
                 
                 # 创建新文档
-                procssd_doc  ocmnt(
-                    pag_contntcland_contnt,
-                    mtadatadoc.mtadata.copy() i doc.mtadata ls {}
+                processed_doc = Document(
+                    page_content=cleaned_content,
+                    metadata=doc.metadata.copy() if doc.metadata else {}
                 )
                 
-                # 添加rocssing元数据
-                i add_mtadata
-                    procssd_doc.mtadata.pdat({
-                        "procssd" r,
-                        "docmnt_id" i,
-                        "contnt_lngth" ln(cland_contnt),
-                        "word_cont" ln(cland_contnt.split())
+                # 添加Processing元数据
+                if add_metadata:
+                    processed_doc.metadata.update({
+                        "processed": True,
+                        "document_id": i,
+                        "content_length": len(cleaned_content),
+                        "word_count": len(cleaned_content.split())
                     })
                 
-                procssd_docs.appnd(procssd_doc)
+                processed_docs.append(processed_doc)
                 
-            xcpt xcption as 
-                print("rocssing文档aild {}")
-                procssd_docs.appnd(doc)
+            except Exception as e:
+                print(f"Processing文档Failed: {e}")
+                processed_docs.append(doc)
         
-        rtrn procssd_docs
+        return processed_docs
     
-    d _clan_docmnt_contnt(sl, contnt str) - str
+    def _clean_document_content(self, content: str) -> str:
         """清理文档内容"""
         # 移除多余的空白字符
-        contnt  ' '.join(contnt.split())
+        content = ' '.join(content.split())
         
         # 移除特殊字符（保留中文、英文、数字和基本标点）
-        import r
-        contnt  r.sb(r'^ws-.,!()（）【】""''""''，。！？；：]', '', contnt)
+        import re
+        content = re.sub(r'[^\w\s\u4e00-\u9fff.,!?;:()（）【】""''""''，。！？；：]', '', content)
         
-        rtrn contnt.strip()
+        return content.strip()
     
-    d crat_docmnt_rom_txt(sl, 
-                                 txt str, 
-                                 mtadata ptionalictstr, ny]]  on) - ocmnt
+    def create_document_from_text(self, 
+                                 text: str, 
+                                 metadata: Optional[Dict[str, Any]] = None) -> Document:
         """从文本创建文档"""
-        mtadata  mtadata or {}
-        mtadata.pdat({
-            "sorc" "manal_inpt",
-            "typ" "txt"
+        metadata = metadata or {}
+        metadata.update({
+            "source": "manual_input",
+            "type": "text"
         })
         
-        rtrn ocmnt(
-            pag_contnttxt,
-            mtadatamtadata
+        return Document(
+            page_content=text,
+            metadata=metadata
         )
     
-    d batch_procss(sl, 
-                     il_paths iststr], 
-                     add_to_vctorstor bool  r) - ictstr, ny]
-        """批量rocssing文档"""
-        rslts  {
-            "total_ils" ln(il_paths),
-            "sccssl_ils" ,
-            "aild_ils" ,
-            "total_docmnts" ,
-            "procssd_docmnts" ,
-            "rrors" ]
+    def batch_process(self, 
+                     file_paths: List[str], 
+                     add_to_vectorstore: bool = True) -> Dict[str, Any]:
+        """批量Processing文档"""
+        results = {
+            "total_files": len(file_paths),
+            "successful_files": 0,
+            "failed_files": 0,
+            "total_documents": 0,
+            "processed_documents": 0,
+            "errors": []
         }
         
-        all_docmnts  ]
+        all_documents = []
         
-        or il_path in il_paths
-            try
-                # oading文档
-                docmnts  sl.load_docmnt(il_path)
+        for file_path in file_paths:
+            try:
+                # Loading文档
+                documents = self.load_document(file_path)
                 
-                i docmnts
+                if documents:
                     # 分割文档
-                    split_docs  sl.split_docmnts(docmnts)
+                    split_docs = self.split_documents(documents)
                     
-                    # rocssing文档
-                    procssd_docs  sl.procss_docmnts(split_docs)
+                    # Processing文档
+                    processed_docs = self.process_documents(split_docs)
                     
-                    all_docmnts.xtnd(procssd_docs)
-                    rslts"sccssl_ils"] + 
-                    rslts"total_docmnts"] + ln(docmnts)
-                    rslts"procssd_docmnts"] + ln(procssd_docs)
-                ls
-                    rslts"aild_ils"] + 
-                    rslts"rrors"].appnd("无法oadingil {il_path}")
+                    all_documents.extend(processed_docs)
+                    results["successful_files"] += 1
+                    results["total_documents"] += len(documents)
+                    results["processed_documents"] += len(processed_docs)
+                else:
+                    results["failed_files"] += 1
+                    results["errors"].append(f"无法LoadingFile: {file_path}")
                     
-            xcpt xcption as 
-                rslts"aild_ils"] + 
-                rslts"rrors"].appnd("rocssingilaild {il_path} {str()}")
+            except Exception as e:
+                results["failed_files"] += 1
+                results["errors"].append(f"ProcessingFileFailed {file_path}: {str(e)}")
         
-        # 添加到ctor storag
-        i add_to_vctorstor and all_docmnts
-            try
-                sccss  langchain_conig.add_docmnts(all_docmnts)
-                i not sccss
-                    rslts"rrors"].appnd("添加到ctor storagaild")
-            xcpt xcption as 
-                rslts"rrors"].appnd("添加到ctor storagaild {str()}")
+        # 添加到Vector storage
+        if add_to_vectorstore and all_documents:
+            try:
+                success = langchain_config.add_documents(all_documents)
+                if not success:
+                    results["errors"].append("添加到Vector storageFailed")
+            except Exception as e:
+                results["errors"].append(f"添加到Vector storageFailed: {str(e)}")
         
-        rtrn rslts
+        return results
     
-    d gt_docmnt_ino(sl, docmnts istocmnt]) - ictstr, ny]
+    def get_document_info(self, documents: List[Document]) -> Dict[str, Any]:
         """获取文档信息统计"""
-        i not docmnts
-            rtrn {"total_docmnts" }
+        if not documents:
+            return {"total_documents": 0}
         
-        total_chars  sm(ln(doc.pag_contnt) or doc in docmnts)
-        total_words  sm(ln(doc.pag_contnt.split()) or doc in docmnts)
+        total_chars = sum(len(doc.page_content) for doc in documents)
+        total_words = sum(len(doc.page_content.split()) for doc in documents)
         
         # 统计元数据
-        mtadata_stats  {}
-        or doc in docmnts
-            or ky, val in doc.mtadata.itms()
-                i ky not in mtadata_stats
-                    mtadata_statsky]  ]
-                mtadata_statsky].appnd(val)
+        metadata_stats = {}
+        for doc in documents:
+            for key, value in doc.metadata.items():
+                if key not in metadata_stats:
+                    metadata_stats[key] = []
+                metadata_stats[key].append(value)
         
-        rtrn {
-            "total_docmnts" ln(docmnts),
-            "total_charactrs" total_chars,
-            "total_words" total_words,
-            "avrag_chars_pr_doc" total_chars / ln(docmnts),
-            "avrag_words_pr_doc" total_words / ln(docmnts),
-            "mtadata_ilds" list(mtadata_stats.kys()),
-            "mtadata_stats" mtadata_stats
+        return {
+            "total_documents": len(documents),
+            "total_characters": total_chars,
+            "total_words": total_words,
+            "average_chars_per_doc": total_chars / len(documents),
+            "average_words_per_doc": total_words / len(documents),
+            "metadata_fields": list(metadata_stats.keys()),
+            "metadata_stats": metadata_stats
         }
 
 
-# 全局文档rocssing器实例
-docmnt_procssor  ocmntrocssor()
+# 全局文档Processing器实例
+document_processor = DocumentProcessor()

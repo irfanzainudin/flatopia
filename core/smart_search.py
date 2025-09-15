@@ -1,296 +1,296 @@
 """
-mart arch tratgy odl
-mplmnts intllignt sarch stratgis or th  knowldg bas
+Smart Search Strategy Module
+Implements intelligent search strategies for the FAISS knowledge base
 """
-import r
-rom typing import ict, ist, ny, ptional, pl
-rom .aiss_knowldg_bas import aiss_kb
+import re
+from typing import Dict, List, Any, Optional, Tuple
+from .faiss_knowledge_base import faiss_kb
 
-class martarchtratgy
-    """mart sarch stratgy or knowldg bas qris"""
+class SmartSearchStrategy:
+    """Smart search strategy for knowledge base queries"""
     
-    d __init__(sl)
-        sl.knowldg_bas  aiss_kb
+    def __init__(self):
+        self.knowledge_base = faiss_kb
         
-        # in sarch pattrns and kywords
-        sl.nivrsity_kywords  
-            'nivrsity', 'collg', 'school', 'dcation', 'stdy', 'dgr',
-            'program', 'cors', 'tition', 'scholarship', 'admission',
-            'rqirmnts', 'application', 'camps', 'aclty', 'dpartmnt',
-            'ndrgradat', 'gradat', 'phd', 'mastrs', 'bachlor'
+        # Define search patterns and keywords
+        self.university_keywords = [
+            'university', 'college', 'school', 'education', 'study', 'degree',
+            'program', 'course', 'tuition', 'scholarship', 'admission',
+            'requirements', 'application', 'campus', 'faculty', 'department',
+            'undergraduate', 'graduate', 'phd', 'masters', 'bachelor'
         ]
         
-        sl.visa_kywords  
-            'visa', 'immigration', 'work prmit', 'rsidnc', 'citiznship',
-            'passport', 'ntry', 'stay', 'prmit', 'grn card', 'pr',
-            'prmannt rsidnc', 'tmporary', 'stdnt visa', 'work visa',
-            'torist visa', 'visitor', 'sponsor', 'sponsorship'
+        self.visa_keywords = [
+            'visa', 'immigration', 'work permit', 'residence', 'citizenship',
+            'passport', 'entry', 'stay', 'permit', 'green card', 'pr',
+            'permanent residence', 'temporary', 'student visa', 'work visa',
+            'tourist visa', 'visitor', 'sponsor', 'sponsorship'
         ]
         
-        sl.contry_kywords  
-            'canada', 'astralia', 'nw zaland', 'k', 'nitd kingdom',
-            'grmany', 'ranc', 'spain', 'italy', 'nthrlands', 'swdn',
-            'norway', 'dnmark', 'inland', 'switzrland', 'astria',
-            'irland', 'portgal', 'blgim', 'lxmborg'
+        self.country_keywords = [
+            'canada', 'australia', 'new zealand', 'uk', 'united kingdom',
+            'germany', 'france', 'spain', 'italy', 'netherlands', 'sweden',
+            'norway', 'denmark', 'finland', 'switzerland', 'austria',
+            'ireland', 'portugal', 'belgium', 'luxembourg'
         ]
     
-    d analyz_qry_intnt(sl, qry str) - ictstr, ny]
+    def analyze_query_intent(self, query: str) -> Dict[str, Any]:
         """
-        nalyz sr qry to dtrmin sarch intnt
+        Analyze user query to determine search intent
         
-        rgs
-            qry sr's sarch qry
+        Args:
+            query: User's search query
             
-        trns
-            ictionary containing intnt analysis
+        Returns:
+            Dictionary containing intent analysis
         """
-        qry_lowr  qry.lowr()
+        query_lower = query.lower()
         
-        # hck or nivrsity-rlatd intnt
-        nivrsity_scor  sm( or kyword in sl.nivrsity_kywords i kyword in qry_lowr)
+        # Check for university-related intent
+        university_score = sum(1 for keyword in self.university_keywords if keyword in query_lower)
         
-        # hck or visa-rlatd intnt
-        visa_scor  sm( or kyword in sl.visa_kywords i kyword in qry_lowr)
+        # Check for visa-related intent
+        visa_score = sum(1 for keyword in self.visa_keywords if keyword in query_lower)
         
-        # hck or contry-spciic intnt
-        contry_scor  sm( or kyword in sl.contry_kywords i kyword in qry_lowr)
+        # Check for country-specific intent
+        country_score = sum(1 for keyword in self.country_keywords if keyword in query_lower)
         
-        # trmin primary intnt
-        i nivrsity_scor  visa_scor and nivrsity_scor  
-            primary_intnt  "nivrsitis"
-        li visa_scor  nivrsity_scor and visa_scor  
-            primary_intnt  "visas"
-        li contry_scor  
-            primary_intnt  "both"  # ontry qris otn nd both
-        ls
-            primary_intnt  "ato"
+        # Determine primary intent
+        if university_score > visa_score and university_score > 0:
+            primary_intent = "universities"
+        elif visa_score > university_score and visa_score > 0:
+            primary_intent = "visas"
+        elif country_score > 0:
+            primary_intent = "both"  # Country queries often need both
+        else:
+            primary_intent = "auto"
         
-        rtrn {
-            "primary_intnt" primary_intnt,
-            "nivrsity_scor" nivrsity_scor,
-            "visa_scor" visa_scor,
-            "contry_scor" contry_scor,
-            "conidnc" max(nivrsity_scor, visa_scor, contry_scor) / ln(qry.split())
+        return {
+            "primary_intent": primary_intent,
+            "university_score": university_score,
+            "visa_score": visa_score,
+            "country_score": country_score,
+            "confidence": max(university_score, visa_score, country_score) / len(query.split())
         }
     
-    d xtract_sarch_trms(sl, qry str) - ictstr, iststr]]
+    def extract_search_terms(self, query: str) -> Dict[str, List[str]]:
         """
-        xtract rlvant sarch trms rom qry
+        Extract relevant search terms from query
         
-        rgs
-            qry sr's sarch qry
+        Args:
+            query: User's search query
             
-        trns
-            ictionary containing xtractd trms
+        Returns:
+            Dictionary containing extracted terms
         """
-        qry_lowr  qry.lowr()
+        query_lower = query.lower()
         
-        # xtract nivrsity-rlatd trms
-        nivrsity_trms  trm or trm in sl.nivrsity_kywords i trm in qry_lowr]
+        # Extract university-related terms
+        university_terms = [term for term in self.university_keywords if term in query_lower]
         
-        # xtract visa-rlatd trms
-        visa_trms  trm or trm in sl.visa_kywords i trm in qry_lowr]
+        # Extract visa-related terms
+        visa_terms = [term for term in self.visa_keywords if term in query_lower]
         
-        # xtract contry trms
-        contry_trms  trm or trm in sl.contry_kywords i trm in qry_lowr]
+        # Extract country terms
+        country_terms = [term for term in self.country_keywords if term in query_lower]
         
-        # xtract othr important trms (nons, adjctivs)
-        othr_trms  sl._xtract_important_trms(qry)
+        # Extract other important terms (nouns, adjectives)
+        other_terms = self._extract_important_terms(query)
         
-        rtrn {
-            "nivrsity_trms" nivrsity_trms,
-            "visa_trms" visa_trms,
-            "contry_trms" contry_trms,
-            "othr_trms" othr_trms
+        return {
+            "university_terms": university_terms,
+            "visa_terms": visa_terms,
+            "country_terms": country_terms,
+            "other_terms": other_terms
         }
     
-    d _xtract_important_trms(sl, qry str) - iststr]
-        """xtract important trms rom qry sing simpl """
-        # mov common stop words
-        stop_words  {
-            'th', 'a', 'an', 'and', 'or', 'bt', 'in', 'on', 'at', 'to', 'or',
-            'o', 'with', 'by', 'is', 'ar', 'was', 'wr', 'b', 'bn', 'bing',
-            'hav', 'has', 'had', 'do', 'dos', 'did', 'will', 'wold', 'cold',
-            'shold', 'may', 'might', 'can', 'mst', 'shall', 'i', 'yo', 'h',
-            'sh', 'it', 'w', 'thy', 'm', 'him', 'hr', 's', 'thm'
+    def _extract_important_terms(self, query: str) -> List[str]:
+        """Extract important terms from query using simple NLP"""
+        # Remove common stop words
+        stop_words = {
+            'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for',
+            'of', 'with', 'by', 'is', 'are', 'was', 'were', 'be', 'been', 'being',
+            'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'could',
+            'should', 'may', 'might', 'can', 'must', 'shall', 'i', 'you', 'he',
+            'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them'
         }
         
-        # impl word xtraction
-        words  r.indall(r'bw+b', qry.lowr())
-        important_words  word or word in words i word not in stop_words and ln(word)  ]
+        # Simple word extraction
+        words = re.findall(r'\b\w+\b', query.lower())
+        important_words = [word for word in words if word not in stop_words and len(word) > 2]
         
-        rtrn important_words]  # imit to top  trms
+        return important_words[:10]  # Limit to top 10 terms
     
-    d gnrat_sarch_qris(sl, original_qry str) - iststr]
+    def generate_search_queries(self, original_query: str) -> List[str]:
         """
-        nrat mltipl sarch qris or bttr rslts
+        Generate multiple search queries for better results
         
-        rgs
-            original_qry riginal sr qry
+        Args:
+            original_query: Original user query
             
-        trns
-            ist o sarch qris
+        Returns:
+            List of search queries
         """
-        qris  original_qry]
+        queries = [original_query]
         
-        # xtract trms
-        trms  sl.xtract_sarch_trms(original_qry)
+        # Extract terms
+        terms = self.extract_search_terms(original_query)
         
-        # nrat contry-spciic qris
-        i trms"contry_trms"]
-            or contry in trms"contry_trms"]
-                i trms"nivrsity_trms"]
-                    qris.appnd("{contry} {', '.join(trms'nivrsity_trms']])}")
-                i trms"visa_trms"]
-                    qris.appnd("{contry} {', '.join(trms'visa_trms']])}")
+        # Generate country-specific queries
+        if terms["country_terms"]:
+            for country in terms["country_terms"]:
+                if terms["university_terms"]:
+                    queries.append(f"{country} {', '.join(terms['university_terms'][:3])}")
+                if terms["visa_terms"]:
+                    queries.append(f"{country} {', '.join(terms['visa_terms'][:3])}")
         
-        # nrat ild-spciic qris
-        i trms"othr_trms"]
-            or trm in trms"othr_trms"]]
-                i trms"nivrsity_trms"]
-                    qris.appnd("{trm} {', '.join(trms'nivrsity_trms']])}")
-                i trms"visa_trms"]
-                    qris.appnd("{trm} {', '.join(trms'visa_trms']])}")
+        # Generate field-specific queries
+        if terms["other_terms"]:
+            for term in terms["other_terms"][:3]:
+                if terms["university_terms"]:
+                    queries.append(f"{term} {', '.join(terms['university_terms'][:2])}")
+                if terms["visa_terms"]:
+                    queries.append(f"{term} {', '.join(terms['visa_terms'][:2])}")
         
-        # mov dplicats and limit
-        niq_qris  list(dict.romkys(qris))]
-        rtrn niq_qris
+        # Remove duplicates and limit
+        unique_queries = list(dict.fromkeys(queries))[:5]
+        return unique_queries
     
-    d smart_sarch(sl, qry str, max_rslts int  ) - ictstr, ny]
+    def smart_search(self, query: str, max_results: int = 5) -> Dict[str, Any]:
         """
-        rorm smart sarch with mltipl stratgis
+        Perform smart search with multiple strategies
         
-        rgs
-            qry sr's sarch qry
-            max_rslts aximm nmbr o rslts pr catgory
+        Args:
+            query: User's search query
+            max_results: Maximum number of results per category
             
-        trns
-            ictionary containing sarch rslts and mtadata
+        Returns:
+            Dictionary containing search results and metadata
         """
-        try
-            # nalyz qry intnt
-            intnt_analysis  sl.analyz_qry_intnt(qry)
+        try:
+            # Analyze query intent
+            intent_analysis = self.analyze_query_intent(query)
             
-            # nrat mltipl sarch qris
-            sarch_qris  sl.gnrat_sarch_qris(qry)
+            # Generate multiple search queries
+            search_queries = self.generate_search_queries(query)
             
-            # rorm sarchs
-            all_rslts  {
-                "nivrsitis" ],
-                "visas" ],
-                "mtadata" {
-                    "original_qry" qry,
-                    "intnt_analysis" intnt_analysis,
-                    "sarch_qris" sarch_qris,
-                    "total_qris" ln(sarch_qris)
+            # Perform searches
+            all_results = {
+                "universities": [],
+                "visas": [],
+                "metadata": {
+                    "original_query": query,
+                    "intent_analysis": intent_analysis,
+                    "search_queries": search_queries,
+                    "total_queries": len(search_queries)
                 }
             }
             
-            # arch with ach qry
-            or sarch_qry in sarch_qris
-                # trmin sarch typ basd on intnt
-                sarch_typ  intnt_analysis"primary_intnt"]
+            # Search with each query
+            for search_query in search_queries:
+                # Determine search type based on intent
+                search_type = intent_analysis["primary_intent"]
                 
-                # rorm sarch
-                rslts  sl.knowldg_bas.smart_sarch(sarch_qry, sarch_typ, max_rslts)
+                # Perform search
+                results = self.knowledge_base.smart_search(search_query, search_type, max_results)
                 
-                # rg rslts
-                i rslts.gt("nivrsitis")
-                    all_rslts"nivrsitis"].xtnd(rslts"nivrsitis"])
+                # Merge results
+                if results.get("universities"):
+                    all_results["universities"].extend(results["universities"])
                 
-                i rslts.gt("visas")
-                    all_rslts"visas"].xtnd(rslts"visas"])
+                if results.get("visas"):
+                    all_results["visas"].extend(results["visas"])
             
-            # mov dplicats and rank rslts
-            all_rslts"nivrsitis"]  sl._ddplicat_and_rank(all_rslts"nivrsitis"])
-            all_rslts"visas"]  sl._ddplicat_and_rank(all_rslts"visas"])
+            # Remove duplicates and rank results
+            all_results["universities"] = self._deduplicate_and_rank(all_results["universities"])
+            all_results["visas"] = self._deduplicate_and_rank(all_results["visas"])
             
-            # imit rslts
-            all_rslts"nivrsitis"]  all_rslts"nivrsitis"]max_rslts]
-            all_rslts"visas"]  all_rslts"visas"]max_rslts]
+            # Limit results
+            all_results["universities"] = all_results["universities"][:max_results]
+            all_results["visas"] = all_results["visas"][:max_results]
             
-            rtrn all_rslts
+            return all_results
             
-        xcpt xcption as 
-            rtrn {
-                "rror" "mart sarch aild {str()}",
-                "nivrsitis" ],
-                "visas" ],
-                "mtadata" {"original_qry" qry}
+        except Exception as e:
+            return {
+                "error": f"Smart search failed: {str(e)}",
+                "universities": [],
+                "visas": [],
+                "metadata": {"original_query": query}
             }
     
-    d _ddplicat_and_rank(sl, rslts istictstr, ny]]) - istictstr, ny]]
+    def _deduplicate_and_rank(self, results: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
-        mov dplicats and rank rslts by rlvanc
+        Remove duplicates and rank results by relevance
         
-        rgs
-            rslts ist o sarch rslts
+        Args:
+            results: List of search results
             
-        trns
-            dplicatd and rankd rslts
+        Returns:
+            Deduplicated and ranked results
         """
-        i not rslts
-            rtrn ]
+        if not results:
+            return []
         
-        # mov dplicats basd on contnt
-        sn_contnts  st()
-        niq_rslts  ]
+        # Remove duplicates based on content
+        seen_contents = set()
+        unique_results = []
         
-        or rslt in rslts
-            contnt  rslt.gt("contnt", "")
-            i contnt not in sn_contnts
-                sn_contnts.add(contnt)
-                niq_rslts.appnd(rslt)
+        for result in results:
+            content = result.get("content", "")
+            if content not in seen_contents:
+                seen_contents.add(content)
+                unique_results.append(result)
         
-        # ort by distanc (lowr is bttr)
-        niq_rslts.sort(kylambda x x.gt("distanc", loat('in')))
+        # Sort by distance (lower is better)
+        unique_results.sort(key=lambda x: x.get("distance", float('inf')))
         
-        rtrn niq_rslts
+        return unique_results
     
-    d gt_sarch_sggstions(sl, qry str) - iststr]
+    def get_search_suggestions(self, query: str) -> List[str]:
         """
-        nrat sarch sggstions basd on qry
+        Generate search suggestions based on query
         
-        rgs
-            qry sr's sarch qry
+        Args:
+            query: User's search query
             
-        trns
-            ist o sarch sggstions
+        Returns:
+            List of search suggestions
         """
-        sggstions  ]
-        qry_lowr  qry.lowr()
+        suggestions = []
+        query_lower = query.lower()
         
-        # dd contry-spciic sggstions
-        i any(contry in qry_lowr or contry in sl.contry_kywords)
-            i "nivrsity" in qry_lowr or "stdy" in qry_lowr
-                sggstions.xtnd(
-                    "{qry} admission rqirmnts",
-                    "{qry} tition s",
-                    "{qry} scholarship opportnitis"
+        # Add country-specific suggestions
+        if any(country in query_lower for country in self.country_keywords):
+            if "university" in query_lower or "study" in query_lower:
+                suggestions.extend([
+                    f"{query} admission requirements",
+                    f"{query} tuition fees",
+                    f"{query} scholarship opportunities"
                 ])
-            i "visa" in qry_lowr or "work" in qry_lowr
-                sggstions.xtnd(
-                    "{qry} work prmit rqirmnts",
-                    "{qry} immigration procss",
-                    "{qry} prmannt rsidnc"
+            if "visa" in query_lower or "work" in query_lower:
+                suggestions.extend([
+                    f"{query} work permit requirements",
+                    f"{query} immigration process",
+                    f"{query} permanent residence"
                 ])
         
-        # dd gnral sggstions
-        i "nivrsity" in qry_lowr
-            sggstions.xtnd(
-                "top nivrsitis or intrnational stdnts",
-                "nivrsity application dadlins",
-                "nivrsity ranking and rptation"
+        # Add general suggestions
+        if "university" in query_lower:
+            suggestions.extend([
+                "top universities for international students",
+                "university application deadlines",
+                "university ranking and reputation"
             ])
         
-        i "visa" in qry_lowr
-            sggstions.xtnd(
-                "visa application procss",
-                "visa rqirmnts and docmnts",
-                "visa procssing tim"
+        if "visa" in query_lower:
+            suggestions.extend([
+                "visa application process",
+                "visa requirements and documents",
+                "visa processing time"
             ])
         
-        rtrn sggstions]  # imit to  sggstions
+        return suggestions[:5]  # Limit to 5 suggestions
 
-# lobal smart sarch instanc
-smart_sarch  martarchtratgy()
+# Global smart search instance
+smart_search = SmartSearchStrategy()

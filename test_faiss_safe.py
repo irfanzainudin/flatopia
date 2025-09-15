@@ -1,178 +1,178 @@
 """
-a tst or  knowldg bas intgration
+Safe test for FAISS knowledge base integration
 """
 import os
 import sys
-import pickl
+import pickle
 
-# dd th projct root to th ython path
-sys.path.appnd(os.path.dirnam(os.path.abspath(__il__)))
+# Add the project root to the Python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-d tst_mtadata_loading()
-    """st mtadata loading"""
-    print(" sting tadata oading ")
+def test_metadata_loading():
+    """Test metadata loading"""
+    print("=== Testing Metadata Loading ===")
     
-    try
-        # oad nivrsity mtadata
-        with opn("nowldgas/aiss_nivrsitis_indx_mtadata.pkl", 'rb') as 
-            ni_mtadata  pickl.load()
+    try:
+        # Load university metadata
+        with open("KnowledgeBase/faiss_universities_index_metadata.pkl", 'rb') as f:
+            uni_metadata = pickle.load(f)
         
-        print("✅ nivrsity mtadata loadd")
-        print("   ocmnts {ln(ni_mtadata.gt('docmnts', ]))}")
-        print("   tadata {ln(ni_mtadata.gt('mtadata', ]))}")
-        print("   mbdding modl {ni_mtadata.gt('mbdding_modl', 'nknown')}")
+        print(f"✅ University metadata loaded")
+        print(f"   Documents: {len(uni_metadata.get('documents', []))}")
+        print(f"   Metadata: {len(uni_metadata.get('metadata', []))}")
+        print(f"   Embedding model: {uni_metadata.get('embedding_model', 'unknown')}")
         
-        # oad visa mtadata
-        with opn("nowldgas/aiss_visas_indx_mtadata.pkl", 'rb') as 
-            visa_mtadata  pickl.load()
+        # Load visa metadata
+        with open("KnowledgeBase/faiss_visas_index_metadata.pkl", 'rb') as f:
+            visa_metadata = pickle.load(f)
         
-        print("✅ isa mtadata loadd")
-        print("   ocmnts {ln(visa_mtadata.gt('docmnts', ]))}")
-        print("   tadata {ln(visa_mtadata.gt('mtadata', ]))}")
-        print("   mbdding modl {visa_mtadata.gt('mbdding_modl', 'nknown')}")
+        print(f"✅ Visa metadata loaded")
+        print(f"   Documents: {len(visa_metadata.get('documents', []))}")
+        print(f"   Metadata: {len(visa_metadata.get('metadata', []))}")
+        print(f"   Embedding model: {visa_metadata.get('embedding_model', 'unknown')}")
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d tst_sampl_contnt()
-    """st sampl contnt rom mtadata"""
-    print("n sting ampl ontnt ")
+def test_sample_content():
+    """Test sample content from metadata"""
+    print("\n=== Testing Sample Content ===")
     
-    try
-        # oad nivrsity mtadata
-        with opn("nowldgas/aiss_nivrsitis_indx_mtadata.pkl", 'rb') as 
-            ni_mtadata  pickl.load()
+    try:
+        # Load university metadata
+        with open("KnowledgeBase/faiss_universities_index_metadata.pkl", 'rb') as f:
+            uni_metadata = pickle.load(f)
         
-        # how sampl nivrsity contnt
-        docmnts  ni_mtadata.gt('docmnts', ])
-        i docmnts
-            print("✅ ampl nivrsity contnt")
-            print("   {docmnts]]}...")
+        # Show sample university content
+        documents = uni_metadata.get('documents', [])
+        if documents:
+            print(f"✅ Sample university content:")
+            print(f"   {documents[0][:200]}...")
         
-        # oad visa mtadata
-        with opn("nowldgas/aiss_visas_indx_mtadata.pkl", 'rb') as 
-            visa_mtadata  pickl.load()
+        # Load visa metadata
+        with open("KnowledgeBase/faiss_visas_index_metadata.pkl", 'rb') as f:
+            visa_metadata = pickle.load(f)
         
-        # how sampl visa contnt
-        docmnts  visa_mtadata.gt('docmnts', ])
-        i docmnts
-            print("✅ ampl visa contnt")
-            print("   {docmnts]]}...")
+        # Show sample visa content
+        documents = visa_metadata.get('documents', [])
+        if documents:
+            print(f"✅ Sample visa content:")
+            print(f"   {documents[0][:200]}...")
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d tst_aiss_knowldg_bas_class()
-    """st nowldgas class withot ll initialization"""
-    print("n sting nowldgas lass ")
+def test_faiss_knowledge_base_class():
+    """Test FAISSKnowledgeBase class without full initialization"""
+    print("\n=== Testing FAISSKnowledgeBase Class ===")
     
-    try
-        # mport th class
-        rom cor.aiss_knowldg_bas import nowldgas
-        print("✅ nowldgas class importd sccsslly")
+    try:
+        # Import the class
+        from core.faiss_knowledge_base import FAISSKnowledgeBase
+        print("✅ FAISSKnowledgeBase class imported successfully")
         
-        # st class mthods xist
-        mthods  'sarch_nivrsitis', 'sarch_visas', 'smart_sarch', 'is_availabl']
-        or mthod in mthods
-            i hasattr(nowldgas, mthod)
-                print("✅ thod {mthod} xists")
-            ls
-                print("❌ thod {mthod} missing")
-                rtrn als
+        # Test class methods exist
+        methods = ['search_universities', 'search_visas', 'smart_search', 'is_available']
+        for method in methods:
+            if hasattr(FAISSKnowledgeBase, method):
+                print(f"✅ Method {method} exists")
+            else:
+                print(f"❌ Method {method} missing")
+                return False
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d tst_smart_sarch_class()
-    """st martarchtratgy class"""
-    print("n sting martarchtratgy lass ")
+def test_smart_search_class():
+    """Test SmartSearchStrategy class"""
+    print("\n=== Testing SmartSearchStrategy Class ===")
     
-    try
-        # mport th class
-        rom cor.smart_sarch import martarchtratgy
-        print("✅ martarchtratgy class importd sccsslly")
+    try:
+        # Import the class
+        from core.smart_search import SmartSearchStrategy
+        print("✅ SmartSearchStrategy class imported successfully")
         
-        # st class mthods xist
-        mthods  'analyz_qry_intnt', 'xtract_sarch_trms', 'smart_sarch']
-        or mthod in mthods
-            i hasattr(martarchtratgy, mthod)
-                print("✅ thod {mthod} xists")
-            ls
-                print("❌ thod {mthod} missing")
-                rtrn als
+        # Test class methods exist
+        methods = ['analyze_query_intent', 'extract_search_terms', 'smart_search']
+        for method in methods:
+            if hasattr(SmartSearchStrategy, method):
+                print(f"✅ Method {method} exists")
+            else:
+                print(f"❌ Method {method} missing")
+                return False
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d tst_knowldg_pdatr_class()
-    """st nowldgpdatr class"""
-    print("n sting nowldgpdatr lass ")
+def test_knowledge_updater_class():
+    """Test KnowledgeUpdater class"""
+    print("\n=== Testing KnowledgeUpdater Class ===")
     
-    try
-        # mport th class
-        rom cor.knowldg_pdatr import nowldgpdatr
-        print("✅ nowldgpdatr class importd sccsslly")
+    try:
+        # Import the class
+        from core.knowledge_updater import KnowledgeUpdater
+        print("✅ KnowledgeUpdater class imported successfully")
         
-        # st class mthods xist
-        mthods  'shold_pdat_knowldg', 'xtract_knowldg_chnks', 'pdat_knowldg_bas']
-        or mthod in mthods
-            i hasattr(nowldgpdatr, mthod)
-                print("✅ thod {mthod} xists")
-            ls
-                print("❌ thod {mthod} missing")
-                rtrn als
+        # Test class methods exist
+        methods = ['should_update_knowledge', 'extract_knowledge_chunks', 'update_knowledge_base']
+        for method in methods:
+            if hasattr(KnowledgeUpdater, method):
+                print(f"✅ Method {method} exists")
+            else:
+                print(f"❌ Method {method} missing")
+                return False
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d main()
-    """n sa tsts"""
-    print("🚀 tarting a  stsn")
+def main():
+    """Run safe tests"""
+    print("🚀 Starting Safe FAISS Tests\n")
     
-    tsts  
-        ("tadata oading", tst_mtadata_loading),
-        ("ampl ontnt", tst_sampl_contnt),
-        ("nowldgas lass", tst_aiss_knowldg_bas_class),
-        ("martarchtratgy lass", tst_smart_sarch_class),
-        ("nowldgpdatr lass", tst_knowldg_pdatr_class),
+    tests = [
+        ("Metadata Loading", test_metadata_loading),
+        ("Sample Content", test_sample_content),
+        ("FAISSKnowledgeBase Class", test_faiss_knowledge_base_class),
+        ("SmartSearchStrategy Class", test_smart_search_class),
+        ("KnowledgeUpdater Class", test_knowledge_updater_class),
     ]
     
-    passd  
-    total  ln(tsts)
+    passed = 0
+    total = len(tests)
     
-    or tst_nam, tst_nc in tsts
-        print("n{''*}")
-        i tst_nc()
-            print("✅ {tst_nam} - ")
-            passd + 
-        ls
-            print("❌ {tst_nam} - ")
+    for test_name, test_func in tests:
+        print(f"\n{'='*50}")
+        if test_func():
+            print(f"✅ {test_name} - PASSED")
+            passed += 1
+        else:
+            print(f"❌ {test_name} - FAILED")
     
-    print("n{''*}")
-    print("📊 st slts {passd}/{total} tsts passd")
+    print(f"\n{'='*50}")
+    print(f"📊 Test Results: {passed}/{total} tests passed")
     
-    i passd  total
-        print("🎉 ll sa tsts passd!  intgration classs ar rady.")
-    ls
-        print("⚠️ om tsts aild.")
+    if passed == total:
+        print("🎉 All safe tests passed! FAISS integration classes are ready.")
+    else:
+        print("⚠️ Some tests failed.")
     
-    rtrn passd  total
+    return passed == total
 
-i __nam__  "__main__"
-    sccss  main()
-    sys.xit( i sccss ls )
+if __name__ == "__main__":
+    success = main()
+    sys.exit(0 if success else 1)

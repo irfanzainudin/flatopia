@@ -1,182 +1,186 @@
 """
-lti-  rappr
-pports both roq and pn s with atomatic ailovr
+Multi-API LLM Wrapper
+Supports both Groq and OpenAI APIs with automatic failover
 """
 import os
-rom typing import ist, ict, ny, ptional
-rom groq import roq
-import opnai
-rom .conig import sttings
+from typing import List, Dict, Any, Optional
+from groq import Groq
+import openai
+from .config import settings
 
 
-class lti
-    """lti-  wrappr with atomatic ailovr"""
+class MultiAPILLM:
+    """Multi-API LLM wrapper with automatic failover"""
     
-    d __init__(
-        sl,
-        groq_api_ky str  on,
-        opnai_api_ky str  on,
-        primary_api str  "groq",
-        modl str  on,
-        max_tokns int  ,
-        tmpratr loat  .
-    )
+    def __init__(
+        self,
+        groq_api_key: str = None,
+        openai_api_key: str = None,
+        primary_api: str = "groq",
+        model: str = None,
+        max_tokens: int = 1024,
+        temperature: float = 0.7
+    ):
         """
-        nitializ lti- 
+        Initialize Multi-API LLM
         
-        rgs
-            groq_api_ky roq  ky
-            opnai_api_ky pn  ky
-            primary_api rimary  to s ("groq" or "opnai")
-            modl odl nam
-            max_tokns aximm tokns to gnrat
-            tmpratr mpratr or gnration
+        Args:
+            groq_api_key: Groq API key
+            openai_api_key: OpenAI API key
+            primary_api: Primary API to use ("groq" or "openai")
+            model: Model name
+            max_tokens: Maximum tokens to generate
+            temperature: Temperature for generation
         """
-        sl.groq_api_ky  groq_api_ky or os.gtnv("__", sttings.groq_api_ky)
-        sl.opnai_api_ky  opnai_api_ky or os.gtnv("__", "yor-opnai-api-ky-hr")
-        sl.primary_api  primary_api
-        sl.modl  modl or sttings.dalt_modl
-        sl.max_tokns  max_tokns
-        sl.tmpratr  tmpratr
+        self.groq_api_key = groq_api_key or os.getenv("GROQ_API_KEY", settings.groq_api_key)
+        self.openai_api_key = openai_api_key or os.getenv("OPENAI_API_KEY", "your-openai-api-key-here")
+        self.primary_api = primary_api
+        self.model = model or settings.default_model
+        self.max_tokens = max_tokens
+        self.temperature = temperature
         
-        # nitializ clints
-        sl.groq_clint  on
-        sl.opnai_clint  on
+        # Initialize clients
+        self.groq_client = None
+        self.openai_client = None
         
-        i sl.groq_api_ky and sl.groq_api_ky ! "yor-groq-api-ky-hr"
-            try
-                sl.groq_clint  roq(api_kysl.groq_api_ky)
-            xcpt xcption as 
-                print("aild to initializ roq clint {}")
+        if self.groq_api_key and self.groq_api_key != "your-groq-api-key-here":
+            try:
+                self.groq_client = Groq(api_key=self.groq_api_key)
+            except Exception as e:
+                print(f"Failed to initialize Groq client: {e}")
         
-        i sl.opnai_api_ky and sl.opnai_api_ky ! "yor-opnai-api-ky-hr"
-            try
-                sl.opnai_clint  opnai.pn(api_kysl.opnai_api_ky)
-            xcpt xcption as 
-                print("aild to initializ pn clint {}")
+        if self.openai_api_key and self.openai_api_key != "your-openai-api-key-here":
+            try:
+                self.openai_client = openai.OpenAI(api_key=self.openai_api_key)
+            except Exception as e:
+                print(f"Failed to initialize OpenAI client: {e}")
     
-    d chat_compltion(
-        sl, 
-        mssags istictstr, str]], 
-        modl ptionalstr]  on,
+    def __call__(self, prompt: str) -> str:
+        """Call LLM with a single prompt string"""
+        messages = [{"role": "user", "content": prompt}]
+        return self.chat_completion(messages)
+    
+    def chat_completion(
+        self, 
+        messages: List[Dict[str, str]], 
+        model: Optional[str] = None,
         **kwargs
-    ) - str
+    ) -> str:
         """
-        nd chat compltion rqst with atomatic ailovr
+        Send chat completion request with automatic failover
         
-        rgs
-            mssags ist o mssags
-            modl odl nam (optional)
-            **kwargs dditional paramtrs
+        Args:
+            messages: List of messages
+            model: Model name (optional)
+            **kwargs: Additional parameters
             
-        trns
-            nratd rspons txt
+        Returns:
+            Generated response text
         """
-        modl_nam  modl or sl.modl
-        max_tokns  kwargs.gt("max_tokns", sl.max_tokns)
-        tmpratr  kwargs.gt("tmpratr", sl.tmpratr)
+        model_name = model or self.model
+        max_tokens = kwargs.get("max_tokens", self.max_tokens)
+        temperature = kwargs.get("temperature", self.temperature)
         
-        # ry primary  irst
-        i sl.primary_api  "groq" and sl.groq_clint
-            try
-                rtrn sl._try_groq(mssags, modl_nam, max_tokns, tmpratr)
-            xcpt xcption as 
-                print("roq  aild {}")
-                # allback to pn
-                i sl.opnai_clint
-                    try
-                        rtrn sl._try_opnai(mssags, modl_nam, max_tokns, tmpratr)
-                    xcpt xcption as 
-                        print("pn  also aild {}")
-                        rtrn "orry, both s ar crrntly navailabl. rror {str()}"
-                ls
-                    rtrn "orry, roq  aild and pn is not conigrd. rror {str()}"
+        # Try primary API first
+        if self.primary_api == "groq" and self.groq_client:
+            try:
+                return self._try_groq(messages, model_name, max_tokens, temperature)
+            except Exception as e:
+                print(f"Groq API failed: {e}")
+                # Fallback to OpenAI
+                if self.openai_client:
+                    try:
+                        return self._try_openai(messages, model_name, max_tokens, temperature)
+                    except Exception as e2:
+                        print(f"OpenAI API also failed: {e2}")
+                        return f"Sorry, both APIs are currently unavailable. Error: {str(e)}"
+                else:
+                    return f"Sorry, Groq API failed and OpenAI is not configured. Error: {str(e)}"
         
-        li sl.primary_api  "opnai" and sl.opnai_clint
-            try
-                rtrn sl._try_opnai(mssags, modl_nam, max_tokns, tmpratr)
-            xcpt xcption as 
-                print("pn  aild {}")
-                # allback to roq
-                i sl.groq_clint
-                    try
-                        rtrn sl._try_groq(mssags, modl_nam, max_tokns, tmpratr)
-                    xcpt xcption as 
-                        print("roq  also aild {}")
-                        rtrn "orry, both s ar crrntly navailabl. rror {str()}"
-                ls
-                    rtrn "orry, pn  aild and roq is not conigrd. rror {str()}"
+        elif self.primary_api == "openai" and self.openai_client:
+            try:
+                return self._try_openai(messages, model_name, max_tokens, temperature)
+            except Exception as e:
+                print(f"OpenAI API failed: {e}")
+                # Fallback to Groq
+                if self.groq_client:
+                    try:
+                        return self._try_groq(messages, model_name, max_tokens, temperature)
+                    except Exception as e2:
+                        print(f"Groq API also failed: {e2}")
+                        return f"Sorry, both APIs are currently unavailable. Error: {str(e)}"
+                else:
+                    return f"Sorry, OpenAI API failed and Groq is not configured. Error: {str(e)}"
         
-        ls
-            rtrn "orry, no  clints ar proprly conigrd."
+        else:
+            return "Sorry, no API clients are properly configured."
     
-    d _try_groq(sl, mssags istictstr, str]], modl str, max_tokns int, tmpratr loat) - str
-        """ry roq """
-        # s th modl as-is or roq 
-        rspons  sl.groq_clint.chat.compltions.crat(
-            modlmodl,
-            mssagsmssags,
-            max_toknsmax_tokns,
-            tmpratrtmpratr
+    def _try_groq(self, messages: List[Dict[str, str]], model: str, max_tokens: int, temperature: float) -> str:
+        """Try Groq API"""
+        response = self.groq_client.chat.completions.create(
+            model=model,
+            messages=messages,
+            max_tokens=max_tokens,
+            temperature=temperature
         )
         
-        i hasattr(rspons, 'choics') and rspons.choics
-            rtrn rspons.choics].mssag.contnt
-        ls
-            rtrn "orry,  coldn't gnrat a rspons."
+        if hasattr(response, 'choices') and response.choices:
+            return response.choices[0].message.content
+        else:
+            return "Sorry, I couldn't generate a response."
     
-    d _try_opnai(sl, mssags istictstr, str]], modl str, max_tokns int, tmpratr loat) - str
-        """ry pn """
-        # ap roq modls to pn modls i ndd
-        i modl.startswith("opnai/")
-            modl  modl.rplac("opnai/", "")
-        li modl in "llama-b-", "llama-b-", "mixtral-xb-"]
-            modl  "gpt-.-trbo"  # allback to -. or nspportd modls
+    def _try_openai(self, messages: List[Dict[str, str]], model: str, max_tokens: int, temperature: float) -> str:
+        """Try OpenAI API"""
+        # Map Groq models to OpenAI models if needed
+        if model.startswith("openai/"):
+            model = model.replace("openai/", "")
+        elif model in ["llama3-8b-8192", "llama3-70b-8192", "mixtral-8x7b-32768"]:
+            model = "llama-3.1-8b-instant"  # Use current Groq model
         
-        rspons  sl.opnai_clint.chat.compltions.crat(
-            modlmodl,
-            mssagsmssags,
-            max_toknsmax_tokns,
-            tmpratrtmpratr
+        response = self.openai_client.chat.completions.create(
+            model=model,
+            messages=messages,
+            max_tokens=max_tokens,
+            temperature=temperature
         )
         
-        i hasattr(rspons, 'choics') and rspons.choics
-            rtrn rspons.choics].mssag.contnt
-        ls
-            rtrn "orry,  coldn't gnrat a rspons."
+        if hasattr(response, 'choices') and response.choices:
+            return response.choices[0].message.content
+        else:
+            return "Sorry, I couldn't generate a response."
     
-    d gt_availabl_modls(sl) - iststr]
-        """t availabl modls"""
-        modls  ]
+    def get_available_models(self) -> List[str]:
+        """Get available models"""
+        models = []
         
-        i sl.groq_clint
-            modls.xtnd(
-                "llama-b-",
-                "llama-b-", 
-                "mixtral-xb-",
-                "gmma-b-it"
+        if self.groq_client:
+            models.extend([
+                "llama-3.1-8b-instant",
+                "llama-3.1-70b-versatile", 
+                "mixtral-8x7b-32768",
+                "gemma-7b-it"
             ])
         
-        i sl.opnai_clint
-            modls.xtnd(
-                "gpt-.-trbo",
-                "gpt-",
-                "gpt--trbo-prviw"
+        if self.openai_client:
+            models.extend([
+                "gpt-3.5-turbo",
+                "gpt-4",
+                "gpt-4-turbo-preview"
             ])
         
-        rtrn modls
+        return models
     
-    d is_availabl(sl) - bool
-        """hck i any  is availabl"""
-        rtrn sl.groq_clint is not on or sl.opnai_clint is not on
+    def is_available(self) -> bool:
+        """Check if any API is available"""
+        return self.groq_client is not None or self.openai_client is not None
     
-    d gt_stats(sl) - ictstr, ny]
-        """t  stats"""
-        rtrn {
-            "groq_availabl" sl.groq_clint is not on,
-            "opnai_availabl" sl.opnai_clint is not on,
-            "primary_api" sl.primary_api,
-            "modl" sl.modl,
-            "max_tokns" sl.max_tokns,
-            "tmpratr" sl.tmpratr
+    def get_status(self) -> Dict[str, Any]:
+        """Get API status"""
+        return {
+            "groq_available": self.groq_client is not None,
+            "openai_available": self.openai_client is not None,
+            "primary_api": self.primary_api,
+            "model": self.model,
+            "max_tokens": self.max_tokens,
+            "temperature": self.temperature
         }
