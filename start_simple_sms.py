@@ -21,9 +21,7 @@ if __name__ == "__main__":
     print("📊 Health check: http://localhost:8001/sms/health")
     print("=" * 50)
     
-    # Set environment variables
-    os.environ.setdefault("GROQ_API_KEY", "GROQ_KEY_REMOVED")
-    os.environ.setdefault("OPENAI_API_KEY", "OPENAI_KEY_REMOVED")
+    # Load credentials from env only (no hardcoded secrets)
     
     # Run the SMS API service
     uvicorn.run(

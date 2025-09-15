@@ -22,13 +22,8 @@ if __name__ == "__main__":
     print("🔧 Production mode: File monitoring disabled")
     print("=" * 60)
     
-    # Set environment variables
-    os.environ.setdefault("GROQ_API_KEY", "GROQ_KEY_REMOVED")
-    os.environ.setdefault("OPENAI_API_KEY", "OPENAI_KEY_REMOVED")
-    # Ensure MessageMedia credentials available in this process
-    os.environ.setdefault("MESSAGEMEDIA_API_KEY", "cCrxz1ODWHgiWlr9axVT")
-    os.environ.setdefault("MESSAGEMEDIA_SECRET_KEY", "ngrh7NFzzH9m0aGLgLiZinbxa9tehN")
-    os.environ.setdefault("MESSAGEMEDIA_SOURCE_NUMBER", "+61499352828")
+    # Load credentials from env only (do not hardcode secrets in code)
+    os.environ.setdefault("MESSAGEMEDIA_SOURCE_NUMBER", os.environ.get("MESSAGEMEDIA_SOURCE_NUMBER", "+61499352828"))
     
     # Run the SMS API service in production mode
     uvicorn.run(
