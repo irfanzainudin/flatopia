@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
-import FlatEarthSocietyLogo from '/flat_earth_society.png';
+// import FlatEarthSocietyLogo from '/flat_earth_society.png';
+import FlatopiaLogo from '/flatopia-logo.png';
 import { Plus, Globe, Mic, Send } from "lucide-react";
 import { langOptions, langData } from './constants';
 
@@ -62,7 +63,7 @@ export default function App() {
           <>
             {/* Logo */}
             <div className="flex flex-col items-center space-y-3">
-              <img src={FlatEarthSocietyLogo} alt="Flatopia Logo" className="w-20 h-20" />
+              <img src={FlatopiaLogo} alt="Flatopia Logo" className="w-30 h-20" />
               <h2 className="text-lg font-semibold text-center">Find better opportunities overseas</h2>
               <p className="text-sm text-gray-500">By flatopia.co</p>
               <select
