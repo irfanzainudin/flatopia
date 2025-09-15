@@ -1,17 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FlatEarthSocietyLogo from '/flat_earth_society.png';
 import { Plus, Globe, Mic, Send } from "lucide-react";
+import { langOptions, langData } from './constants';
 
 function App() {
   const [message, setMessage] = useState("");
   const [chatHistory, setChatHistory] = useState([]);
+  const [currentLang, setCurrentLang] = useState("en");
+  const [recommendations, setRecommendations] = useState(langData[currentLang].recommendations);
 
-  const suggestions = [
-    "What are some UK visa pathways available for a mid-career professional?",
-    "How safe is Chicago compared to Sydney?",
-    "Show me the recent news about the economy of Canada.",
-    "How is the quality of life in Auckland?",
-  ];
+  useEffect(() => {
+    resetRecommendations();
+  }, [currentLang]);
+
+  function resetRecommendations() {
+    setRecommendations([]);
+    setRecommendations(langData[currentLang].recommendations);
+  }
+
+  function resetCurrentLang() {
+    setCurrentLang(`${keyName}`);
+  }
 
   const handleSend = () => {
     if (!message.trim()) return; // ignore empty
@@ -29,11 +38,18 @@ function App() {
             Find better opportunities overseas
           </h2>
           <p className="text-sm text-gray-500">By flatopia.co</p>
+          <select id="lang-select" className="border rounded px-2 py-1 text-sm">
+            {
+              Object.keys(langOptions).map((keyName, keyIndex) => {
+                return <option value={keyName} onClick={resetCurrentLang}>{langOptions[keyName]}</option>;
+              })
+            }
+          </select>
         </div>
 
         {/* Quick action buttons */}
         <div className="grid grid-cols-2 gap-3">
-          {suggestions.map((text, idx) => (
+          {recommendations.map((text, idx) => (
             <button
               key={idx}
               className="border rounded-lg px-3 py-2 text-sm text-left hover:bg-gray-100"
