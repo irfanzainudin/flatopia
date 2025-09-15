@@ -1,118 +1,118 @@
 """
-st only imports withot any nctionality
+Test only imports without any functionality
 """
 import os
 import sys
 
-# dd th projct root to th ython path
-sys.path.appnd(os.path.dirnam(os.path.abspath(__il__)))
+# Add the project root to the Python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-d tst_basic_imports()
-    """st basic imports"""
-    print(" sting asic mports ")
+def test_basic_imports():
+    """Test basic imports"""
+    print("=== Testing Basic Imports ===")
     
-    try
-        # st importing cor modls
-        import cor.aiss_knowldg_bas
-        print("✅ cor.aiss_knowldg_bas importd")
+    try:
+        # Test importing core modules
+        import core.faiss_knowledge_base
+        print("✅ core.faiss_knowledge_base imported")
         
-        import cor.smart_sarch
-        print("✅ cor.smart_sarch importd")
+        import core.smart_search
+        print("✅ core.smart_search imported")
         
-        import cor.knowldg_pdatr
-        print("✅ cor.knowldg_pdatr importd")
+        import core.knowledge_updater
+        print("✅ core.knowledge_updater imported")
         
-        import cor.latopia_chat_managr
-        print("✅ cor.latopia_chat_managr importd")
+        import core.flatopia_chat_manager
+        print("✅ core.flatopia_chat_manager imported")
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d tst_class_dinitions()
-    """st that classs ar dind"""
-    print("n sting lass initions ")
+def test_class_definitions():
+    """Test that classes are defined"""
+    print("\n=== Testing Class Definitions ===")
     
-    try
-        rom cor.aiss_knowldg_bas import nowldgas
-        print("✅ nowldgas class dind")
+    try:
+        from core.faiss_knowledge_base import FAISSKnowledgeBase
+        print("✅ FAISSKnowledgeBase class defined")
         
-        rom cor.smart_sarch import martarchtratgy
-        print("✅ martarchtratgy class dind")
+        from core.smart_search import SmartSearchStrategy
+        print("✅ SmartSearchStrategy class defined")
         
-        rom cor.knowldg_pdatr import nowldgpdatr
-        print("✅ nowldgpdatr class dind")
+        from core.knowledge_updater import KnowledgeUpdater
+        print("✅ KnowledgeUpdater class defined")
         
-        rom cor.latopia_chat_managr import latopiahatanagr
-        print("✅ latopiahatanagr class dind")
+        from core.flatopia_chat_manager import FlatopiaChatManager
+        print("✅ FlatopiaChatManager class defined")
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d tst_nction_dinitions()
-    """st that nctions ar dind"""
-    print("n sting nction initions ")
+def test_function_definitions():
+    """Test that functions are defined"""
+    print("\n=== Testing Function Definitions ===")
     
-    try
-        rom cor.aiss_knowldg_bas import gt_aiss_kb
-        print("✅ gt_aiss_kb nction dind")
+    try:
+        from core.faiss_knowledge_base import get_faiss_kb
+        print("✅ get_faiss_kb function defined")
         
-        rom cor.smart_sarch import smart_sarch
-        print("✅ smart_sarch instanc dind")
+        from core.smart_search import smart_search
+        print("✅ smart_search instance defined")
         
-        rom cor.knowldg_pdatr import knowldg_pdatr
-        print("✅ knowldg_pdatr instanc dind")
+        from core.knowledge_updater import knowledge_updater
+        print("✅ knowledge_updater instance defined")
         
-        rom cor.latopia_chat_managr import latopia_chat_managr
-        print("✅ latopia_chat_managr instanc dind")
+        from core.flatopia_chat_manager import flatopia_chat_manager
+        print("✅ flatopia_chat_manager instance defined")
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d main()
-    """n import tsts"""
-    print("🚀 tarting mport-nly stsn")
+def main():
+    """Run import tests"""
+    print("🚀 Starting Import-Only Tests\n")
     
-    tsts  
-        ("asic mports", tst_basic_imports),
-        ("lass initions", tst_class_dinitions),
-        ("nction initions", tst_nction_dinitions),
+    tests = [
+        ("Basic Imports", test_basic_imports),
+        ("Class Definitions", test_class_definitions),
+        ("Function Definitions", test_function_definitions),
     ]
     
-    passd  
-    total  ln(tsts)
+    passed = 0
+    total = len(tests)
     
-    or tst_nam, tst_nc in tsts
-        print("n{''*}")
-        i tst_nc()
-            print("✅ {tst_nam} - ")
-            passd + 
-        ls
-            print("❌ {tst_nam} - ")
+    for test_name, test_func in tests:
+        print(f"\n{'='*50}")
+        if test_func():
+            print(f"✅ {test_name} - PASSED")
+            passed += 1
+        else:
+            print(f"❌ {test_name} - FAILED")
     
-    print("n{''*}")
-    print("📊 st slts {passd}/{total} tsts passd")
+    print(f"\n{'='*50}")
+    print(f"📊 Test Results: {passed}/{total} tests passed")
     
-    i passd  total
-        print("🎉 ll import tsts passd!")
-        print("n📋 mmary")
-        print("   ✅ ll modls can b importd")
-        print("   ✅ ll classs ar dind")
-        print("   ✅ ll nctions ar dind")
-        print("n🚀  intgration modls ar rady!")
-    ls
-        print("⚠️ om tsts aild.")
+    if passed == total:
+        print("🎉 All import tests passed!")
+        print("\n📋 Summary:")
+        print("   ✅ All modules can be imported")
+        print("   ✅ All classes are defined")
+        print("   ✅ All functions are defined")
+        print("\n🚀 FAISS integration modules are ready!")
+    else:
+        print("⚠️ Some tests failed.")
     
-    rtrn passd  total
+    return passed == total
 
-i __nam__  "__main__"
-    sccss  main()
-    sys.xit( i sccss ls )
+if __name__ == "__main__":
+    success = main()
+    sys.exit(0 if success else 1)

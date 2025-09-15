@@ -1,26 +1,30 @@
 """
-st modl conigration
+Test model configuration
 """
+from core.simple_langchain_config import GroqLLM
+from core.config import settings
 
-rom cor.simpl_langchain_conig import simpl_langchain_conig
-rom cor.conig import sttings
+def test_model_config():
+    """Test model configuration"""
+    print("🔧 Testing Model Configuration")
+    print("=" * 40)
+    
+    print(f"Settings default_model: {settings.default_model}")
+    
+    # Create GroqLLM instance
+    llm = GroqLLM(
+        groq_api_key=settings.groq_api_key,
+        model_name=settings.default_model
+    )
+    
+    print(f"GroqLLM model_name: {llm.model_name}")
+    
+    # Test a simple call
+    try:
+        response = llm("Hello, what model are you?")
+        print(f"Response: {response}")
+    except Exception as e:
+        print(f"Error: {e}")
 
-print("🔍 odl onigration st")
-print("" * )
-
-print("📊 ttings dalt_modl {sttings.dalt_modl}")
-print("📊 roq modl_nam {simpl_langchain_conig.llm.modl_nam}")
-
-# st a simpl prompt
-tst_prompt  "llo, what's yor nam"
-print("n🧪 sting with prompt '{tst_prompt}'")
-
-try
-    rspons  simpl_langchain_conig.llm(tst_prompt)
-    print("✅ spons {rspons}")
-xcpt xcption as 
-    print("❌ rror {}")
-
-print("n🔍 hcking roq initialization...")
-print("📊 roq clint {simpl_langchain_conig.llm.clint}")
-print("📊 roq modl_nam {simpl_langchain_conig.llm.modl_nam}")
+if __name__ == "__main__":
+    test_model_config()

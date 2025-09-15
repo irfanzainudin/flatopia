@@ -1,200 +1,200 @@
 """
-a inal tst or  knowldg bas intgration
+Safe final test for FAISS knowledge base integration
 """
 import os
 import sys
 
-# dd th projct root to th ython path
-sys.path.appnd(os.path.dirnam(os.path.abspath(__il__)))
+# Add the project root to the Python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-d tst_import_withot_instantiation()
-    """st importing modls withot instantiation"""
-    print(" sting mport ithot nstantiation ")
+def test_import_without_instantiation():
+    """Test importing modules without instantiation"""
+    print("=== Testing Import Without Instantiation ===")
     
-    try
-        # st importing modls
-        import cor.aiss_knowldg_bas
-        print("✅ aiss_knowldg_bas importd")
+    try:
+        # Test importing modules
+        import core.faiss_knowledge_base
+        print("✅ faiss_knowledge_base imported")
         
-        import cor.smart_sarch
-        print("✅ smart_sarch importd")
+        import core.smart_search
+        print("✅ smart_search imported")
         
-        import cor.knowldg_pdatr
-        print("✅ knowldg_pdatr importd")
+        import core.knowledge_updater
+        print("✅ knowledge_updater imported")
         
-        import cor.latopia_chat_managr
-        print("✅ latopia_chat_managr importd")
+        import core.flatopia_chat_manager
+        print("✅ flatopia_chat_manager imported")
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d tst_lazy_initialization()
-    """st lazy initialization"""
-    print("n sting azy nitialization ")
+def test_lazy_initialization():
+    """Test lazy initialization"""
+    print("\n=== Testing Lazy Initialization ===")
     
-    try
-        rom cor.aiss_knowldg_bas import gt_aiss_kb
+    try:
+        from core.faiss_knowledge_base import get_faiss_kb
         
-        # st that global instanc is on initially
-        rom cor.aiss_knowldg_bas import aiss_kb
-        i aiss_kb is on
-            print("✅ lobal instanc is on initially")
-        ls
-            print("⚠️ lobal instanc is not on initially")
+        # Test that global instance is None initially
+        from core.faiss_knowledge_base import faiss_kb
+        if faiss_kb is None:
+            print("✅ Global instance is None initially")
+        else:
+            print("⚠️ Global instance is not None initially")
         
-        # st gt_aiss_kb nction xists
-        i callabl(gt_aiss_kb)
-            print("✅ gt_aiss_kb nction is callabl")
-        ls
-            print("❌ gt_aiss_kb nction is not callabl")
-            rtrn als
+        # Test get_faiss_kb function exists
+        if callable(get_faiss_kb):
+            print("✅ get_faiss_kb function is callable")
+        else:
+            print("❌ get_faiss_kb function is not callable")
+            return False
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d tst_chat_managr_cration()
-    """st chat managr cration withot knowldg bas initialization"""
-    print("n sting hat anagr ration ")
+def test_chat_manager_creation():
+    """Test chat manager creation without knowledge base initialization"""
+    print("\n=== Testing Chat Manager Creation ===")
     
-    try
-        rom cor.latopia_chat_managr import latopiahatanagr
+    try:
+        from core.flatopia_chat_manager import FlatopiaChatManager
         
-        # rat chat managr instanc
-        chat_managr  latopiahatanagr()
-        print("✅ latopiahatanagr cratd")
+        # Create chat manager instance
+        chat_manager = FlatopiaChatManager()
+        print("✅ FlatopiaChatManager created")
         
-        # hck that knowldg bas is on initially
-        i chat_managr.knowldg_bas is on
-            print("✅ nowldg bas is on initially (lazy loading)")
-        ls
-            print("⚠️ nowldg bas is not on initially")
+        # Check that knowledge base is None initially
+        if chat_manager.knowledge_base is None:
+            print("✅ Knowledge base is None initially (lazy loading)")
+        else:
+            print("⚠️ Knowledge base is not None initially")
         
-        # hck that othr componnts ar initializd
-        i chat_managr.smart_sarch is not on
-            print("✅ mart sarch is initializd")
-        ls
-            print("❌ mart sarch is not initializd")
-            rtrn als
+        # Check that other components are initialized
+        if chat_manager.smart_search is not None:
+            print("✅ Smart search is initialized")
+        else:
+            print("❌ Smart search is not initialized")
+            return False
         
-        i chat_managr.knowldg_pdatr is not on
-            print("✅ nowldg pdatr is initializd")
-        ls
-            print("❌ nowldg pdatr is not initializd")
-            rtrn als
+        if chat_manager.knowledge_updater is not None:
+            print("✅ Knowledge updater is initialized")
+        else:
+            print("❌ Knowledge updater is not initialized")
+            return False
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d tst_smart_sarch_nctionality()
-    """st smart sarch nctionality withot """
-    print("n sting mart arch nctionality ")
+def test_smart_search_functionality():
+    """Test smart search functionality without FAISS"""
+    print("\n=== Testing Smart Search Functionality ===")
     
-    try
-        rom cor.smart_sarch import martarchtratgy
+    try:
+        from core.smart_search import SmartSearchStrategy
         
-        # rat smart sarch instanc
-        smart_sarch  martarchtratgy()
-        print("✅ martarchtratgy cratd")
+        # Create smart search instance
+        smart_search = SmartSearchStrategy()
+        print("✅ SmartSearchStrategy created")
         
-        # st qry analysis
-        qry  "nivrsity canada comptr scinc"
-        intnt  smart_sarch.analyz_qry_intnt(qry)
-        print("✅ ry intnt {intnt'primary_intnt']}")
+        # Test query analysis
+        query = "university canada computer science"
+        intent = smart_search.analyze_query_intent(query)
+        print(f"✅ Query intent: {intent['primary_intent']}")
         
-        # st trm xtraction
-        trms  smart_sarch.xtract_sarch_trms(qry)
-        print("✅ xtractd {ln(trms'nivrsity_trms'])} nivrsity trms")
+        # Test term extraction
+        terms = smart_search.extract_search_terms(query)
+        print(f"✅ Extracted {len(terms['university_terms'])} university terms")
         
-        # st sarch sggstions
-        sggstions  smart_sarch.gt_sarch_sggstions(qry)
-        print("✅ nratd {ln(sggstions)} sarch sggstions")
+        # Test search suggestions
+        suggestions = smart_search.get_search_suggestions(query)
+        print(f"✅ Generated {len(suggestions)} search suggestions")
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d tst_knowldg_pdatr_nctionality()
-    """st knowldg pdatr nctionality"""
-    print("n sting nowldg pdatr nctionality ")
+def test_knowledge_updater_functionality():
+    """Test knowledge updater functionality"""
+    print("\n=== Testing Knowledge Updater Functionality ===")
     
-    try
-        rom cor.knowldg_pdatr import nowldgpdatr
+    try:
+        from core.knowledge_updater import KnowledgeUpdater
         
-        # rat knowldg pdatr instanc
-        pdatr  nowldgpdatr()
-        print("✅ nowldgpdatr cratd")
+        # Create knowledge updater instance
+        updater = KnowledgeUpdater()
+        print("✅ KnowledgeUpdater created")
         
-        # st contnt classiication
-        tst_contnt  "nivrsity o oronto is a top nivrsity in anada or comptr scinc."
-        contnt_typ  pdatr.classiy_contnt_typ(tst_contnt)
-        print("✅ ontnt typ {contnt_typ}")
+        # Test content classification
+        test_content = "University of Toronto is a top university in Canada for computer science."
+        content_type = updater.classify_content_type(test_content)
+        print(f"✅ Content type: {content_type}")
         
-        # st pdat dcision
-        shold_pdat  pdatr.shold_pdat_knowldg("tst qry", tst_contnt)
-        print("✅ hold pdat {shold_pdat}")
+        # Test update decision
+        should_update = updater.should_update_knowledge("test query", test_content)
+        print(f"✅ Should update: {should_update}")
         
-        # st chnk xtraction
-        chnks  pdatr.xtract_knowldg_chnks(tst_contnt, contnt_typ)
-        print("✅ xtractd {ln(chnks)} chnks")
+        # Test chunk extraction
+        chunks = updater.extract_knowledge_chunks(test_content, content_type)
+        print(f"✅ Extracted {len(chunks)} chunks")
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d main()
-    """n sa inal tsts"""
-    print("🚀 tarting a inal  ntgration stsn")
+def main():
+    """Run safe final tests"""
+    print("🚀 Starting Safe Final FAISS Integration Tests\n")
     
-    tsts  
-        ("mport ithot nstantiation", tst_import_withot_instantiation),
-        ("azy nitialization", tst_lazy_initialization),
-        ("hat anagr ration", tst_chat_managr_cration),
-        ("mart arch nctionality", tst_smart_sarch_nctionality),
-        ("nowldg pdatr nctionality", tst_knowldg_pdatr_nctionality),
+    tests = [
+        ("Import Without Instantiation", test_import_without_instantiation),
+        ("Lazy Initialization", test_lazy_initialization),
+        ("Chat Manager Creation", test_chat_manager_creation),
+        ("Smart Search Functionality", test_smart_search_functionality),
+        ("Knowledge Updater Functionality", test_knowledge_updater_functionality),
     ]
     
-    passd  
-    total  ln(tsts)
+    passed = 0
+    total = len(tests)
     
-    or tst_nam, tst_nc in tsts
-        print("n{''*}")
-        i tst_nc()
-            print("✅ {tst_nam} - ")
-            passd + 
-        ls
-            print("❌ {tst_nam} - ")
+    for test_name, test_func in tests:
+        print(f"\n{'='*50}")
+        if test_func():
+            print(f"✅ {test_name} - PASSED")
+            passed += 1
+        else:
+            print(f"❌ {test_name} - FAILED")
     
-    print("n{''*}")
-    print("📊 st slts {passd}/{total} tsts passd")
+    print(f"\n{'='*50}")
+    print(f"📊 Test Results: {passed}/{total} tests passed")
     
-    i passd  total
-        print("🎉 ll tsts passd!  intgration is working corrctly.")
-        print("n📋 ntgration mmary")
-        print("   ✅ ll modls can b importd saly")
-        print("   ✅ azy initialization works")
-        print("   ✅ hat managr can b cratd")
-        print("   ✅ mart sarch works indpndntly")
-        print("   ✅ nowldg pdatr works indpndntly")
-        print("n🚀  knowldg bas intgration is rady!")
-        print("n💡 ot  indics will b loadd whn irst sd.")
-    ls
-        print("⚠️ om tsts aild.")
+    if passed == total:
+        print("🎉 All tests passed! FAISS integration is working correctly.")
+        print("\n📋 Integration Summary:")
+        print("   ✅ All modules can be imported safely")
+        print("   ✅ Lazy initialization works")
+        print("   ✅ Chat manager can be created")
+        print("   ✅ Smart search works independently")
+        print("   ✅ Knowledge updater works independently")
+        print("\n🚀 FAISS knowledge base integration is ready!")
+        print("\n💡 Note: FAISS indices will be loaded when first used.")
+    else:
+        print("⚠️ Some tests failed.")
     
-    rtrn passd  total
+    return passed == total
 
-i __nam__  "__main__"
-    sccss  main()
-    sys.xit( i sccss ls )
+if __name__ == "__main__":
+    success = main()
+    sys.exit(0 if success else 1)

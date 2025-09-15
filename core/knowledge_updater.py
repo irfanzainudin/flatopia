@@ -1,349 +1,349 @@
 """
-nowldg as pdatr
-andls pdating th  knowldg bas with nw inormation rom  rsponss
+Knowledge Base Updater
+Handles updating the FAISS knowledge base with new information from LLM responses
 """
 import os
-import pickl
-import nmpy as np
-import aiss
-rom typing import ist, ict, ny, ptional
-rom sntnc_transormrs import ntncransormr
+import pickle
+import numpy as np
+import faiss
+from typing import List, Dict, Any, Optional
+from sentence_transformers import SentenceTransformer
 import logging
-rom dattim import dattim
+from datetime import datetime
 
-loggr  logging.gtoggr(__nam__)
+logger = logging.getLogger(__name__)
 
-class nowldgpdatr
-    """andls pdating th  knowldg bas with nw inormation"""
+class KnowledgeUpdater:
+    """Handles updating the FAISS knowledge base with new information"""
     
-    d __init__(sl, knowldg_bas_path str  "nowldgas")
+    def __init__(self, knowledge_base_path: str = "KnowledgeBase"):
         """
-        nitializ nowldg pdatr
+        Initialize Knowledge Updater
         
-        rgs
-            knowldg_bas_path ath to th nowldgas dirctory
+        Args:
+            knowledge_base_path: Path to the KnowledgeBase directory
         """
-        sl.knowldg_bas_path  knowldg_bas_path
-        sl.mbdding_modl  on
-        # on't initializ mbdding modl immdiatly
+        self.knowledge_base_path = knowledge_base_path
+        self.embedding_model = None
+        # Don't initialize embedding model immediately
     
-    d _initializ_mbdding_modl(sl)
-        """nitializ th mbdding modl (lazy loading)"""
-        i sl.mbdding_modl is not on
-            rtrn  # lrady initializd
+    def _initialize_embedding_model(self):
+        """Initialize the embedding model (lazy loading)"""
+        if self.embedding_model is not None:
+            return  # Already initialized
             
-        try
-            sl.mbdding_modl  ntncransormr("sntnc-transormrs/all-ini--v")
-            loggr.ino("✅ nitializd mbdding modl or knowldg pdats")
-        xcpt xcption as 
-            loggr.rror("❌ rror initializing mbdding modl {}")
-            sl.mbdding_modl  on
+        try:
+            self.embedding_model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
+            logger.info("✅ Initialized embedding model for knowledge updates")
+        except Exception as e:
+            logger.error(f"❌ Error initializing embedding model: {e}")
+            self.embedding_model = None
     
-    d shold_pdat_knowldg(sl, sr_qry str, llm_rspons str) - bool
+    def should_update_knowledge(self, user_query: str, llm_response: str) -> bool:
         """
-        trmin i knowldg bas shold b pdatd basd on qry and rspons
+        Determine if knowledge base should be updated based on query and response
         
-        rgs
-            sr_qry sr's qry
-            llm_rspons 's rspons
+        Args:
+            user_query: User's query
+            llm_response: LLM's response
             
-        trns
-            oolan indicating whthr to pdat knowldg bas
+        Returns:
+            Boolean indicating whether to update knowledge base
         """
-        # hck i rspons contains actal inormation worth storing
-        actal_indicators  
-            "nivrsity", "collg", "school", "program", "tition", "scholarship",
-            "visa", "immigration", "work prmit", "rsidnc", "rqirmnts",
-            "admission", "application", "dadlin", "cost", "ranking"
+        # Check if response contains factual information worth storing
+        factual_indicators = [
+            "university", "college", "school", "program", "tuition", "scholarship",
+            "visa", "immigration", "work permit", "residence", "requirements",
+            "admission", "application", "deadline", "cost", "ranking"
         ]
         
-        rspons_lowr  llm_rspons.lowr()
-        has_actal_ino  any(indicator in rspons_lowr or indicator in actal_indicators)
+        response_lower = llm_response.lower()
+        has_factual_info = any(indicator in response_lower for indicator in factual_indicators)
         
-        # hck i rspons is sbstantial (not jst convrsational)
-        is_sbstantial  ln(llm_rspons.split())  
+        # Check if response is substantial (not just conversational)
+        is_substantial = len(llm_response.split()) > 20
         
-        # hck i rspons contains spciic dtails (nmbrs, nams, tc.)
-        has_spciics  any(char.isdigit() or char in llm_rspons) or 
-                       any(word.istitl() or word in llm_rspons.split())
+        # Check if response contains specific details (numbers, names, etc.)
+        has_specifics = any(char.isdigit() for char in llm_response) or \
+                       any(word.istitle() for word in llm_response.split())
         
-        rtrn has_actal_ino and is_sbstantial and has_spciics
+        return has_factual_info and is_substantial and has_specifics
     
-    d xtract_knowldg_chnks(sl, contnt str, chnk_typ str  "gnral") - istictstr, ny]]
+    def extract_knowledge_chunks(self, content: str, chunk_type: str = "general") -> List[Dict[str, Any]]:
         """
-        xtract knowldg chnks rom contnt
+        Extract knowledge chunks from content
         
-        rgs
-            contnt ontnt to xtract knowldg rom
-            chnk_typ yp o knowldg ("nivrsity", "visa", "gnral")
+        Args:
+            content: Content to extract knowledge from
+            chunk_type: Type of knowledge ("university", "visa", "general")
             
-        trns
-            ist o knowldg chnks
+        Returns:
+            List of knowledge chunks
         """
-        chnks  ]
+        chunks = []
         
-        # plit contnt into sntncs
-        sntncs  contnt.split('. ')
+        # Split content into sentences
+        sentences = content.split('. ')
         
-        # rop sntncs into chnks
-        chnk_siz    #  sntncs pr chnk
-        or i in rang(, ln(sntncs), chnk_siz)
-            chnk_sntncs  sntncsii + chnk_siz]
-            chnk_txt  '. '.join(chnk_sntncs).strip()
+        # Group sentences into chunks
+        chunk_size = 3  # 3 sentences per chunk
+        for i in range(0, len(sentences), chunk_size):
+            chunk_sentences = sentences[i:i + chunk_size]
+            chunk_text = '. '.join(chunk_sentences).strip()
             
-            i ln(chnk_txt)    # nly incld sbstantial chnks
-                chnk  {
-                    "contnt" chnk_txt,
-                    "mtadata" {
-                        "typ" chnk_typ,
-                        "cratd_at" dattim.now().isoormat(),
-                        "sorc" "llm_rspons",
-                        "chnk_id" "{chnk_typ}_{i}_{hash(chnk_txt) % }"
+            if len(chunk_text) > 50:  # Only include substantial chunks
+                chunk = {
+                    "content": chunk_text,
+                    "metadata": {
+                        "type": chunk_type,
+                        "created_at": datetime.now().isoformat(),
+                        "source": "llm_response",
+                        "chunk_id": f"{chunk_type}_{i}_{hash(chunk_text) % 10000}"
                     }
                 }
-                chnks.appnd(chnk)
+                chunks.append(chunk)
         
-        rtrn chnks
+        return chunks
     
-    d classiy_contnt_typ(sl, contnt str) - str
+    def classify_content_type(self, content: str) -> str:
         """
-        lassiy contnt typ basd on kywords
+        Classify content type based on keywords
         
-        rgs
-            contnt ontnt to classiy
+        Args:
+            content: Content to classify
             
-        trns
-            ontnt typ ("nivrsity", "visa", "gnral")
+        Returns:
+            Content type ("university", "visa", "general")
         """
-        contnt_lowr  contnt.lowr()
+        content_lower = content.lower()
         
-        nivrsity_kywords  
-            'nivrsity', 'collg', 'school', 'dcation', 'program', 'cors',
-            'tition', 'scholarship', 'admission', 'camps', 'aclty'
+        university_keywords = [
+            'university', 'college', 'school', 'education', 'program', 'course',
+            'tuition', 'scholarship', 'admission', 'campus', 'faculty'
         ]
         
-        visa_kywords  
-            'visa', 'immigration', 'work prmit', 'rsidnc', 'citiznship',
-            'passport', 'ntry', 'stay', 'prmit', 'application'
+        visa_keywords = [
+            'visa', 'immigration', 'work permit', 'residence', 'citizenship',
+            'passport', 'entry', 'stay', 'permit', 'application'
         ]
         
-        nivrsity_scor  sm( or kyword in nivrsity_kywords i kyword in contnt_lowr)
-        visa_scor  sm( or kyword in visa_kywords i kyword in contnt_lowr)
+        university_score = sum(1 for keyword in university_keywords if keyword in content_lower)
+        visa_score = sum(1 for keyword in visa_keywords if keyword in content_lower)
         
-        i nivrsity_scor  visa_scor and nivrsity_scor  
-            rtrn "nivrsity"
-        li visa_scor  nivrsity_scor and visa_scor  
-            rtrn "visa"
-        ls
-            rtrn "gnral"
+        if university_score > visa_score and university_score > 0:
+            return "university"
+        elif visa_score > university_score and visa_score > 0:
+            return "visa"
+        else:
+            return "general"
     
-    d pdat_knowldg_bas(sl, sr_qry str, llm_rspons str) - ictstr, ny]
+    def update_knowledge_base(self, user_query: str, llm_response: str) -> Dict[str, Any]:
         """
-        pdat knowldg bas with nw inormation
+        Update knowledge base with new information
         
-        rgs
-            sr_qry sr's qry
-            llm_rspons 's rspons
+        Args:
+            user_query: User's query
+            llm_response: LLM's response
             
-        trns
-            ictionary containing pdat rslts
+        Returns:
+            Dictionary containing update results
         """
-        try
-            # nitializ mbdding modl i ndd
-            sl._initializ_mbdding_modl()
-            i sl.mbdding_modl is on
-                rtrn {
-                    "sccss" als,
-                    "rason" "mbdding modl not availabl",
-                    "pdatd_chnks" 
+        try:
+            # Initialize embedding model if needed
+            self._initialize_embedding_model()
+            if self.embedding_model is None:
+                return {
+                    "success": False,
+                    "reason": "Embedding model not available",
+                    "updated_chunks": 0
                 }
             
-            # hck i shold pdat
-            i not sl.shold_pdat_knowldg(sr_qry, llm_rspons)
-                rtrn {
-                    "sccss" als,
-                    "rason" "ontnt not sitabl or knowldg bas pdat",
-                    "pdatd_chnks" 
+            # Check if should update
+            if not self.should_update_knowledge(user_query, llm_response):
+                return {
+                    "success": False,
+                    "reason": "Content not suitable for knowledge base update",
+                    "updated_chunks": 0
                 }
             
-            # lassiy contnt typ
-            contnt_typ  sl.classiy_contnt_typ(llm_rspons)
+            # Classify content type
+            content_type = self.classify_content_type(llm_response)
             
-            # xtract knowldg chnks
-            chnks  sl.xtract_knowldg_chnks(llm_rspons, contnt_typ)
+            # Extract knowledge chunks
+            chunks = self.extract_knowledge_chunks(llm_response, content_type)
             
-            i not chnks
-                rtrn {
-                    "sccss" als,
-                    "rason" "o sitabl chnks xtractd",
-                    "pdatd_chnks" 
+            if not chunks:
+                return {
+                    "success": False,
+                    "reason": "No suitable chunks extracted",
+                    "updated_chunks": 0
                 }
             
-            # pdat appropriat indx
-            i contnt_typ  "nivrsity"
-                pdatd  sl._pdat_nivrsity_indx(chnks)
-            li contnt_typ  "visa"
-                pdatd  sl._pdat_visa_indx(chnks)
-            ls
-                # or gnral contnt, try to pdat both i rlvant
-                ni_pdatd  sl._pdat_nivrsity_indx(chnks)
-                visa_pdatd  sl._pdat_visa_indx(chnks)
-                pdatd  ni_pdatd + visa_pdatd
+            # Update appropriate index
+            if content_type == "university":
+                updated = self._update_university_index(chunks)
+            elif content_type == "visa":
+                updated = self._update_visa_index(chunks)
+            else:
+                # For general content, try to update both if relevant
+                uni_updated = self._update_university_index(chunks)
+                visa_updated = self._update_visa_index(chunks)
+                updated = uni_updated + visa_updated
             
-            rtrn {
-                "sccss" r,
-                "contnt_typ" contnt_typ,
-                "pdatd_chnks" ln(chnks),
-                "chnks_addd" pdatd
+            return {
+                "success": True,
+                "content_type": content_type,
+                "updated_chunks": len(chunks),
+                "chunks_added": updated
             }
             
-        xcpt xcption as 
-            loggr.rror("❌ rror pdating knowldg bas {}")
-            rtrn {
-                "sccss" als,
-                "rror" str(),
-                "pdatd_chnks" 
+        except Exception as e:
+            logger.error(f"❌ Error updating knowledge base: {e}")
+            return {
+                "success": False,
+                "error": str(e),
+                "updated_chunks": 0
             }
     
-    d _pdat_nivrsity_indx(sl, chnks istictstr, ny]]) - int
+    def _update_university_index(self, chunks: List[Dict[str, Any]]) -> int:
         """
-        pdat nivrsity indx with nw chnks
+        Update university index with new chunks
         
-        rgs
-            chnks ist o knowldg chnks
+        Args:
+            chunks: List of knowledge chunks
             
-        trns
-            mbr o chnks addd
+        Returns:
+            Number of chunks added
         """
-        try
-            # oad xisting indx and mtadata
-            indx_path  os.path.join(sl.knowldg_bas_path, "aiss_nivrsitis_indx.indx")
-            mtadata_path  os.path.join(sl.knowldg_bas_path, "aiss_nivrsitis_indx_mtadata.pkl")
+        try:
+            # Load existing index and metadata
+            index_path = os.path.join(self.knowledge_base_path, "faiss_universities_index.index")
+            metadata_path = os.path.join(self.knowledge_base_path, "faiss_universities_index_metadata.pkl")
             
-            i not os.path.xists(indx_path) or not os.path.xists(mtadata_path)
-                loggr.warning("⚠️ nivrsity indx not ond, skipping pdat")
-                rtrn 
+            if not os.path.exists(index_path) or not os.path.exists(metadata_path):
+                logger.warning("⚠️ University index not found, skipping update")
+                return 0
             
-            # oad xisting data
-            indx  aiss.rad_indx(indx_path)
-            with opn(mtadata_path, 'rb') as 
-                mtadata  pickl.load()
+            # Load existing data
+            index = faiss.read_index(index_path)
+            with open(metadata_path, 'rb') as f:
+                metadata = pickle.load(f)
             
-            # rpar nw chnks
-            nw_contnts  chnk"contnt"] or chnk in chnks]
-            nw_mtadatas  chnk"mtadata"] or chnk in chnks]
+            # Prepare new chunks
+            new_contents = [chunk["content"] for chunk in chunks]
+            new_metadatas = [chunk["metadata"] for chunk in chunks]
             
-            # nrat mbddings
-            nw_mbddings  sl.mbdding_modl.ncod(nw_contnts)
-            nw_mbddings  nw_mbddings.astyp('loat')
+            # Generate embeddings
+            new_embeddings = self.embedding_model.encode(new_contents)
+            new_embeddings = new_embeddings.astype('float32')
             
-            # dd to indx
-            indx.add(nw_mbddings)
+            # Add to index
+            index.add(new_embeddings)
             
-            # pdat mtadata
-            mtadata'docmnts'].xtnd(nw_contnts)
-            mtadata'mtadata'].xtnd(nw_mtadatas)
+            # Update metadata
+            metadata['documents'].extend(new_contents)
+            metadata['metadata'].extend(new_metadatas)
             
-            # av pdatd indx and mtadata
-            aiss.writ_indx(indx, indx_path)
-            with opn(mtadata_path, 'wb') as 
-                pickl.dmp(mtadata, )
+            # Save updated index and metadata
+            faiss.write_index(index, index_path)
+            with open(metadata_path, 'wb') as f:
+                pickle.dump(metadata, f)
             
-            loggr.ino("✅ pdatd nivrsity indx with {ln(chnks)} nw chnks")
-            rtrn ln(chnks)
+            logger.info(f"✅ Updated university index with {len(chunks)} new chunks")
+            return len(chunks)
             
-        xcpt xcption as 
-            loggr.rror("❌ rror pdating nivrsity indx {}")
-            rtrn 
+        except Exception as e:
+            logger.error(f"❌ Error updating university index: {e}")
+            return 0
     
-    d _pdat_visa_indx(sl, chnks istictstr, ny]]) - int
+    def _update_visa_index(self, chunks: List[Dict[str, Any]]) -> int:
         """
-        pdat visa indx with nw chnks
+        Update visa index with new chunks
         
-        rgs
-            chnks ist o knowldg chnks
+        Args:
+            chunks: List of knowledge chunks
             
-        trns
-            mbr o chnks addd
+        Returns:
+            Number of chunks added
         """
-        try
-            # oad xisting indx and mtadata
-            indx_path  os.path.join(sl.knowldg_bas_path, "aiss_visas_indx.indx")
-            mtadata_path  os.path.join(sl.knowldg_bas_path, "aiss_visas_indx_mtadata.pkl")
+        try:
+            # Load existing index and metadata
+            index_path = os.path.join(self.knowledge_base_path, "faiss_visas_index.index")
+            metadata_path = os.path.join(self.knowledge_base_path, "faiss_visas_index_metadata.pkl")
             
-            i not os.path.xists(indx_path) or not os.path.xists(mtadata_path)
-                loggr.warning("⚠️ isa indx not ond, skipping pdat")
-                rtrn 
+            if not os.path.exists(index_path) or not os.path.exists(metadata_path):
+                logger.warning("⚠️ Visa index not found, skipping update")
+                return 0
             
-            # oad xisting data
-            indx  aiss.rad_indx(indx_path)
-            with opn(mtadata_path, 'rb') as 
-                mtadata  pickl.load()
+            # Load existing data
+            index = faiss.read_index(index_path)
+            with open(metadata_path, 'rb') as f:
+                metadata = pickle.load(f)
             
-            # rpar nw chnks
-            nw_contnts  chnk"contnt"] or chnk in chnks]
-            nw_mtadatas  chnk"mtadata"] or chnk in chnks]
+            # Prepare new chunks
+            new_contents = [chunk["content"] for chunk in chunks]
+            new_metadatas = [chunk["metadata"] for chunk in chunks]
             
-            # nrat mbddings
-            nw_mbddings  sl.mbdding_modl.ncod(nw_contnts)
-            nw_mbddings  nw_mbddings.astyp('loat')
+            # Generate embeddings
+            new_embeddings = self.embedding_model.encode(new_contents)
+            new_embeddings = new_embeddings.astype('float32')
             
-            # dd to indx
-            indx.add(nw_mbddings)
+            # Add to index
+            index.add(new_embeddings)
             
-            # pdat mtadata
-            mtadata'docmnts'].xtnd(nw_contnts)
-            mtadata'mtadata'].xtnd(nw_mtadatas)
+            # Update metadata
+            metadata['documents'].extend(new_contents)
+            metadata['metadata'].extend(new_metadatas)
             
-            # av pdatd indx and mtadata
-            aiss.writ_indx(indx, indx_path)
-            with opn(mtadata_path, 'wb') as 
-                pickl.dmp(mtadata, )
+            # Save updated index and metadata
+            faiss.write_index(index, index_path)
+            with open(metadata_path, 'wb') as f:
+                pickle.dump(metadata, f)
             
-            loggr.ino("✅ pdatd visa indx with {ln(chnks)} nw chnks")
-            rtrn ln(chnks)
+            logger.info(f"✅ Updated visa index with {len(chunks)} new chunks")
+            return len(chunks)
             
-        xcpt xcption as 
-            loggr.rror("❌ rror pdating visa indx {}")
-            rtrn 
+        except Exception as e:
+            logger.error(f"❌ Error updating visa index: {e}")
+            return 0
     
-    d gt_pdat_statistics(sl) - ictstr, ny]
+    def get_update_statistics(self) -> Dict[str, Any]:
         """
-        t statistics abot knowldg bas pdats
+        Get statistics about knowledge base updates
         
-        trns
-            ictionary containing pdat statistics
+        Returns:
+            Dictionary containing update statistics
         """
-        try
-            stats  {
-                "nivrsity_indx" {"availabl" als, "siz" },
-                "visa_indx" {"availabl" als, "siz" },
-                "last_pdatd" on
+        try:
+            stats = {
+                "university_index": {"available": False, "size": 0},
+                "visa_index": {"available": False, "size": 0},
+                "last_updated": None
             }
             
-            # hck nivrsity indx
-            ni_indx_path  os.path.join(sl.knowldg_bas_path, "aiss_nivrsitis_indx.indx")
-            i os.path.xists(ni_indx_path)
-                indx  aiss.rad_indx(ni_indx_path)
-                stats"nivrsity_indx"]  {
-                    "availabl" r,
-                    "siz" indx.ntotal
+            # Check university index
+            uni_index_path = os.path.join(self.knowledge_base_path, "faiss_universities_index.index")
+            if os.path.exists(uni_index_path):
+                index = faiss.read_index(uni_index_path)
+                stats["university_index"] = {
+                    "available": True,
+                    "size": index.ntotal
                 }
             
-            # hck visa indx
-            visa_indx_path  os.path.join(sl.knowldg_bas_path, "aiss_visas_indx.indx")
-            i os.path.xists(visa_indx_path)
-                indx  aiss.rad_indx(visa_indx_path)
-                stats"visa_indx"]  {
-                    "availabl" r,
-                    "siz" indx.ntotal
+            # Check visa index
+            visa_index_path = os.path.join(self.knowledge_base_path, "faiss_visas_index.index")
+            if os.path.exists(visa_index_path):
+                index = faiss.read_index(visa_index_path)
+                stats["visa_index"] = {
+                    "available": True,
+                    "size": index.ntotal
                 }
             
-            rtrn stats
+            return stats
             
-        xcpt xcption as 
-            loggr.rror("❌ rror gtting pdat statistics {}")
-            rtrn {"rror" str()}
+        except Exception as e:
+            logger.error(f"❌ Error getting update statistics: {e}")
+            return {"error": str(e)}
 
-# lobal knowldg pdatr instanc
-knowldg_pdatr  nowldgpdatr()
+# Global knowledge updater instance
+knowledge_updater = KnowledgeUpdater()

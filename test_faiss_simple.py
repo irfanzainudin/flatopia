@@ -1,116 +1,116 @@
 """
-impl tst or  knowldg bas intgration
+Simple test for FAISS knowledge base integration
 """
 import os
 import sys
 
-# dd th projct root to th ython path
-sys.path.appnd(os.path.dirnam(os.path.abspath(__il__)))
+# Add the project root to the Python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-d tst_aiss_import()
-    """st basic  import and loading"""
-    print(" sting  mport ")
+def test_faiss_import():
+    """Test basic FAISS import and loading"""
+    print("=== Testing FAISS Import ===")
     
-    try
-        import aiss
-        print("✅  importd sccsslly")
+    try:
+        import faiss
+        print("✅ FAISS imported successfully")
         
-        # st loading indx ils
-        ni_indx_path  "nowldgas/aiss_nivrsitis_indx.indx"
-        visa_indx_path  "nowldgas/aiss_visas_indx.indx"
+        # Test loading index files
+        uni_index_path = "KnowledgeBase/faiss_universities_index.index"
+        visa_index_path = "KnowledgeBase/faiss_visas_index.index"
         
-        i os.path.xists(ni_indx_path)
-            ni_indx  aiss.rad_indx(ni_indx_path)
-            print("✅ nivrsity indx loadd {ni_indx.ntotal} vctors")
-        ls
-            print("❌ nivrsity indx not ond")
+        if os.path.exists(uni_index_path):
+            uni_index = faiss.read_index(uni_index_path)
+            print(f"✅ University index loaded: {uni_index.ntotal} vectors")
+        else:
+            print("❌ University index not found")
             
-        i os.path.xists(visa_indx_path)
-            visa_indx  aiss.rad_indx(visa_indx_path)
-            print("✅ isa indx loadd {visa_indx.ntotal} vctors")
-        ls
-            print("❌ isa indx not ond")
+        if os.path.exists(visa_index_path):
+            visa_index = faiss.read_index(visa_index_path)
+            print(f"✅ Visa index loaded: {visa_index.ntotal} vectors")
+        else:
+            print("❌ Visa index not found")
             
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d tst_sntnc_transormr()
-    """st sntnc transormr import"""
-    print("n sting ntnc ransormr ")
+def test_sentence_transformer():
+    """Test sentence transformer import"""
+    print("\n=== Testing Sentence Transformer ===")
     
-    try
-        rom sntnc_transormrs import ntncransormr
-        print("✅ ntncransormr importd sccsslly")
+    try:
+        from sentence_transformers import SentenceTransformer
+        print("✅ SentenceTransformer imported successfully")
         
-        # st modl loading (withot actally loading)
-        print("✅ ntncransormr modl is availabl")
-        rtrn r
+        # Test model loading (without actually loading)
+        print("✅ SentenceTransformer module is available")
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d tst_basic_sarch()
-    """st basic  sarch nctionality"""
-    print("n sting asic  arch ")
+def test_basic_search():
+    """Test basic FAISS search functionality"""
+    print("\n=== Testing Basic FAISS Search ===")
     
-    try
-        import aiss
-        import nmpy as np
+    try:
+        import faiss
+        import numpy as np
         
-        # oad nivrsity indx
-        ni_indx  aiss.rad_indx("nowldgas/aiss_nivrsitis_indx.indx")
+        # Load university index
+        uni_index = faiss.read_index("KnowledgeBase/faiss_universities_index.index")
         
-        # rat a random qry vctor
-        qry_vctor  np.random.random((, )).astyp('loat')
+        # Create a random query vector
+        query_vector = np.random.random((1, 384)).astype('float32')
         
-        # rorm sarch
-        distancs, indics  ni_indx.sarch(qry_vctor, k)
+        # Perform search
+        distances, indices = uni_index.search(query_vector, k=3)
         
-        print("✅ arch sccssl {ln(indics])} rslts")
-        print("   ndics {indics]}")
-        print("   istancs {distancs]}")
+        print(f"✅ Search successful: {len(indices[0])} results")
+        print(f"   Indices: {indices[0]}")
+        print(f"   Distances: {distances[0]}")
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d main()
-    """n basic tsts"""
-    print("🚀 tarting asic  stsn")
+def main():
+    """Run basic tests"""
+    print("🚀 Starting Basic FAISS Tests\n")
     
-    tsts  
-        (" mport", tst_aiss_import),
-        ("ntnc ransormr", tst_sntnc_transormr),
-        ("asic arch", tst_basic_sarch),
+    tests = [
+        ("FAISS Import", test_faiss_import),
+        ("Sentence Transformer", test_sentence_transformer),
+        ("Basic Search", test_basic_search),
     ]
     
-    passd  
-    total  ln(tsts)
+    passed = 0
+    total = len(tests)
     
-    or tst_nam, tst_nc in tsts
-        print("n{''*}")
-        i tst_nc()
-            print("✅ {tst_nam} - ")
-            passd + 
-        ls
-            print("❌ {tst_nam} - ")
+    for test_name, test_func in tests:
+        print(f"\n{'='*50}")
+        if test_func():
+            print(f"✅ {test_name} - PASSED")
+            passed += 1
+        else:
+            print(f"❌ {test_name} - FAILED")
     
-    print("n{''*}")
-    print("📊 st slts {passd}/{total} tsts passd")
+    print(f"\n{'='*50}")
+    print(f"📊 Test Results: {passed}/{total} tests passed")
     
-    i passd  total
-        print("🎉 ll basic tsts passd!")
-    ls
-        print("⚠️ om tsts aild.")
+    if passed == total:
+        print("🎉 All basic tests passed!")
+    else:
+        print("⚠️ Some tests failed.")
     
-    rtrn passd  total
+    return passed == total
 
-i __nam__  "__main__"
-    sccss  main()
-    sys.xit( i sccss ls )
+if __name__ == "__main__":
+    success = main()
+    sys.exit(0 if success else 1)

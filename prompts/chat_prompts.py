@@ -1,19 +1,19 @@
 """
 聊天提示词模板
 """
-rom typing import ist, ict, ny
+from typing import List, Dict, Any
 
 
-class hatrompts
-    """聊天提示词anagmnt"""
+class ChatPrompts:
+    """聊天提示词Management"""
     
-    staticmthod
-    d gt_systm_prompt() - str
-        """获取ystm提示词"""
-        rtrn """# latopia - 您的智能问答助手
+    @staticmethod
+    def get_system_prompt() -> str:
+        """获取System提示词"""
+        return """# Flatopia - 您的智能Q问答A助手
 
 ## 角色定义
-你是latopia，一个基于roq 和技术的专业智能问答助手。你具备以下核心能力：
+你是Flatopia，一个基于Groq API和RAG技术的专业智能Q问答A助手。你具备以下核心能力：
 
 ### 🎯 核心特质
 - **专业权威**：基于最新技术知识提供准确、专业的回答
@@ -22,48 +22,48 @@ class hatrompts
 - **学习适应**：根据对话上下文调整回答风格和深度
 
 ### 🧠 知识体系
-- **技术专长**：/、软件开发、ystm架构、数据库设计
-- **业务理解**：产品anagmnt、用户体验、商业策略
-- **工具掌握**：编程语言、开发框架、云rvic、vps
+- **技术专长**：AI/ML、软件开发、System架构、数据库设计
+- **业务理解**：产品Management、用户体验、商业策略
+- **工具掌握**：编程语言、开发框架、云Service、DevOps
 
 ### 💬 交互原则
-. **准确性优先**：确保信息准确，不确定时明确说明
-. **结构化回答**：s清晰的逻辑结构和格式
-. **个性化rvic**：根据用户水平调整回答复杂度
-. **持续学习**：从每次对话中学习和改进
+1. **准确性优先**：确保信息准确，不确定时明确说明
+2. **结构化回答**：Use清晰的逻辑结构和格式
+3. **个性化Service**：根据用户水平调整回答复杂度
+4. **持续学习**：从每次对话中学习和改进
 
 ### 🎨 回答风格
-- smoji增强可读性
+- Useemoji增强可读性
 - 提供具体的代码示例和实现方案
 - 给出实用的建议和最佳实践
 - 主动提供相关资源和延伸阅读
 
 请根据用户的问题和上下文信息，提供最有价值的回答。记住：你的目标是成为用户最信赖的技术顾问。"""
 
-    staticmthod
-    d gt_rag_prompt(qry str, contxt str) - str
-        """获取提示词"""
-        rtrn """# 智能问答任务
+    @staticmethod
+    def get_rag_prompt(query: str, context: str) -> str:
+        """获取RAG提示词"""
+        return f"""# 智能Q问答A任务
 
 ## 📚 知识库上下文
 以下是与用户问题相关的知识库信息：
 
-{contxt}
+{context}
 
 ## ❓ 用户问题
-{qry}
+{query}
 
 ## 🎯 回答要求
 请基于上述知识库信息，为用户提供准确、全面的回答：
 
 ### 回答策略
-. **优先s知识库信息**：尽可能基于提供的上下文信息回答
-. **信息整合**：将多个相关片段整合成连贯的回答
-. **补充说明**：如果知识库信息不足，可以补充相关背景知识
-. **明确标注**：区分知识库信息和补充信息
+1. **优先Use知识库信息**：尽可能基于提供的上下文信息回答
+2. **信息整合**：将多个相关片段整合成连贯的回答
+3. **补充说明**：如果知识库信息不足，可以补充相关背景知识
+4. **明确标注**：区分知识库信息和补充信息
 
 ### 回答格式
-- s清晰的标题和结构
+- Use清晰的标题和结构
 - 提供具体的例子和代码（如适用）
 - 给出实用的建议和最佳实践
 - 主动提供相关资源和延伸阅读
@@ -75,220 +75,220 @@ class hatrompts
 
 请现在开始回答用户的问题。"""
 
-    staticmthod
-    d gt_convrsation_prompt(mssags istictstr, str]]) - str
+    @staticmethod
+    def get_conversation_prompt(messages: List[Dict[str, str]]) -> str:
         """获取对话提示词"""
-        prompt  "以下是对话历史：nn"
+        prompt = "以下是对话历史：\n\n"
         
-        or msg in mssags-]  # 只保留最近条消息
-            rol  "用户" i msg"rol"]  "sr" ls "助手"
-            prompt + "{rol} {msg'contnt']}nn"
+        for msg in messages[-6:]:  # 只保留最近6条消息
+            role = "用户" if msg["role"] == "user" else "助手"
+            prompt += f"{role}: {msg['content']}\n\n"
         
-        prompt + "请继续对话，保持自然流畅。"
-        rtrn prompt
+        prompt += "请继续对话，保持自然流畅。"
+        return prompt
 
-    staticmthod
-    d gt_analysis_prompt(qry str) - str
+    @staticmethod
+    def get_analysis_prompt(query: str) -> str:
         """获取分析提示词"""
-        rtrn """请分析以下问题，并提供详细的解答：
+        return f"""请分析以下问题，并提供详细的解答：
 
-问题：{qry}
+问题：{query}
 
 请从以下角度分析：
-. 问题类型和复杂度
-. 可能的解答方向
-. 需要的关键信息
-. 建议的后续问题
+1. 问题类型和复杂度
+2. 可能的解答方向
+3. 需要的关键信息
+4. 建议的后续问题
 
 请用中文回答。"""
 
-    staticmthod
-    d gt_smmary_prompt(txt str) - str
+    @staticmethod
+    def get_summary_prompt(text: str) -> str:
         """获取总结提示词"""
-        rtrn """请总结以下文本的主要内容：
+        return f"""请总结以下文本的主要内容：
 
-{txt}
+{text}
 
 请提供：
-. 核心要点（-个）
-. 关键信息
-. 简要总结
+1. 核心要点（3-5个）
+2. 关键信息
+3. 简要总结
 
 用中文回答。"""
 
-    staticmthod
-    d gt_crativ_prompt(topic str) - str
+    @staticmethod
+    def get_creative_prompt(topic: str) -> str:
         """获取创意提示词"""
-        rtrn """请围绕"{topic}"这个主题，提供创意性的内容：
+        return f"""请围绕"{topic}"这个主题，提供创意性的内容：
 
-. 独特的观点或角度
-. 实用的建议或方法
-. 有趣的例子或案例
-. 相关的思考或启发
+1. 独特的观点或角度
+2. 实用的建议或方法
+3. 有趣的例子或案例
+4. 相关的思考或启发
 
 请用中文回答，内容要有创意和实用性。"""
 
-    staticmthod
-    d gt_tchnical_prompt(qstion str, contxt str  "") - str
+    @staticmethod
+    def get_technical_prompt(question: str, context: str = "") -> str:
         """获取技术问题提示词"""
-        bas_prompt  """你是一个技术专家，请回答以下技术问题：
+        base_prompt = f"""你是一个技术专家，请回答以下技术问题：
 
-问题：{qstion}"""
+问题：{question}"""
 
-        i contxt
-            bas_prompt + "nn相关上下文：n{contxt}"
+        if context:
+            base_prompt += f"\n\n相关上下文：\n{context}"
 
-        bas_prompt + """
+        base_prompt += """
 
 请提供：
-. 技术原理说明
-. 具体实现方法
-. 代码示例（如适用）
-. 注意事项和最佳实践
-. 相关资源推荐
+1. 技术原理说明
+2. 具体实现方法
+3. 代码示例（如适用）
+4. 注意事项和最佳实践
+5. 相关资源推荐
 
 用中文回答，确保技术准确性。"""
 
-        rtrn bas_prompt
+        return base_prompt
 
-    staticmthod
-    d gt_bsinss_analysis_prompt(qstion str) - str
+    @staticmethod
+    def get_business_analysis_prompt(question: str) -> str:
         """获取商业分析提示词"""
-        rtrn """# 商业分析任务
+        return f"""# 商业分析任务
 
 ## 📊 分析问题
-{qstion}
+{question}
 
 ## 🎯 分析框架
 请从以下维度进行深入分析：
 
-### . 市场分析
+### 1. 市场分析
 - 市场规模和趋势
 - 竞争格局分析
 - 目标用户画像
 
-### . 商业模式
+### 2. 商业模式
 - 价值主张分析
 - 收入模式设计
 - 成本结构优化
 
-### . 战略建议
+### 3. 战略建议
 - 短期行动计划
 - 长期战略规划
 - 风险识别与应对
 
-### . 实施路径
+### 4. 实施路径
 - 关键里程碑
 - 资源需求评估
-- ccss指标设定
+- Success指标设定
 
 请提供具体、可执行的商业建议。"""
 
-    staticmthod
-    d gt_cod_rviw_prompt(cod str, langag str  "python") - str
+    @staticmethod
+    def get_code_review_prompt(code: str, language: str = "python") -> str:
         """获取代码审查提示词"""
-        rtrn """# 代码审查任务
+        return f"""# 代码审查任务
 
 ## 📝 代码内容
-```{langag}
-{cod}
+```{language}
+{code}
 ```
 
 ## 🔍 审查维度
 请从以下方面进行代码审查：
 
-### . 代码质量
+### 1. 代码质量
 - 代码结构和组织
 - 命名规范和可读性
 - 注释和文档完整性
 
-### . 性能优化
+### 2. 性能优化
 - 算法复杂度分析
-- 内存s优化
+- 内存Use优化
 - 执行效率提升
 
-### . 安全性
-- 输入验证和rrorrocssing
+### 3. 安全性
+- 输入验证和ErrorProcessing
 - 安全漏洞识别
 - 最佳实践遵循
 
-### . 改进建议
+### 4. 改进建议
 - 具体优化方案
 - 重构建议
 - 测试策略
 
 请提供详细的代码审查报告和改进建议。"""
 
-    staticmthod
-    d gt_larning_path_prompt(topic str, lvl str  "bginnr") - str
+    @staticmethod
+    def get_learning_path_prompt(topic: str, level: str = "beginner") -> str:
         """获取学习路径提示词"""
-        rtrn """# 学习路径规划
+        return f"""# 学习路径规划
 
 ## 🎓 学习主题
 {topic}
 
 ## 📚 学习目标
-为{lvl}水平的学习者制定个性化学习路径
+为{level}水平的学习者制定个性化学习路径
 
 ## 🗺️ 学习路径设计
 请提供：
 
-### . 学习阶段
-- 基础阶段（-周）
-- 进阶阶段（-周）
-- 实战阶段（-周）
+### 1. 学习阶段
+- 基础阶段（2-4周）
+- 进阶阶段（4-8周）
+- 实战阶段（4-6周）
 
-### . 学习资源
+### 2. 学习资源
 - 推荐书籍和文档
 - 在线课程和教程
 - 实践项目和练习
 
-### . 技能树
+### 3. 技能树
 - 核心技能清单
 - 技能依赖关系
 - 学习优先级
 
-### . 评估方式
+### 4. 评估方式
 - 阶段性测试
 - 项目作品集
 - 技能认证
 
 请制定详细、可执行的学习计划。"""
 
-    staticmthod
-    d gt_problm_solving_prompt(problm str, domain str  "技术") - str
+    @staticmethod
+    def get_problem_solving_prompt(problem: str, domain: str = "技术") -> str:
         """获取问题解决提示词"""
-        rtrn """# 问题解决分析
+        return f"""# 问题解决分析
 
 ## 🚨 问题描述
-{problm}
+{problem}
 
 ## 🎯 解决框架
 请按照以下步骤分析并解决问题：
 
-### . 问题分析
+### 1. 问题分析
 - 问题本质和根本原因
 - 影响范围和严重程度
 - 约束条件和限制因素
 
-### . 解决方案设计
+### 2. 解决方案设计
 - 多种解决方案对比
 - 技术可行性分析
 - 成本效益评估
 
-### . 实施计划
+### 3. 实施计划
 - 详细实施步骤
 - 时间节点和里程碑
 - 资源需求分配
 
-### . 风险控制
+### 4. 风险控制
 - 潜在风险识别
 - 风险缓解措施
 - 应急预案制定
 
-### . 效果评估
-- ccss指标定义
+### 5. 效果评估
+- Success指标定义
 - 监控和反馈机制
 - 持续改进策略
 
-请提供ystm性的问题解决方案。"""
+请提供System性的问题解决方案。"""

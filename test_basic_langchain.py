@@ -1,197 +1,197 @@
 """
-基础anghainst script
+基础LangChainTest script
 """
 import asyncio
 import sys
-rom pathlib import ath
+from pathlib import Path
 
-# 添加项目根目录到ython路径
-projct_root  ath(__il__).parnt
-sys.path.insrt(, str(projct_root))
+# 添加项目根目录到Python路径
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
 
-rom cor.simpl_langchain_conig import roq
-rom cor.conig import sttings
+from core.simple_langchain_config import GroqLLM
+from core.config import settings
 
 
-async d tst_basic_componnts()
+async def test_basic_components():
     """测试基础组件"""
-    print("🧪 测试基础anghain组件...")
+    print("🧪 测试基础LangChain组件...")
     
-    tsts  
-        ("roq ", tst_groq_llm),
-        ("onigrationoading", tst_conig_loading),
+    tests = [
+        ("Groq LLM", test_groq_llm),
+        ("ConfigurationLoading", test_config_loading),
     ]
     
-    rslts  ]
+    results = []
     
-    or tst_nam, tst_nc in tsts
-        try
-            print("n🔍 测试 {tst_nam}...")
-            rslt  await tst_nc()
-            rslts.appnd((tst_nam, rslt))
-            stats  "✅ 通过" i rslt ls "❌ aild"
-            print("{stats} {tst_nam}")
-        xcpt xcption as 
-            print("❌ {tst_nam} 测试异常 {}")
-            rslts.appnd((tst_nam, als))
+    for test_name, test_func in tests:
+        try:
+            print(f"\n🔍 测试 {test_name}...")
+            result = await test_func()
+            results.append((test_name, result))
+            status = "✅ 通过" if result else "❌ Failed"
+            print(f"{status} {test_name}")
+        except Exception as e:
+            print(f"❌ {test_name} 测试异常: {e}")
+            results.append((test_name, False))
     
-    rtrn rslts
+    return results
 
 
-async d tst_groq_llm()
-    """测试roq """
-    try
-        # 检查密钥
-        i not sttings.groq_api_ky or sttings.groq_api_ky  "yor_groq_api_ky_hr"
-            print("   跳过测试：未设置密钥")
-            rtrn als
+async def test_groq_llm():
+    """测试Groq LLM"""
+    try:
+        # 检查API密钥
+        if not settings.groq_api_key or settings.groq_api_key == "your_groq_api_key_here":
+            print("   跳过LLM测试：未设置API密钥")
+            return False
         
-        # 创建实例
-        llm  roq(
-            groq_api_kysttings.groq_api_ky,
-            modl_nam"llama-.-b-instant"
+        # 创建LLM实例
+        llm = GroqLLM(
+            groq_api_key=settings.groq_api_key,
+            model_name="llama-3.1-8b-instant"
         )
         
         # 测试简单调用
-        rspons  llm("你好，请简单介绍一下自己")
+        response = llm("你好，请简单介绍一下自己")
         
         # 检查响应
-        sccss  ln(rspons)   and "rror" not in rspons
+        success = len(response) > 0 and "Error:" not in response
         
-        i sccss
-            print("   响应 {rspons]}...")
-        ls
-            print("   响应 {rspons}")
+        if success:
+            print(f"   LLM响应: {response[:100]}...")
+        else:
+            print(f"   LLM响应: {response}")
         
-        rtrn sccss
+        return success
         
-    xcpt xcption as 
-        print("   测试aild {}")
-        rtrn als
+    except Exception as e:
+        print(f"   LLM测试Failed: {e}")
+        return False
 
 
-async d tst_conig_loading()
-    """测试onigrationoading"""
-    try
-        # 检查onigration是否正确oading
-        conig_loadd  (
-            hasattr(sttings, 'groq_api_ky') and
-            hasattr(sttings, 'dalt_modl') and
-            hasattr(sttings, 'chnk_siz') and
-            hasattr(sttings, 'chnk_ovrlap')
+async def test_config_loading():
+    """测试ConfigurationLoading"""
+    try:
+        # 检查Configuration是否正确Loading
+        config_loaded = (
+            hasattr(settings, 'groq_api_key') and
+            hasattr(settings, 'default_model') and
+            hasattr(settings, 'chunk_size') and
+            hasattr(settings, 'chunk_overlap')
         )
         
-        i conig_loadd
-            print("   密钥 {'已设置' i sttings.groq_api_ky ! 'yor_groq_api_ky_hr' ls '未设置'}")
-            print("   默认odl {sttings.dalt_modl}")
-            print("   块大小 {sttings.chnk_siz}")
-            print("   块重叠 {sttings.chnk_ovrlap}")
+        if config_loaded:
+            print(f"   API密钥: {'已设置' if settings.groq_api_key != 'your_groq_api_key_here' else '未设置'}")
+            print(f"   默认Model: {settings.default_model}")
+            print(f"   块大小: {settings.chunk_size}")
+            print(f"   块重叠: {settings.chunk_overlap}")
         
-        rtrn conig_loadd
+        return config_loaded
         
-    xcpt xcption as 
-        print("   onigrationoadingaild {}")
-        rtrn als
+    except Exception as e:
+        print(f"   ConfigurationLoadingFailed: {e}")
+        return False
 
 
-async d tst_simpl_chat()
+async def test_simple_chat():
     """测试简单聊天"""
-    print("n💬 测试简单聊天...")
+    print("\n💬 测试简单聊天...")
     
-    try
-        # 检查密钥
-        i not sttings.groq_api_ky or sttings.groq_api_ky  "yor_groq_api_ky_hr"
-            print("   跳过聊天测试：未设置密钥")
-            rtrn als
+    try:
+        # 检查API密钥
+        if not settings.groq_api_key or settings.groq_api_key == "your_groq_api_key_here":
+            print("   跳过聊天测试：未设置API密钥")
+            return False
         
-        # 创建实例
-        llm  roq(
-            groq_api_kysttings.groq_api_ky,
-            modl_nam"llama-.-b-instant"
+        # 创建LLM实例
+        llm = GroqLLM(
+            groq_api_key=settings.groq_api_key,
+            model_name="llama-3.1-8b-instant"
         )
         
         # 测试不同的问题
-        tst_qstions  
+        test_questions = [
             "你好，请介绍一下自己",
             "什么是人工智能？",
-            "请解释一下技术"
+            "请解释一下RAG技术"
         ]
         
-        rslts  ]
+        results = []
         
-        or i, qstion in nmrat(tst_qstions, )
-            try
-                print("   问题 {i} {qstion}")
-                rspons  llm(qstion)
+        for i, question in enumerate(test_questions, 1):
+            try:
+                print(f"   问题 {i}: {question}")
+                response = llm(question)
                 
-                sccss  ln(rspons)   and "rror" not in rspons
-                rslts.appnd(sccss)
+                success = len(response) > 0 and "Error:" not in response
+                results.append(success)
                 
-                i sccss
-                    print("   回答 {rspons]}...")
-                ls
-                    print("   rror {rspons}")
+                if success:
+                    print(f"   回答: {response[:100]}...")
+                else:
+                    print(f"   Error: {response}")
                 
-            xcpt xcption as 
-                print("   问题 {i} aild {}")
-                rslts.appnd(als)
+            except Exception as e:
+                print(f"   问题 {i} Failed: {e}")
+                results.append(False)
         
-        rtrn all(rslts)
+        return all(results)
         
-    xcpt xcption as 
-        print("   聊天测试aild {}")
-        rtrn als
+    except Exception as e:
+        print(f"   聊天测试Failed: {e}")
+        return False
 
 
-async d rn_all_tsts()
+async def run_all_tests():
     """运行所有测试"""
-    print("" * )
-    print("🧪 开始运行基础anghain测试")
-    print("" * )
+    print("=" * 60)
+    print("🧪 开始运行基础LangChain测试")
+    print("=" * 60)
     
     # 测试基础组件
-    componnt_rslts  await tst_basic_componnts()
+    component_results = await test_basic_components()
     
     # 测试简单聊天
-    chat_rslt  await tst_simpl_chat()
+    chat_result = await test_simple_chat()
     
     # 汇总结果
-    all_rslts  componnt_rslts + ("简单聊天", chat_rslt)]
+    all_results = component_results + [("简单聊天", chat_result)]
     
     # 显示测试结果
-    print("n" + "" * )
+    print("\n" + "=" * 60)
     print("📊 测试结果汇总")
-    print("" * )
+    print("=" * 60)
     
-    passd  
-    or tst_nam, rslt in all_rslts
-        stats  "✅ 通过" i rslt ls "❌ aild"
-        print("{tst_nam} {stats}")
-        i rslt
-            passd + 
+    passed = 0
+    for test_name, result in all_results:
+        status = "✅ 通过" if result else "❌ Failed"
+        print(f"{test_name}: {status}")
+        if result:
+            passed += 1
     
-    print("n总计 {passd}/{ln(all_rslts)} 个测试通过")
+    print(f"\n总计: {passed}/{len(all_results)} 个测试通过")
     
-    i passd  ln(all_rslts)
-        print("🎉 所有测试通过！基础anghainystm运行正常。")
-    ls
-        print("⚠️ 部分测试aild，请检查onigration和依赖。")
+    if passed == len(all_results):
+        print("🎉 所有测试通过！基础LangChainSystem运行正常。")
+    else:
+        print("⚠️ 部分测试Failed，请检查Configuration和依赖。")
     
-    rtrn passd  ln(all_rslts)
+    return passed == len(all_results)
 
 
-d main()
+def main():
     """主函数"""
-    try
-        sccss  asyncio.rn(rn_all_tsts())
-        sys.xit( i sccss ls )
-    xcpt yboardntrrpt
-        print("nn⏹️ 测试被用户中断")
-        sys.xit()
-    xcpt xcption as 
-        print("n❌ 测试运行异常 {}")
-        sys.xit()
+    try:
+        success = asyncio.run(run_all_tests())
+        sys.exit(0 if success else 1)
+    except KeyboardInterrupt:
+        print("\n\n⏹️ 测试被用户中断")
+        sys.exit(1)
+    except Exception as e:
+        print(f"\n❌ 测试运行异常: {e}")
+        sys.exit(1)
 
 
-i __nam__  "__main__"
+if __name__ == "__main__":
     main()

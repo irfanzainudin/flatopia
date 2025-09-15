@@ -1,161 +1,161 @@
 """
-inimal tst or  knowldg bas intgration
+Minimal test for FAISS knowledge base integration
 """
 import os
 import sys
-import pickl
+import pickle
 
-# dd th projct root to th ython path
-sys.path.appnd(os.path.dirnam(os.path.abspath(__il__)))
+# Add the project root to the Python path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-d tst_il_strctr()
-    """st that all rqird ils xist"""
-    print(" sting il trctr ")
+def test_file_structure():
+    """Test that all required files exist"""
+    print("=== Testing File Structure ===")
     
-    rqird_ils  
-        "nowldgas/aiss_nivrsitis_indx.indx",
-        "nowldgas/aiss_nivrsitis_indx_mtadata.pkl",
-        "nowldgas/aiss_visas_indx.indx",
-        "nowldgas/aiss_visas_indx_mtadata.pkl",
-        "cor/aiss_knowldg_bas.py",
-        "cor/smart_sarch.py",
-        "cor/knowldg_pdatr.py"
+    required_files = [
+        "KnowledgeBase/faiss_universities_index.index",
+        "KnowledgeBase/faiss_universities_index_metadata.pkl",
+        "KnowledgeBase/faiss_visas_index.index",
+        "KnowledgeBase/faiss_visas_index_metadata.pkl",
+        "core/faiss_knowledge_base.py",
+        "core/smart_search.py",
+        "core/knowledge_updater.py"
     ]
     
-    all_xist  r
-    or il_path in rqird_ils
-        i os.path.xists(il_path)
-            print("✅ {il_path}")
-        ls
-            print("❌ {il_path} - ")
-            all_xist  als
+    all_exist = True
+    for file_path in required_files:
+        if os.path.exists(file_path):
+            print(f"✅ {file_path}")
+        else:
+            print(f"❌ {file_path} - MISSING")
+            all_exist = False
     
-    rtrn all_xist
+    return all_exist
 
-d tst_mtadata_strctr()
-    """st mtadata strctr"""
-    print("n sting tadata trctr ")
+def test_metadata_structure():
+    """Test metadata structure"""
+    print("\n=== Testing Metadata Structure ===")
     
-    try
-        # st nivrsity mtadata
-        with opn("nowldgas/aiss_nivrsitis_indx_mtadata.pkl", 'rb') as 
-            ni_mtadata  pickl.load()
+    try:
+        # Test university metadata
+        with open("KnowledgeBase/faiss_universities_index_metadata.pkl", 'rb') as f:
+            uni_metadata = pickle.load(f)
         
-        rqird_kys  'docmnts', 'mtadata', 'mbdding_modl']
-        or ky in rqird_kys
-            i ky in ni_mtadata
-                print("✅ nivrsity mtadata has '{ky}'")
-            ls
-                print("❌ nivrsity mtadata missing '{ky}'")
-                rtrn als
+        required_keys = ['documents', 'metadata', 'embedding_model']
+        for key in required_keys:
+            if key in uni_metadata:
+                print(f"✅ University metadata has '{key}'")
+            else:
+                print(f"❌ University metadata missing '{key}'")
+                return False
         
-        # st visa mtadata
-        with opn("nowldgas/aiss_visas_indx_mtadata.pkl", 'rb') as 
-            visa_mtadata  pickl.load()
+        # Test visa metadata
+        with open("KnowledgeBase/faiss_visas_index_metadata.pkl", 'rb') as f:
+            visa_metadata = pickle.load(f)
         
-        or ky in rqird_kys
-            i ky in visa_mtadata
-                print("✅ isa mtadata has '{ky}'")
-            ls
-                print("❌ isa mtadata missing '{ky}'")
-                rtrn als
+        for key in required_keys:
+            if key in visa_metadata:
+                print(f"✅ Visa metadata has '{key}'")
+            else:
+                print(f"❌ Visa metadata missing '{key}'")
+                return False
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d tst_aiss_indx_intgrity()
-    """st  indx intgrity"""
-    print("n sting  ndx ntgrity ")
+def test_faiss_index_integrity():
+    """Test FAISS index integrity"""
+    print("\n=== Testing FAISS Index Integrity ===")
     
-    try
-        import aiss
-        import nmpy as np
+    try:
+        import faiss
+        import numpy as np
         
-        # st nivrsity indx
-        ni_indx  aiss.rad_indx("nowldgas/aiss_nivrsitis_indx.indx")
-        print("✅ nivrsity indx {ni_indx.ntotal} vctors, {ni_indx.d} dimnsions")
+        # Test university index
+        uni_index = faiss.read_index("KnowledgeBase/faiss_universities_index.index")
+        print(f"✅ University index: {uni_index.ntotal} vectors, {uni_index.d} dimensions")
         
-        # st visa indx
-        visa_indx  aiss.rad_indx("nowldgas/aiss_visas_indx.indx")
-        print("✅ isa indx {visa_indx.ntotal} vctors, {visa_indx.d} dimnsions")
+        # Test visa index
+        visa_index = faiss.read_index("KnowledgeBase/faiss_visas_index.index")
+        print(f"✅ Visa index: {visa_index.ntotal} vectors, {visa_index.d} dimensions")
         
-        # st sarch nctionality
-        qry_vctor  np.random.random((, ni_indx.d)).astyp('loat')
-        distancs, indics  ni_indx.sarch(qry_vctor, k)
-        print("✅ nivrsity sarch tst {ln(indics])} rslts")
+        # Test search functionality
+        query_vector = np.random.random((1, uni_index.d)).astype('float32')
+        distances, indices = uni_index.search(query_vector, k=1)
+        print(f"✅ University search test: {len(indices[0])} results")
         
-        qry_vctor  np.random.random((, visa_indx.d)).astyp('loat')
-        distancs, indics  visa_indx.sarch(qry_vctor, k)
-        print("✅ isa sarch tst {ln(indics])} rslts")
+        query_vector = np.random.random((1, visa_index.d)).astype('float32')
+        distances, indices = visa_index.search(query_vector, k=1)
+        print(f"✅ Visa search test: {len(indices[0])} results")
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d tst_import_modls()
-    """st importing modls withot instantiation"""
-    print("n sting odl mports ")
+def test_import_modules():
+    """Test importing modules without instantiation"""
+    print("\n=== Testing Module Imports ===")
     
-    try
-        # st importing withot instantiation
-        import cor.aiss_knowldg_bas
-        print("✅ aiss_knowldg_bas modl importd")
+    try:
+        # Test importing without instantiation
+        import core.faiss_knowledge_base
+        print("✅ faiss_knowledge_base module imported")
         
-        import cor.smart_sarch
-        print("✅ smart_sarch modl importd")
+        import core.smart_search
+        print("✅ smart_search module imported")
         
-        import cor.knowldg_pdatr
-        print("✅ knowldg_pdatr modl importd")
+        import core.knowledge_updater
+        print("✅ knowledge_updater module imported")
         
-        rtrn r
+        return True
         
-    xcpt xcption as 
-        print("❌ rror {}")
-        rtrn als
+    except Exception as e:
+        print(f"❌ Error: {e}")
+        return False
 
-d main()
-    """n minimal tsts"""
-    print("🚀 tarting inimal  stsn")
+def main():
+    """Run minimal tests"""
+    print("🚀 Starting Minimal FAISS Tests\n")
     
-    tsts  
-        ("il trctr", tst_il_strctr),
-        ("tadata trctr", tst_mtadata_strctr),
-        (" ndx ntgrity", tst_aiss_indx_intgrity),
-        ("odl mports", tst_import_modls),
+    tests = [
+        ("File Structure", test_file_structure),
+        ("Metadata Structure", test_metadata_structure),
+        ("FAISS Index Integrity", test_faiss_index_integrity),
+        ("Module Imports", test_import_modules),
     ]
     
-    passd  
-    total  ln(tsts)
+    passed = 0
+    total = len(tests)
     
-    or tst_nam, tst_nc in tsts
-        print("n{''*}")
-        i tst_nc()
-            print("✅ {tst_nam} - ")
-            passd + 
-        ls
-            print("❌ {tst_nam} - ")
+    for test_name, test_func in tests:
+        print(f"\n{'='*50}")
+        if test_func():
+            print(f"✅ {test_name} - PASSED")
+            passed += 1
+        else:
+            print(f"❌ {test_name} - FAILED")
     
-    print("n{''*}")
-    print("📊 st slts {passd}/{total} tsts passd")
+    print(f"\n{'='*50}")
+    print(f"📊 Test Results: {passed}/{total} tests passed")
     
-    i passd  total
-        print("🎉 ll minimal tsts passd!  intgration is rady.")
-        print("n📋 ntgration mmary")
-        print("   ✅  indics loadd sccsslly")
-        print("   ✅ tadata strctr is corrct")
-        print("   ✅ arch nctionality works")
-        print("   ✅ ll modls can b importd")
-        print("n🚀 ady to s  knowldg bas intgration!")
-    ls
-        print("⚠️ om tsts aild.")
+    if passed == total:
+        print("🎉 All minimal tests passed! FAISS integration is ready.")
+        print("\n📋 Integration Summary:")
+        print("   ✅ FAISS indices loaded successfully")
+        print("   ✅ Metadata structure is correct")
+        print("   ✅ Search functionality works")
+        print("   ✅ All modules can be imported")
+        print("\n🚀 Ready to use FAISS knowledge base integration!")
+    else:
+        print("⚠️ Some tests failed.")
     
-    rtrn passd  total
+    return passed == total
 
-i __nam__  "__main__"
-    sccss  main()
-    sys.xit( i sccss ls )
+if __name__ == "__main__":
+    success = main()
+    sys.exit(0 if success else 1)

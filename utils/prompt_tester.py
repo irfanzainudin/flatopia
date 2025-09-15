@@ -1,242 +1,242 @@
 """
-rompt测试和验证工具
+Prompt测试和验证工具
 """
 import asyncio
 import json
-rom typing import ist, ict, ny, ptional
-rom dattim import dattim
-rom ..cor.groq_clint import groq_clint
-rom ..prompts.chat_prompts import hatrompts
+from typing import List, Dict, Any, Optional
+from datetime import datetime
+from ..core.groq_client import groq_client
+from ..prompts.chat_prompts import ChatPrompts
 
 
-class romptstr
-    """rompt测试器"""
+class PromptTester:
+    """Prompt测试器"""
     
-    d __init__(sl)
-        sl.tst_rslts  ]
-        sl.prompts  hatrompts()
+    def __init__(self):
+        self.test_results = []
+        self.prompts = ChatPrompts()
     
-    async d tst_systm_prompt(sl) - ictstr, ny]
-        """测试ystmprompt"""
-        print("🧪 测试ystmprompt...")
+    async def test_system_prompt(self) -> Dict[str, Any]:
+        """测试Systemprompt"""
+        print("🧪 测试Systemprompt...")
         
-        tst_qstions  
+        test_questions = [
             "你好，请介绍一下自己",
-            "什么是技术？",
-            "如何优化ython代码性能？",
+            "什么是RAG技术？",
+            "如何优化Python代码性能？",
             "请帮我分析一个商业问题"
         ]
         
-        rslts  ]
-        or qstion in tst_qstions
-            try
-                mssags  
-                    {"rol" "systm", "contnt" sl.prompts.gt_systm_prompt()},
-                    {"rol" "sr", "contnt" qstion}
+        results = []
+        for question in test_questions:
+            try:
+                messages = [
+                    {"role": "system", "content": self.prompts.get_system_prompt()},
+                    {"role": "user", "content": question}
                 ]
                 
-                rspons  await groq_clint.chat_compltion(mssags)
+                response = await groq_client.chat_completion(messages)
                 
-                rslts.appnd({
-                    "qstion" qstion,
-                    "rspons" rspons,
-                    "sccss" r,
-                    "timstamp" dattim.now().isoormat()
+                results.append({
+                    "question": question,
+                    "response": response,
+                    "success": True,
+                    "timestamp": datetime.now().isoformat()
                 })
                 
-            xcpt xcption as 
-                rslts.appnd({
-                    "qstion" qstion,
-                    "rror" str(),
-                    "sccss" als,
-                    "timstamp" dattim.now().isoormat()
+            except Exception as e:
+                results.append({
+                    "question": question,
+                    "error": str(e),
+                    "success": False,
+                    "timestamp": datetime.now().isoformat()
                 })
         
-        rtrn {
-            "tst_typ" "systm_prompt",
-            "total_tsts" ln(tst_qstions),
-            "sccssl_tsts" ln(r or r in rslts i r"sccss"]]),
-            "rslts" rslts
+        return {
+            "test_type": "system_prompt",
+            "total_tests": len(test_questions),
+            "successful_tests": len([r for r in results if r["success"]]),
+            "results": results
         }
     
-    async d tst_rag_prompt(sl) - ictstr, ny]
-        """测试 prompt"""
-        print("🧪 测试 prompt...")
+    async def test_rag_prompt(self) -> Dict[str, Any]:
+        """测试RAG prompt"""
+        print("🧪 测试RAG prompt...")
         
-        tst_cass  
+        test_cases = [
             {
-                "qry" "什么是技术？",
-                "contxt" "（检索增强生成）是一种结合了信息检索和文本生成的技术。它首先从知识库中检索与用户问题相关的文档片段，然后将这些信息作为上下文提供给语言odl，生成更准确的回答。"
+                "query": "什么是RAG技术？",
+                "context": "RAG（检索增强生成）是一种结合了信息检索和文本生成的技术。它首先从知识库中检索与用户问题相关的文档片段，然后将这些信息作为上下文提供给语言Model，生成更准确的回答。"
             },
             {
-                "qry" "如何优化问答ystm？",
-                "contxt" "问答ystm优化可以从多个方面入手：. 改进检索算法，提高相关文档的召回率；. 优化prompt设计，引导odl生成更好的回答；. s更高质量的嵌入odl；. 增加知识库的覆盖度和准确性。"
+                "query": "如何优化Q问答ASystem？",
+                "context": "Q问答ASystem优化可以从多个方面入手：1. 改进检索算法，提高相关文档的召回率；2. 优化prompt设计，引导Model生成更好的回答；3. Use更高质量的嵌入Model；4. 增加知识库的覆盖度和准确性。"
             }
         ]
         
-        rslts  ]
-        or cas in tst_cass
-            try
-                rag_prompt  sl.prompts.gt_rag_prompt(cas"qry"], cas"contxt"])
-                mssags  
-                    {"rol" "systm", "contnt" sl.prompts.gt_systm_prompt()},
-                    {"rol" "sr", "contnt" rag_prompt}
+        results = []
+        for case in test_cases:
+            try:
+                rag_prompt = self.prompts.get_rag_prompt(case["query"], case["context"])
+                messages = [
+                    {"role": "system", "content": self.prompts.get_system_prompt()},
+                    {"role": "user", "content": rag_prompt}
                 ]
                 
-                rspons  await groq_clint.chat_compltion(mssags)
+                response = await groq_client.chat_completion(messages)
                 
-                rslts.appnd({
-                    "qry" cas"qry"],
-                    "contxt" cas"contxt"],
-                    "rspons" rspons,
-                    "sccss" r,
-                    "timstamp" dattim.now().isoormat()
+                results.append({
+                    "query": case["query"],
+                    "context": case["context"],
+                    "response": response,
+                    "success": True,
+                    "timestamp": datetime.now().isoformat()
                 })
                 
-            xcpt xcption as 
-                rslts.appnd({
-                    "qry" cas"qry"],
-                    "rror" str(),
-                    "sccss" als,
-                    "timstamp" dattim.now().isoormat()
+            except Exception as e:
+                results.append({
+                    "query": case["query"],
+                    "error": str(e),
+                    "success": False,
+                    "timestamp": datetime.now().isoformat()
                 })
         
-        rtrn {
-            "tst_typ" "rag_prompt",
-            "total_tsts" ln(tst_cass),
-            "sccssl_tsts" ln(r or r in rslts i r"sccss"]]),
-            "rslts" rslts
+        return {
+            "test_type": "rag_prompt",
+            "total_tests": len(test_cases),
+            "successful_tests": len([r for r in results if r["success"]]),
+            "results": results
         }
     
-    async d tst_spcializd_prompts(sl) - ictstr, ny]
+    async def test_specialized_prompts(self) -> Dict[str, Any]:
         """测试专业prompt"""
         print("🧪 测试专业prompt...")
         
-        tst_cass  
+        test_cases = [
             {
-                "typ" "bsinss_analysis",
-                "qstion" "如何分析一个aa产品的市场机会？",
-                "prompt_nc" sl.prompts.gt_bsinss_analysis_prompt
+                "type": "business_analysis",
+                "question": "如何分析一个SaaS产品的市场机会？",
+                "prompt_func": self.prompts.get_business_analysis_prompt
             },
             {
-                "typ" "cod_rviw",
-                "qstion" "请审查这段ython代码",
-                "cod" "d ibonacci(n)n    i n  n        rtrn nn    rtrn ibonacci(n-) + ibonacci(n-)",
-                "prompt_nc" lambda q sl.prompts.gt_cod_rviw_prompt(q, "python")
+                "type": "code_review",
+                "question": "请审查这段Python代码",
+                "code": "def fibonacci(n):\n    if n <= 1:\n        return n\n    return fibonacci(n-1) + fibonacci(n-2)",
+                "prompt_func": lambda q: self.prompts.get_code_review_prompt(q, "python")
             },
             {
-                "typ" "larning_path",
-                "qstion" "机器学习",
-                "lvl" "bginnr",
-                "prompt_nc" lambda q sl.prompts.gt_larning_path_prompt(q, "bginnr")
+                "type": "learning_path",
+                "question": "机器学习",
+                "level": "beginner",
+                "prompt_func": lambda q: self.prompts.get_learning_path_prompt(q, "beginner")
             }
         ]
         
-        rslts  ]
-        or cas in tst_cass
-            try
-                i cas"typ"]  "cod_rviw"
-                    prompt  cas"prompt_nc"](cas"cod"])
-                li cas"typ"]  "larning_path"
-                    prompt  cas"prompt_nc"](cas"qstion"])
-                ls
-                    prompt  cas"prompt_nc"](cas"qstion"])
+        results = []
+        for case in test_cases:
+            try:
+                if case["type"] == "code_review":
+                    prompt = case["prompt_func"](case["code"])
+                elif case["type"] == "learning_path":
+                    prompt = case["prompt_func"](case["question"])
+                else:
+                    prompt = case["prompt_func"](case["question"])
                 
-                mssags  
-                    {"rol" "systm", "contnt" sl.prompts.gt_systm_prompt()},
-                    {"rol" "sr", "contnt" prompt}
+                messages = [
+                    {"role": "system", "content": self.prompts.get_system_prompt()},
+                    {"role": "user", "content": prompt}
                 ]
                 
-                rspons  await groq_clint.chat_compltion(mssags)
+                response = await groq_client.chat_completion(messages)
                 
-                rslts.appnd({
-                    "typ" cas"typ"],
-                    "qstion" cas"qstion"],
-                    "rspons" rspons,
-                    "sccss" r,
-                    "timstamp" dattim.now().isoormat()
+                results.append({
+                    "type": case["type"],
+                    "question": case["question"],
+                    "response": response,
+                    "success": True,
+                    "timestamp": datetime.now().isoformat()
                 })
                 
-            xcpt xcption as 
-                rslts.appnd({
-                    "typ" cas"typ"],
-                    "qstion" cas"qstion"],
-                    "rror" str(),
-                    "sccss" als,
-                    "timstamp" dattim.now().isoormat()
+            except Exception as e:
+                results.append({
+                    "type": case["type"],
+                    "question": case["question"],
+                    "error": str(e),
+                    "success": False,
+                    "timestamp": datetime.now().isoformat()
                 })
         
-        rtrn {
-            "tst_typ" "spcializd_prompts",
-            "total_tsts" ln(tst_cass),
-            "sccssl_tsts" ln(r or r in rslts i r"sccss"]]),
-            "rslts" rslts
+        return {
+            "test_type": "specialized_prompts",
+            "total_tests": len(test_cases),
+            "successful_tests": len([r for r in results if r["success"]]),
+            "results": results
         }
     
-    async d rn_all_tsts(sl) - ictstr, ny]
+    async def run_all_tests(self) -> Dict[str, Any]:
         """运行所有测试"""
-        print("🚀 开始运行rompt测试...")
+        print("🚀 开始运行Prompt测试...")
         
-        tsts  
-            sl.tst_systm_prompt(),
-            sl.tst_rag_prompt(),
-            sl.tst_spcializd_prompts()
+        tests = [
+            self.test_system_prompt(),
+            self.test_rag_prompt(),
+            self.test_specialized_prompts()
         ]
         
-        rslts  await asyncio.gathr(*tsts, rtrn_xcptionsr)
+        results = await asyncio.gather(*tests, return_exceptions=True)
         
-        # rocssing异常结果
-        procssd_rslts  ]
-        or i, rslt in nmrat(rslts)
-            i isinstanc(rslt, xcption)
-                procssd_rslts.appnd({
-                    "tst_typ" "tst_{i}",
-                    "rror" str(rslt),
-                    "sccss" als
+        # Processing异常结果
+        processed_results = []
+        for i, result in enumerate(results):
+            if isinstance(result, Exception):
+                processed_results.append({
+                    "test_type": f"test_{i}",
+                    "error": str(result),
+                    "success": False
                 })
-            ls
-                procssd_rslts.appnd(rslt)
+            else:
+                processed_results.append(result)
         
         # 计算总体统计
-        total_tsts  sm(r.gt("total_tsts", ) or r in procssd_rslts)
-        sccssl_tsts  sm(r.gt("sccssl_tsts", ) or r in procssd_rslts)
+        total_tests = sum(r.get("total_tests", 0) for r in processed_results)
+        successful_tests = sum(r.get("successful_tests", 0) for r in processed_results)
         
-        rtrn {
-            "smmary" {
-                "total_tsts" total_tsts,
-                "sccssl_tsts" sccssl_tsts,
-                "sccss_rat" "{(sccssl_tsts/total_tsts*).}%" i total_tsts   ls "%",
-                "timstamp" dattim.now().isoormat()
+        return {
+            "summary": {
+                "total_tests": total_tests,
+                "successful_tests": successful_tests,
+                "success_rate": f"{(successful_tests/total_tests*100):.1f}%" if total_tests > 0 else "0%",
+                "timestamp": datetime.now().isoformat()
             },
-            "tst_rslts" procssd_rslts
+            "test_results": processed_results
         }
     
-    d sav_tst_rslts(sl, rslts ictstr, ny], ilnam str  "prompt_tst_rslts.json")
+    def save_test_results(self, results: Dict[str, Any], filename: str = "prompt_test_results.json"):
         """保存测试结果"""
-        try
-            with opn(ilnam, 'w', ncoding't-') as 
-                json.dmp(rslts, , nsr_asciials, indnt)
-            print("✅ 测试结果已保存到 {ilnam}")
-        xcpt xcption as 
-            print("❌ 保存测试结果aild {}")
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(results, f, ensure_ascii=False, indent=2)
+            print(f"✅ 测试结果已保存到 {filename}")
+        except Exception as e:
+            print(f"❌ 保存测试结果Failed: {e}")
     
-    d print_tst_smmary(sl, rslts ictstr, ny])
+    def print_test_summary(self, results: Dict[str, Any]):
         """打印测试摘要"""
-        smmary  rslts"smmary"]
+        summary = results["summary"]
         
-        print("n" + ""*)
-        print("📊 rompt测试结果摘要")
-        print(""*)
-        print("总测试数 {smmary'total_tsts']}")
-        print("ccss测试 {smmary'sccssl_tsts']}")
-        print("ccss率 {smmary'sccss_rat']}")
-        print("测试时间 {smmary'timstamp']}")
+        print("\n" + "="*50)
+        print("📊 Prompt测试结果摘要")
+        print("="*50)
+        print(f"总测试数: {summary['total_tests']}")
+        print(f"Success测试: {summary['successful_tests']}")
+        print(f"Success率: {summary['success_rate']}")
+        print(f"测试时间: {summary['timestamp']}")
         
-        print("n📋 详细结果")
-        or tst in rslts"tst_rslts"]
-            stats  "✅" i tst.gt("sccssl_tsts", )   ls "❌"
-            print("{stats} {tst'tst_typ']} {tst.gt('sccssl_tsts', )}/{tst.gt('total_tsts', )}")
+        print("\n📋 详细结果:")
+        for test in results["test_results"]:
+            status = "✅" if test.get("successful_tests", 0) > 0 else "❌"
+            print(f"{status} {test['test_type']}: {test.get('successful_tests', 0)}/{test.get('total_tests', 0)}")
 
 
 # 全局测试器实例
-prompt_tstr  romptstr()
+prompt_tester = PromptTester()

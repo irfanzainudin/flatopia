@@ -1,176 +1,157 @@
 """
-st  ystm or latopia
-st th  convrsation low and databas nctionality
+Test SMS System for Flatopia
+Simulates SMS conversations to test the system
 """
-
 import asyncio
-import logging
-rom cor.sms_chat_managr import sms_chat_managr
-rom cor.mlti_api_llm import lti
-rom llm_conig import __, __, _, _, 
+import sys
+import os
+import json
 
-# tp logging
-logging.basiconig(lvllogging.)
-loggr  logging.gtoggr(__nam__)
+# Add the project root to the path
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-async d tst_sms_convrsation()
-    """st complt  convrsation low"""
+from core.sms_chat_manager import sms_chat_manager
+from core.sms_database import sms_db
+
+async def test_sms_conversation():
+    """Test a complete SMS conversation flow"""
+    print("🧪 Testing SMS Conversation System")
+    print("=" * 50)
     
-    # nitializ 
-    llm  lti(
-        groq_api_ky__,
-        opnai_api_ky__,
-        primary_api"groq",
-        modl_,
-        max_tokns_,
-        tmpratr
-    )
+    # Test phone number
+    test_phone = "+1234567890"
     
-    # t  in chat managr
-    sms_chat_managr.llm  llm
-    
-    # st phon nmbr
-    phon_nmbr  "+"
-    
-    # st convrsation low
-    tst_mssags  
-        "",  # g
-        "ndian",  # ationality
-        "",  # dcation lvl (th grad)
-        "",  # ild (nginring/ch)
-        "planning ilts",  # nglish tst
-        "",  # rioritis (ll o th abov)
-        "",  # dgt (ndr  lakhs)
-        "",  # ontry slction (stralia)
-        ""  # nivrsity rcommndations
+    # Simulate the conversation from the example
+    conversation = [
+        ("16", "age_collection"),
+        ("Indian", "passport_collection"),
+        ("2", "education_collection"),
+        ("1", "field_collection"),
+        ("planning ielts", "english_test_collection"),
+        ("4", "priorities_collection"),
+        ("1", "budget_collection"),
+        ("AU", "country_details"),
+        ("yes", "university_list")
     ]
     
-    print("🚀 tarting  convrsation tst...")
-    print("" * )
+    print(f"📱 Testing with phone number: {test_phone}")
+    print()
     
-    or i, mssag in nmrat(tst_mssags, )
-        print("n📱 ssag {i} {mssag}")
+    # Start with greeting
+    response = await sms_chat_manager.process_sms(test_phone, "hi")
+    print(f"🤖 Bot: {response}")
+    print()
+    
+    # Process each step
+    for user_input, expected_stage in conversation:
+        print(f"👤 User: {user_input}")
+        response = await sms_chat_manager.process_sms(test_phone, user_input)
+        print(f"🤖 Bot: {response}")
+        print()
         
-        try
-            rspons  await sms_chat_managr.procss_sms(phon_nmbr, mssag)
-            print("🤖 spons {rspons}")
-            print("📏 ngth {ln(rspons)} charactrs")
-            
-            # hck i rspons xcds  charactrs
-            i ln(rspons)  
-                print("⚠️   spons xcds  charactrs!")
-            
-        xcpt xcption as 
-            print("❌ rror {}")
-        
-        print("-" * )
+        # Check if we're in the right stage
+        session = sms_db.get_user_session(test_phone)
+        if session:
+            current_stage = session.get('current_stage', 'unknown')
+            print(f"📊 Current stage: {current_stage}")
+        else:
+            print(f"📊 Current stage: session not found")
+        print("-" * 30)
     
-    # st sr proil rtrival
-    print("n📊 sr roil")
-    proil  sms_chat_managr.gt_sr_proil(phon_nmbr)
-    or ky, val in proil.itms()
-        print("  {ky} {val}")
+    # Get final session data
+    final_session = sms_db.get_user_session(test_phone)
+    print("📋 Final Session Data:")
+    print(json.dumps(final_session, indent=2, default=str))
     
-    # st choic history
-    print("n📝 hoic istory")
-    choics  sms_chat_managr.gt_sr_choics_history(phon_nmbr)
-    or choic in choics
-        print("  {choic'stag']} {choic'choic_val']} ({choic'timstamp']})")
-    
-    # st convrsation stats
-    print("n📈 onvrsation tats")
-    stats  sms_chat_managr.gt_convrsation_stats()
-    or ky, val in stats.itms()
-        print("  {ky} {val}")
+    # Get conversation history
+    history = sms_db.get_conversation_history(test_phone, 20)
+    print(f"\n📜 Conversation History ({len(history)} messages):")
+    for msg in history:
+        print(f"  {msg['message_type']}: {msg['content']}")
 
-async d tst_hlp_nctionality()
-    """st hlp nctionality"""
-    print("n🆘 sting lp nctionality...")
-    print("" * )
+async def test_character_limit():
+    """Test SMS character limit handling"""
+    print("\n🔤 Testing Character Limit Handling")
+    print("=" * 50)
     
-    phon_nmbr  "+"
+    test_phone = "+1234567891"
     
-    hlp_mssags  "", "hlp", "", "h"]
+    # Test with a very long message
+    long_message = "This is a very long message that should be truncated because it exceeds the 160 character limit for SMS messages. This message is intentionally long to test the truncation functionality."
     
-    or mssag in hlp_mssags
-        print("n📱 lp mssag {mssag}")
-        try
-            rspons  await sms_chat_managr.procss_sms(phon_nmbr, mssag)
-            print("🤖 spons {rspons}")
-        xcpt xcption as 
-            print("❌ rror {}")
+    response = await sms_chat_manager.process_sms(test_phone, long_message)
+    print(f"📱 Long message length: {len(long_message)}")
+    print(f"🤖 Response length: {len(response)}")
+    print(f"🤖 Response: {response}")
 
-async d tst_invalid_inpts()
-    """st invalid inpt handling"""
-    print("n❌ sting nvalid npt andling...")
-    print("" * )
+async def test_multiple_users():
+    """Test multiple users with different conversations"""
+    print("\n👥 Testing Multiple Users")
+    print("=" * 50)
     
-    phon_nmbr  "+"
-    
-    invalid_mssags  
-        "random txt",
-        "",  # nvalid ag
-        "xyz",  # nvalid option
-        "",  # mpty mssag
-        "!#$%^&*()"  # pcial charactrs
+    users = [
+        ("+1111111111", "18", "Chinese"),
+        ("+2222222222", "25", "Indian"),
+        ("+3333333333", "30", "American")
     ]
     
-    or mssag in invalid_mssags
-        print("n📱 nvalid mssag '{mssag}'")
-        try
-            rspons  await sms_chat_managr.procss_sms(phon_nmbr, mssag)
-            print("🤖 spons {rspons}")
-        xcpt xcption as 
-            print("❌ rror {}")
+    for phone, age, nationality in users:
+        print(f"\n📱 User {phone}:")
+        
+        # Start conversation
+        response = await sms_chat_manager.process_sms(phone, "hi")
+        print(f"  🤖 Bot: {response}")
+        
+        # Provide age
+        response = await sms_chat_manager.process_sms(phone, age)
+        print(f"  👤 User: {age}")
+        print(f"  🤖 Bot: {response}")
+        
+        # Provide nationality
+        response = await sms_chat_manager.process_sms(phone, nationality)
+        print(f"  👤 User: {nationality}")
+        print(f"  🤖 Bot: {response}")
 
-async d tst_charactr_limits()
-    """st charactr limit norcmnt"""
-    print("n📏 sting haractr imits...")
-    print("" * )
+async def test_error_handling():
+    """Test error handling"""
+    print("\n⚠️ Testing Error Handling")
+    print("=" * 50)
     
-    # st with a vry long mssag
-    long_mssag  "his is a vry long mssag that shold triggr th  xtraction bcas it contains mltipl pics o inormation abot stdy abroad opportnitis and immigration rqirmnts or dirnt contris"
+    test_phone = "+9999999999"
     
-    phon_nmbr  "+"
+    # Test with invalid input
+    invalid_inputs = ["", "invalid", "999", "xyz"]
     
-    print("📱 ong mssag ({ln(long_mssag)} chars) {long_mssag]}...")
-    
-    try
-        rspons  await sms_chat_managr.procss_sms(phon_nmbr, long_mssag)
-        print("🤖 spons {rspons}")
-        print("📏 spons lngth {ln(rspons)} charactrs")
-        
-        i ln(rspons)  
-            print("⚠️   spons xcds  charactrs!")
-        ls
-            print("✅ spons within  charactr limit")
-            
-    xcpt xcption as 
-        print("❌ rror {}")
+    for invalid_input in invalid_inputs:
+        print(f"👤 User: '{invalid_input}'")
+        response = await sms_chat_manager.process_sms(test_phone, invalid_input)
+        print(f"🤖 Bot: {response}")
+        print()
 
-async d main()
-    """ain tst nction"""
-    print("🧪  ystm st it")
-    print("" * )
+async def main():
+    """Run all tests"""
+    print("🚀 Starting SMS System Tests")
+    print("=" * 60)
     
-    try
-        # st main convrsation low
-        await tst_sms_convrsation()
+    try:
+        # Test basic conversation
+        await test_sms_conversation()
         
-        # st hlp nctionality
-        await tst_hlp_nctionality()
+        # Test character limits
+        await test_character_limit()
         
-        # st invalid inpts
-        await tst_invalid_inpts()
+        # Test multiple users
+        await test_multiple_users()
         
-        # st charactr limits
-        await tst_charactr_limits()
+        # Test error handling
+        await test_error_handling()
         
-        print("n✅ ll tsts compltd!")
+        print("\n✅ All tests completed successfully!")
         
-    xcpt xcption as 
-        print("n❌ st sit aild {}")
-        loggr.xcption("st sit rror")
+    except Exception as e:
+        print(f"\n❌ Test failed with error: {e}")
+        import traceback
+        traceback.print_exc()
 
-i __nam__  "__main__"
-    asyncio.rn(main())
+if __name__ == "__main__":
+    asyncio.run(main())

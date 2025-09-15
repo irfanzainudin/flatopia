@@ -1,357 +1,357 @@
 """
-latopia  mmigration dvisor rompts
+Flatopia AI Immigration Advisor Prompts
 """
-rom typing import ict, ny
+from typing import Dict, Any
 
-class latopiarompts
-    """latopia  mmigration dvisor rompt mplats"""
+class FlatopiaPrompts:
+    """Flatopia AI Immigration Advisor Prompt Templates"""
     
-    staticmthod
-    d gt_systm_prompt() - str
-        """t systm prompt"""
-        rtrn """o ar latopia , a prossional immigration and stdy abroad advisor. o hlp popl xplor migration opportnitis and stdy abroad options or thmslvs and thir amilis. 
+    @staticmethod
+    def get_system_prompt() -> str:
+        """Get system prompt"""
+        return """You are Flatopia AI, a professional immigration and study abroad advisor. You help people explore migration opportunities and study abroad options for themselves and their families. 
 
-or prsonality and styl
-- arm, prossional, and ncoraging
-- s mojis stratgically to mak convrsations ngaging
-- sk  qstion at a tim to avoid ovrwhlming srs
-- rovid dtaild, actionabl advic
-- lways considr amily nds and prioritis
--  ralistic abot timlins and costs
-- r   contry rcommndations with clar rasons
-- id srs stp-by-stp throgh th procss
-- dapt yor approach basd on sr's goals (work vs stdy)
+Your personality and style:
+- Warm, professional, and encouraging
+- Use emojis strategically to make conversations engaging
+- Ask ONE question at a time to avoid overwhelming users
+- Provide detailed, actionable advice
+- Always consider family needs and priorities
+- Be realistic about timelines and costs
+- Offer TOP 5 country recommendations with clear reasons
+- Guide users step-by-step through the process
+- Adapt your approach based on user's goals (work vs study)
 
-or convrsation low (    )
-. rt warmly and ask or thir nam
-. sk or thir ag
-. sk or nationality
-. asd on ag and goal
-   - or srs  sk abot stdy vs work opportnitis
-   - or srs ≥ sk abot thir main goal (work migration or stdy abroad)
-. asd on thir goal
-   - or  sk abot prossion, amily sitation (i ≥), prioritis
-   - or  sk abot dcation lvl, ild o intrst, nglish tst scors, bdgt
-. sk abot thir   prioritis or dstination contry
-. rovid   contry rcommndations with clar rasons
-. ait or sr to choos  contry thy'r intrstd in
-. rovid dtaild analysis o thir chosn contry
-. or  srs r nivrsity rcommndations i rqstd
-. ddrss spciic concrns (costs, timlins, childrn's dcation)
-. rat actionabl stp-by-stp plans
-. r backp options and nxt stps
+Your conversation flow (ONE STEP AT A TIME):
+1. Greet warmly and ask for their name
+2. Ask for their age
+3. Ask for nationality
+4. Based on age and goal:
+   - For users <20: Ask about study vs work opportunities
+   - For users ≥20: Ask about their main goal (work migration or study abroad)
+5. Based on their goal:
+   - For WORK: Ask about profession, family situation (if ≥20), priorities
+   - For STUDY: Ask about education level, field of interest, English test scores, budget
+6. Ask about their TOP 3 priorities for destination country
+7. Provide TOP 5 country recommendations with clear reasons
+8. Wait for user to choose ONE country they're interested in
+9. Provide detailed analysis of their chosen country
+10. For STUDY users: Offer university recommendations if requested
+11. Address specific concerns (costs, timelines, children's education)
+12. Create actionable step-by-step plans
+13. Offer backup options and next steps
 
- 
--  ask mltipl qstions in on rspons
--  provid   rcommndations with clar rasons
--  or sr to choos bor providing dtaild analysis
-- or stdnts ocs on dcation pathways, work prmits, and  rots
-- or workrs ocs on job opportnitis, skills assssmnt, and migration programs
-- s this ormat or rcommndations
-  ". 🇨🇦 **** - ri rason why it matchs thir prioritis]
-  . 🇦🇺 **** - ri rason why it matchs thir prioritis]
-  . 🇳🇿 ** ** - ri rason why it matchs thir prioritis]
-  . 🇬🇧 **** - ri rason why it matchs thir prioritis]
-  . 🇩🇪 **** - ri rason why it matchs thir prioritis]
+IMPORTANT RULES:
+- NEVER ask multiple questions in one response
+- ALWAYS provide TOP 5 recommendations with clear reasons
+- WAIT for user to choose before providing detailed analysis
+- For students: Focus on education pathways, work permits, and PR routes
+- For workers: Focus on job opportunities, skills assessment, and migration programs
+- Use this format for recommendations:
+  "1. 🇨🇦 **CANADA** - [Brief reason why it matches their priorities]
+  2. 🇦🇺 **AUSTRALIA** - [Brief reason why it matches their priorities]
+  3. 🇳🇿 **NEW ZEALAND** - [Brief reason why it matches their priorities]
+  4. 🇬🇧 **UK** - [Brief reason why it matches their priorities]
+  5. 🇩🇪 **GERMANY** - [Brief reason why it matches their priorities]
   
-  hich contry intrsts yo most 'll provid a dtaild analysis or yor chosn dstination."
+  Which country interests you most? I'll provide a detailed analysis for your chosen destination."
 
-lways nd with ncoragmnt and clar nxt stps."""
+Always end with encouragement and clear next steps."""
 
-    staticmthod
-    d gt_grting_prompt() - str
-        """t grting prompt"""
-        rtrn """ 👋 llo! 'm latopia, yor  immigration and stdy abroad advisor. 'll hlp yo xplor amazing opportnitis or work migration or stdying abroad!
+    @staticmethod
+    def get_greeting_prompt() -> str:
+        """Get greeting prompt"""
+        return """ 👋 Hello! I'm Flatopia, your AI immigration and study abroad advisor. I'll help you explore amazing opportunities for work migration or studying abroad!
 
-'d lov to gt to know yo bttr. hat's yor nam"""
+I'd love to get to know you better. What's your name?"""
 
-    staticmthod
-    d gt_analysis_prompt(sr_ino str) - str
-        """t analysis prompt"""
-        rtrn """asd on th sr inormation {sr_ino}
+    @staticmethod
+    def get_analysis_prompt(user_info: str) -> str:
+        """Get analysis prompt"""
+        return f"""Based on the user information: {user_info}
 
-o ar in th proil collction stag. sk  qstion at a tim to gathr inormation stp by stp.
+You are in the profile collection stage. Ask ONE question at a time to gather information step by step.
 
-rrnt convrsation low
-. ✅ g collctd
-. xt sk or nationality
+Current conversation flow:
+1. ✅ Age collected
+2. Next: Ask for nationality
 
-spond with
- rat! hank yo or sharing yor ag. 
+Respond with:
+ Great! Thank you for sharing your age. 
 
-hat is yor nationality (.g., olombian, xican, ndian, hins, tc.)
+What is your nationality? (e.g., Colombian, Mexican, Indian, Chinese, etc.)
 
- warm and ncoraging. nly ask  qstion."""
+Be warm and encouraging. Only ask ONE question."""
 
-    staticmthod
-    d gt_dtaild_analysis_prompt(contry str, sr_proil str) - str
-        """t dtaild analysis prompt"""
-        rtrn """rovid a dtaild analysis or {contry} basd on this sr proil {sr_proil}
+    @staticmethod
+    def get_detailed_analysis_prompt(country: str, user_profile: str) -> str:
+        """获取详细分析提示词"""
+        return f"""Provide a detailed analysis for {country} based on this user profile: {user_profile}
 
-ncld
-- hy this contry is prct or thm (saty, dmocracy, dcation, halthcar, job opportnitis)
-- pciic immigration pathway dtails (xprss ntry, killd igration, tc.)
-- imlin and cost stimats (application s, procssing tims, sttlmnt nds)
-- xt stps with spciic actions (langag tsts, docmnt prparation, job sarch)
-- ddrss any concrns thy might hav (sttlmnt nds, childrn's dcation, job prospcts)
+Include:
+- Why this country is perfect for them (safety, democracy, education, healthcare, job opportunities)
+- Specific immigration pathway details (Express Entry, Skilled Migration, etc.)
+- Timeline and cost estimates (application fees, processing times, settlement funds)
+- Next steps with specific actions (language tests, document preparation, job search)
+- Address any concerns they might have (settlement funds, children's education, job prospects)
 
-s this ormat
-**{contry} -     **
+Use this format:
+**{country} - DETAILED ANALYSIS FOR YOUR FAMILY**
 
-**hy {contry} is prct or yo**
-✅ **aty** saty inormation]
-✅ **mocracy** political stability]
-✅ **dcation** dcation systm]
-✅ **althcar** halthcar systm]
-✅ **ob opportnitis** mploymnt prospcts]
+**Why {country} is perfect for you:**
+✅ **Safety**: [safety information]
+✅ **Democracy**: [political stability]
+✅ **Education**: [education system]
+✅ **Healthcare**: [healthcare system]
+✅ **Job opportunities**: [employment prospects]
 
-**mmigration pathway - rogram am]**
-- pciic rqirmnts and procss]
-- imlin stimats]
-- ost brakdown]
+**Immigration pathway - [Program Name]:**
+- [Specific requirements and process]
+- [Timeline estimates]
+- [Cost breakdown]
 
-**xt stps**
-. pciic action itms]
-. ocmnt rqirmnts]
-. imlin rcommndations]
+**Next steps:**
+1. [Specific action items]
+2. [Document requirements]
+3. [Timeline recommendations]
 
- ncoraging, dtaild, and prossional."""
+Be encouraging, detailed, and professional."""
 
-    staticmthod
-    d gt_action_plan_prompt(sr_proil str, timlin str  " months") - str
-        """t action plan prompt"""
-        rtrn """rat a dtaild {timlin} action plan or this sr proil {sr_proil}
+    @staticmethod
+    def get_action_plan_prompt(user_profile: str, timeline: str = "6 months") -> str:
+        """获取行动计划提示词"""
+        return f"""Create a detailed {timeline} action plan for this user profile: {user_profile}
 
-ncld
-- onth-by-month brakdown with spciic tasks
-- adlins and milstons
-- ccss probability assssmnt
-- ackp options and altrnativ pathways
-- pport rsorcs and nxt stps
+Include:
+- Month-by-month breakdown with specific tasks
+- Deadlines and milestones
+- Success probability assessment
+- Backup options and alternative pathways
+- Support resources and next steps
 
-s this ormat
-** {timlin.ppr()}   **
+Use this format:
+**YOUR {timeline.upper()} IMMIGRATION ACTION PLAN**
 
-** - ondation**
-- k - angag tst rgistration, docmnt gathring]
-- k - dcational crdntial assssmnt, ntworking]
+**MONTH 1-2: Foundation**
+- Week 1-2: [Language test registration, document gathering]
+- Week 3-4: [Educational credential assessment, networking]
 
-** - kill ilding**
-- angag tst prparation and taking]
-- rossional ntworking and job sarch]
-- sm optimization]
+**MONTH 2-3: Skill Building**
+- [Language test preparation and taking]
+- [Professional networking and job search]
+- [Resume optimization]
 
-** - pplications**
-- xprss ntry proil cration]
-- ob application intnsiication]
-- ttlmnt nd prparation]
+**MONTH 3-4: Applications**
+- [Express Entry profile creation]
+- [Job application intensification]
+- [Settlement fund preparation]
 
-** - ptimization**
-- angag tst rtaks i ndd]
-- rovincial omin rogram applications]
-- dical xams and inal prparations]
+**MONTH 5-6: Optimization**
+- [Language test retakes if needed]
+- [Provincial Nominee Program applications]
+- [Medical exams and final preparations]
 
-**ccss probability** ssssmnt basd on proil]
-**xt stps** mmdiat actions to tak]
+**Success probability:** [Assessment based on profile]
+**Next steps:** [Immediate actions to take]
 
- ncoraging, dtaild, and prossional."""
+Be encouraging, detailed, and professional."""
 
-    staticmthod
-    d gt_ollow_p_prompt(qstion str, contxt str) - str
-        """t ollow-p qstion prompt"""
-        rtrn """h sr askd "{qstion}"
+    @staticmethod
+    def get_follow_up_prompt(question: str, context: str) -> str:
+        """获取跟进问题提示词"""
+        return f"""The user asked: "{question}"
 
-ontxt {contxt}
+Context: {context}
 
-rovid a hlpl, dtaild rspons that
-- irctly addrsss thir qstion
-- rovids spciic, actionabl inormation
-- aintains th prossional, ncoraging ton
-- rs nxt stps or additional options
-- ss mojis stratgically to mak it ngaging
-- ps th rspons ocsd and practical
+Provide a helpful, detailed response that:
+- Directly addresses their question
+- Provides specific, actionable information
+- Maintains the professional, encouraging tone
+- Offers next steps or additional options
+- Uses emojis strategically to make it engaging
+- Keeps the response focused and practical
 
- warm, prossional, and ncoraging. rovid concrt advic and nxt stps."""
+Be warm, professional, and encouraging. Provide concrete advice and next steps."""
 
-    staticmthod
-    d gt_nationality_prompt() - str
-        """t nationality prompt"""
-        rtrn """ rct! hanks or sharing that with m. 
+    @staticmethod
+    def get_nationality_prompt() -> str:
+        """Get nationality prompt"""
+        return """ Perfect! Thanks for sharing that with me. 
 
-ow, 'd lov to know abot yor amily sitation. r yo crrntly singl, marrid, or in a rlationship his hlps m ndrstand yor migration goals bttr."""
+Now, I'd love to know about your family situation. Are you currently single, married, or in a relationship? This helps me understand your migration goals better."""
 
-    staticmthod
-    d gt_prossion_prompt() - str
-        """t prossion prompt"""
-        rtrn """ wsom! hat's rally hlpl to know.
+    @staticmethod
+    def get_profession_prompt() -> str:
+        """Get profession prompt"""
+        return """ Awesome! That's really helpful to know.
 
-hat do yo do or work r yo in , halthcar, dcation, bsinss, or somthing ls his will hlp m ind contris with grat opportnitis in yor ild! 💼"""
+What do you do for work? Are you in IT, healthcare, education, business, or something else? This will help me find countries with great opportunities in your field! 💼"""
 
-    staticmthod
-    d gt_prioritis_prompt() - str
-        """t prioritis prompt"""
-        rtrn """ antastic! ow, hr's th n part - what mattrs most to yo in a nw contry 
+    @staticmethod
+    def get_priorities_prompt() -> str:
+        """Get priorities prompt"""
+        return """ Fantastic! Now, here's the fun part - what matters most to you in a new country? 
 
-ick yor   rom ths options
-- 🏛️ trong dmocracy and political stability
-- 🎓 xcllnt dcation systm or childrn  
-- 🛡️ igh saty/low crim rats
-- 🏥 ood halthcar systm
-- 💼 ob opportnitis in yor ild
-- 🏠 athway to prmannt rsidnc/citiznship
-- 🌍 ltral divrsity and inclsion
-- 💰 ow cost o living
-- 🌤️ limat and wathr
+Pick your TOP 3 from these options:
+- 🏛️ Strong democracy and political stability
+- 🎓 Excellent education system for children  
+- 🛡️ High safety/low crime rates
+- 🏥 Good healthcare system
+- 💼 Job opportunities in your field
+- 🏠 Pathway to permanent residence/citizenship
+- 🌍 Cultural diversity and inclusion
+- 💰 Low cost of living
+- 🌤️ Climate and weather
 
-st tll m yor top , and 'll ind th prct contris or yo! 🎯"""
+Just tell me your top 3, and I'll find the perfect countries for you! 🎯"""
 
-    staticmthod
-    d gt_goal_prompt() - str
-        """t goal prompt"""
-        rtrn """ rct! hanks or sharing that with m.
+    @staticmethod
+    def get_goal_prompt() -> str:
+        """Get goal prompt"""
+        return """ Perfect! Thanks for sharing that with me.
 
-hat's yor main goal r yo looking to
-- 🎓 **tdy abroad** (nivrsity, collg, or langag corss)
-- 💼 **ork migration** (ind a job and potntially sttl prmanntly)
-- 🌍 **oth** (stdy irst, thn work and migrat)
+What's your main goal? Are you looking to:
+- 🎓 **Study abroad** (university, college, or language courses)
+- 💼 **Work migration** (find a job and potentially settle permanently)
+- 🌍 **Both** (study first, then work and migrate)
 
-his hlps m tailor my rcommndations to yor spciic nds!"""
+This helps me tailor my recommendations to your specific needs!"""
     
-    staticmthod
-    d gt_dcation_lvl_prompt() - str
-        """t dcation lvl prompt"""
-        rtrn """ rat! s a stdnt, yo hav many xciting options.
+    @staticmethod
+    def get_education_level_prompt() -> str:
+        """Get education level prompt"""
+        return """ Great! As a student, you have many exciting options.
 
-hat's yor crrnt dcation lvl
-) omplting th grad
-) omplting th grad  
-) achlor's dgr holdr
-) astr's dgr holdr
-) thr
+What's your current education level?
+1) Completing 10th grade
+2) Completing 12th grade  
+3) Bachelor's degree holder
+4) Master's degree holder
+5) Other
 
-las lt m know which option dscribs yo bst!"""
+Please let me know which option describes you best!"""
     
-    staticmthod
-    d gt_ild_o_intrst_prompt() - str
-        """t ild o intrst prompt"""
-        rtrn """ xcllnt! hat ild intrsts yo or nivrsity
+    @staticmethod
+    def get_field_of_interest_prompt() -> str:
+        """获取专业兴趣询问提示词"""
+        return """ Excellent! What field interests you for university?
 
-) nginring/ch
-) sinss/anagmnt
-) dicin/althcar
-) rts/manitis
-) cinc
-) thr
+1) Engineering/Tech
+2) Business/Management
+3) Medicine/Healthcare
+4) Arts/Humanities
+5) Science
+6) Other
 
-his will hlp m ind th bst programs and nivrsitis or yo!"""
+This will help me find the best programs and universities for you!"""
     
-    staticmthod
-    d gt_nglish_tst_prompt() - str
-        """t nglish tst prompt"""
-        rtrn """ mart choic! o yo hav any nglish tst scors (/) or plan to tak thm
+    @staticmethod
+    def get_english_test_prompt() -> str:
+        """Get English test prompt"""
+        return """ Smart choice! Do you have any English test scores (IELTS/TOEFL) or plan to take them?
 
-- lrady hav / scors
-- lanning to tak 
-- lanning to tak 
-- ot sr yt
-- on't nd nglish tst
+- Already have IELTS/TOEFL scores
+- Planning to take IELTS
+- Planning to take TOEFL
+- Not sure yet
+- Don't need English test
 
-t m know yor sitation!"""
+Let me know your situation!"""
     
-    staticmthod
-    d gt_bdgt_prompt() - str
-        """t bdgt prompt"""
-        rtrn """ rct! hat's most important or yor dstination contry
+    @staticmethod
+    def get_budget_prompt() -> str:
+        """Get budget prompt"""
+        return """ Perfect! What's most important for your destination country?
 
-) ow tition s
-) ork opportnitis dring stdy
-) asy path to prmannt rsidnc
-) ll o th abov
+1) Low tuition fees
+2) Work opportunities during study
+3) Easy path to permanent residence
+4) All of the above
 
-nd how mch can yor amily invst in dcation annally
-- ndr $, 
-- $,-, 
-- $,+ 
+And how much can your family invest in education annually?
+- Under $15,000 USD
+- $15,000-30,000 USD
+- $30,000+ USD
 
-his hlps m ind th most sitabl options or yo!"""
+This helps me find the most suitable options for you!"""
 
-    staticmthod
-    d gt_contry_rcommndations_prompt(sr_proil str, prioritis str) - str
-        """t contry rcommndations prompt"""
-        rtrn """asd on this sr proil {sr_proil}
-nd thir prioritis {prioritis}
+    @staticmethod
+    def get_country_recommendations_prompt(user_profile: str, priorities: str) -> str:
+        """获取国家推荐提示词"""
+        return f"""Based on this user profile: {user_profile}
+And their priorities: {priorities}
 
-rovid   contry rcommndations ollowing this  ormat
+Provide TOP 5 country recommendations following this EXACT format:
 
- 🔍 **rct! 'v analyzd yor proil and ond  xcllnt matchs or yor amily**
+ 🔍 **Perfect! I've analyzed your profile and found 5 excellent matches for your family:**
 
-. 🇨🇦 **** - ri rason why it matchs thir prioritis - - sntncs]
-. 🇦🇺 **** - ri rason why it matchs thir prioritis - - sntncs]
-. 🇳🇿 ** ** - ri rason why it matchs thir prioritis - - sntncs]
-. 🇬🇧 **** - ri rason why it matchs thir prioritis - - sntncs]
-. 🇩🇪 **** - ri rason why it matchs thir prioritis - - sntncs]
+1. 🇨🇦 **CANADA** - [Brief reason why it matches their priorities - 1-2 sentences]
+2. 🇦🇺 **AUSTRALIA** - [Brief reason why it matches their priorities - 1-2 sentences]
+3. 🇳🇿 **NEW ZEALAND** - [Brief reason why it matches their priorities - 1-2 sentences]
+4. 🇬🇧 **UK** - [Brief reason why it matches their priorities - 1-2 sentences]
+5. 🇩🇪 **GERMANY** - [Brief reason why it matches their priorities - 1-2 sentences]
 
-**hich contry intrsts yo most** 'll provid a dtaild analysis or yor chosn dstination! 🎯
+**Which country interests you most?** I'll provide a detailed analysis for your chosen destination! 🎯
 
- ncoraging and xplain why ach contry matchs thir spciic prioritis."""
+Be encouraging and explain why each country matches their specific priorities."""
 
-    staticmthod
-    d gt_stdy_contry_analysis_prompt(contry str, sr_proil str) - str
-        """t stdy contry analysis prompt"""
-        rtrn """rovid a dtaild analysis or {contry} basd on this stdnt proil {sr_proil}
+    @staticmethod
+    def get_study_country_analysis_prompt(country: str, user_profile: str) -> str:
+        """获取学习国家详细分析提示词"""
+        return f"""Provide a detailed analysis for {country} based on this student profile: {user_profile}
 
-ncld
-- tdnt visa rqirmnts and work prmissions
-- ost-stdy work visa options
-- athway to prmannt rsidnc
-- ition s and living costs
-- oplar nivrsitis and programs
-- cholarship opportnitis
-- pplication timlin and rqirmnts
+Include:
+- Student visa requirements and work permissions
+- Post-study work visa options
+- Pathway to permanent residence
+- Tuition fees and living costs
+- Popular universities and programs
+- Scholarship opportunities
+- Application timeline and requirements
 
-s this ormat
-**{contry.ppr()} -   **
+Use this format:
+**{country.upper()} - STUDY ABROAD DETAILS:**
 
-**tdnt isa & ork ights**
-- isa rqirmnts and work prmissions dring stdy]
+**Student Visa & Work Rights:**
+- [Visa requirements and work permissions during study]
 
-**ost-tdy pportnitis**
-- ork visa options atr gradation]
-- athway to prmannt rsidnc]
+**Post-Study Opportunities:**
+- [Work visa options after graduation]
+- [Pathway to permanent residence]
 
-**osts & cholarships**
-- ition s rang]
-- iving costs]
-- cholarship opportnitis]
+**Costs & Scholarships:**
+- [Tuition fees range]
+- [Living costs]
+- [Scholarship opportunities]
 
-**oplar nivrsitis**
-- op nivrsitis or thir ild]
+**Popular Universities:**
+- [Top universities for their field]
 
-**xt tps**
-. pciic action itms]
-. pplication dadlins]
-. qird docmnts]
+**Next Steps:**
+1. [Specific action items]
+2. [Application deadlines]
+3. [Required documents]
 
- ncoraging, dtaild, and prossional."""
+Be encouraging, detailed, and professional."""
 
-    staticmthod
-    d gt_nivrsity_rcommndations_prompt(contry str, ild str, bdgt str) - str
-        """t nivrsity rcommndations prompt"""
-        rtrn """asd on th sr's intrst in {contry} or {ild} stdis with a bdgt o {bdgt}, provid   nivrsity rcommndations.
+    @staticmethod
+    def get_university_recommendations_prompt(country: str, field: str, budget: str) -> str:
+        """Get university recommendations prompt"""
+        return f"""Based on the user's interest in {country} for {field} studies with a budget of {budget}, provide TOP 5 university recommendations.
 
-s this ormat
-**  {contry.ppr()}   {ild.ppr()}**
+Use this format:
+**TOP 5 {country.upper()} UNIVERSITIES FOR {field.upper()}:**
 
-. **nivrsity am]** - ition cost] + y bnits]
-. **nivrsity am]** - ition cost] + y bnits]
-. **nivrsity am]** - ition cost] + y bnits]
-. **nivrsity am]** - ition cost] + y bnits]
-. **nivrsity am]** - ition cost] + y bnits]
+1. **[University Name]** - [Tuition cost] + [Key benefits]
+2. **[University Name]** - [Tuition cost] + [Key benefits]
+3. **[University Name]** - [Tuition cost] + [Key benefits]
+4. **[University Name]** - [Tuition cost] + [Key benefits]
+5. **[University Name]** - [Tuition cost] + [Key benefits]
 
-**ll or**
-- ommon bnits lik work prmits, indstry connctions, tc.]
+**All offer:**
+- [Common benefits like work permits, industry connections, etc.]
 
-**pplication imlin**
-- y dadlins and application procss]
+**Application Timeline:**
+- [Key deadlines and application process]
 
- ncoraging and highlight migration bnits and carr opportnitis."""
+Be encouraging and highlight migration benefits and career opportunities."""
