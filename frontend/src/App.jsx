@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import FlatEarthSocietyLogo from '/flat_earth_society.png';
+import FlatopiaLogo from '/flatopia-logo.png';
 import { Send } from "lucide-react";
 import { langOptions, langData } from './constants';
 
