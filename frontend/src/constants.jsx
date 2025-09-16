@@ -14,13 +14,14 @@ export const langData = {
         registered: "🎉 Registration successful! Start chatting with Flatopia.",
         mockReply: "🤖 Flatopia says: ",
         recommendations: [
-            "What are some UK visa pathways available for a mid-career professional?",
-            "How safe is Chicago compared to Sydney?",
-            "Show me the recent news about the economy of Canada.",
-            "How is the quality of life in Auckland?",
+            "I'm 25 with a CS Bachelors degree. What are my best work visa options?",
+            "Family of 4 seeking safety and good schools. Where can we move to?",
+            "Best countries for an MBA + permanent residency pathway?",
+            "I'm from Nigeria - what English-speaking visas am I eligible for?",
         ],
         placeholder: "Type your message..."
     },
+
     zh: {
         askPhone: "📱 请输入您的手机号继续：",
         invalidPhone: "⚠️ 您必须输入有效的10位手机号。",
