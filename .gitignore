@@ -3,6 +3,7 @@
 *.log
 __pycache__/
 .DS_Store
+.vscode/
 Thumbs.db
 
 # Logs
@@ -10,3 +11,6 @@ Thumbs.db
 
 .env
 **/.env
+# pixi environments
+.pixi
+!.pixi/config.toml
