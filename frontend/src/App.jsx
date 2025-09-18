@@ -1,9 +1,23 @@
 import DOMPurify from "dompurify";
 import { Send } from "lucide-react";
 import { marked } from "marked";
-import { useEffect, useRef, useState } from "react";
+import Prism from "prismjs";
+import "prismjs/plugins/autoloader/prism-autoloader";
+import "prismjs/themes/prism-tomorrow.css";
+import { useMemo, useEffect, useRef, useState } from "react";
 import { langData, langOptions } from './constants';
 import FlatopiaLogo from '/flatopia-logo.png';
+
+Prism.plugins.autoloader.languages_path = "https://unpkg.com/prismjs/components/";
+
+marked.setOptions({
+  highlight(code, lang) {
+    if (lang && Prism.languages[lang]) {
+      return Prism.highlight(code, Prism.languages[lang], lang);
+    }
+    return code; // return unhighlighted code if language not found
+  },
+});
 
 export default function App() {
   const [message, setMessage] = useState("");
@@ -12,7 +26,9 @@ export default function App() {
   const bottomRef = useRef(null);
   const textareaRef = useRef(null);
 
-  const recommendations = langData[currentLang].recommendations;
+  const recommendations = useMemo(() =>
+    langData[currentLang].recommendations, [currentLang]
+  );
 
   const hasMessages = chatHistory.length > 0;
 
@@ -28,6 +44,23 @@ export default function App() {
     window.addEventListener("resize", handleResize);
 
     return () => window.removeEventListener("resize", handleResize);
+  }, [chatHistory]);
+
+  useEffect(() => {
+    Prism.highlightAll();
+    document.querySelectorAll('table:not(.not-prose)').forEach(tablesWithoutBorder => {
+      const div = document.createElement('div');
+      div.classList.add('overflow-x-auto', 'border', 'border-gray-400', 'rounded-lg', 'self-center');
+      tablesWithoutBorder.before(div);
+      div.appendChild(tablesWithoutBorder);
+      tablesWithoutBorder.classList.add('table-auto', 'w-fit', 'not-prose', '[&_td]:px-3', '[&_td]:py-3', '[&_th]:px-3', '[&_th]:py-3');
+      const thead = tablesWithoutBorder.querySelector('thead');
+      thead?.classList.add('dark:bg-gray-500');
+      thead?.querySelectorAll('th').forEach(th => { th.classList.add('text-white') });
+      document.querySelectorAll('pre:not(.w-fit)').forEach(pre => {
+        pre.classList.add('w-fit', 'max-w-full');
+      });
+    });
   }, [chatHistory]);
 
   const handleReplaceMessage = (newMessage) => {
@@ -86,7 +119,7 @@ export default function App() {
     return aiText;
   };
 
-  // ---------------- 发送消息 ----------------
+  // ---------------- Send ----------------
   const handleSend = async () => {
     const msg = message.trim();
     if (!msg) return;
@@ -149,9 +182,9 @@ export default function App() {
               {chatHistory.map((msg, idx) => (
                 <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div
-                    className={`px-4 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words max-w-[75%] ${msg.role === "user"
+                    className={`flex flex-col px-4 py-2 rounded-2xl text-sm break-words max-w-[75%] ${msg.role === "user"
                       ? "bg-blue-500 text-white rounded-br-none"
-                      : "bg-gray-200 text-gray-800 rounded-bl-none prose prose-sm max-w-none"
+                      : "bg-gray-200 rounded-bl-none prose"
                       }`}
                     {...(msg.role === "bot"
                       ? { dangerouslySetInnerHTML: { __html: DOMPurify.sanitize(marked.parse(msg.text)) } }

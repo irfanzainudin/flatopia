@@ -19,7 +19,7 @@ channels = ["conda-forge"]
 platforms = ["win-64"]
 
 [tool.pixi.pypi-dependencies]
-flatopia = { path = ".", editable = true }
+# flatopia = { path = ".", editable = true }
 
 [tool.pixi.feature.gpu.system-requirements]
 cuda = "12.9"
