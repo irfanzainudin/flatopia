@@ -1,7 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import FlatopiaLogo from '/flatopia-logo.png';
+import DOMPurify from "dompurify";
 import { Send } from "lucide-react";
-import { langOptions, langData } from './constants';
+import { marked } from "marked";
+import { useEffect, useRef, useState } from "react";
+import { langData, langOptions } from './constants';
+import FlatopiaLogo from '/flatopia-logo.png';
 
 export default function App() {
   const [message, setMessage] = useState("");
@@ -145,20 +147,19 @@ export default function App() {
           <>
             <div className="flex-1 overflow-y-auto p-6 space-y-3">
               {chatHistory.map((msg, idx) => (
-                <div
-                  key={idx}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                >
+                <div key={idx} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                   <div
                     className={`px-4 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words max-w-[75%] ${msg.role === "user"
                       ? "bg-blue-500 text-white rounded-br-none"
-                      : "bg-gray-200 text-gray-800 rounded-bl-none"
+                      : "bg-gray-200 text-gray-800 rounded-bl-none prose prose-sm max-w-none"
                       }`}
-                  >
-                    {msg.text}
-                  </div>
+                    {...(msg.role === "bot"
+                      ? { dangerouslySetInnerHTML: { __html: DOMPurify.sanitize(marked.parse(msg.text)) } }
+                      : { children: msg.text })}
+                  />
                 </div>
               ))}
+
               <div ref={bottomRef} />
             </div>
           </>
