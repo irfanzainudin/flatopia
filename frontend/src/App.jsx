@@ -1,10 +1,10 @@
 import DOMPurify from "dompurify";
+import Prism from "https://esm.sh/prismjs";
 import { Send } from "lucide-react";
 import { marked } from "marked";
-import Prism from "prismjs";
 import "prismjs/plugins/autoloader/prism-autoloader";
 import "prismjs/themes/prism-tomorrow.css";
-import { useMemo, useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { langData, langOptions } from './constants';
 import FlatopiaLogo from '/flatopia-logo.png';
 
@@ -32,7 +32,7 @@ export default function App() {
 
   const hasMessages = chatHistory.length > 0;
 
-  // 自动滚动
+  // Auto-scroll to bottom on new message or window resize
   useEffect(() => {
     const scrollToBottom = (behavior = "smooth") => {
       bottomRef.current?.scrollIntoView({ behavior, block: "end" });
